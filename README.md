@@ -26,6 +26,8 @@
 
 ## 📰 What's New
 
+> **v0.4.5** (2026-05-13) — **First-class reasoning-model support** — `reasoning_effort='xhigh'` actually on the wire for GPT-5.5 / o1 / o3 / o4 / DeepSeek-thinking | **Thinking content blocks** end-to-end (fixes #161) | **Multi-tool result grouping** fix (`tool_use_ids_without_tool_result`) | **DeepSeek V4 Pro** + **Xiaomi MiMo** + **Qwen 3.6** + **Doubao** in `/setup` (options 7-10) | **Claude Code object-style hooks** parser | Default model bumped to **Claude Opus 4.7 + GPT-5.5** | REPL input hardening: multi-line wrap no longer duplicates, Cmd+V multi-line paste no longer auto-submits, CJK chars at wrap boundary render correctly | CI workflow added | Credits: [@GO-player-hhy](https://github.com/GO-player-hhy) (#186), [@Jxy-yxJ](https://github.com/Jxy-yxJ) (#171), [@GetIT-Sunday](https://github.com/GetIT-Sunday) (#216 partial)
+
 > **v0.4.4** (2026-04-20) — **`/setup` no longer forces Bearer mode for Anthropic + custom URL** (fixes ModelScope / Claude-Code proxies like `code.newcli.com`) | Provider-aware proxy URL hints in `/setup` (OpenRouter / DeepSeek / DashScope / ModelScope / ...) | Stale state no longer leaks across provider switches | Custom base URL preserved across `/setup` re-runs | LlmReview falls back to configured reviewer when executor guesses a wrong model | Fixes #158, #162
 
 > **v0.4.3** (2026-04-17) — **Third-party Anthropic-compat proxy support** (Bedrock etc.) — skip beta flags that proxies reject | Propagate custom base URL to `anthropic` provider (not just `anthropic-compat`) | Credit [@screw-44](https://github.com/screw-44)
