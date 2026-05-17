@@ -1,0 +1,4 @@
+data/raw/
+data/intermediate/
+data/final/
+run_state/

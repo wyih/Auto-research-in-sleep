@@ -1,0 +1,4 @@
+interface:
+  display_name: "Stata Analysis Bridge"
+  short_description: "Run Stata analyses for business papers"
+  default_prompt: "Use $stata-analysis-bridge to run the empirical design in Stata and produce tables, figures, logs, and a results summary."

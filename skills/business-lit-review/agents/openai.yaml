@@ -1,0 +1,4 @@
+interface:
+  display_name: "Business Lit Review"
+  short_description: "Map business, accounting, finance, management, and economics literature with journal-aware source discipline."
+  default_prompt: "Review the literature for this business research topic and identify the closest papers, gaps, and journal positioning."

@@ -231,6 +231,17 @@ else
 fi
 ```
 
+Optional helper guard pattern:
+
+```bash
+DEEPXIV_SCRIPT="$DEEPXIV_FETCHER"
+if [ -n "$DEEPXIV_SCRIPT" ]; then
+    python3 "$DEEPXIV_SCRIPT" search "QUERY" --max 10
+else
+    echo "DeepXiv unavailable: helper unresolved; skipping this optional source." >&2
+fi
+```
+
 If `deepxiv_fetch.py` or the `deepxiv` CLI is unavailable, skip this source gracefully and continue with the remaining requested sources.
 
 **De-duplication against other sources**:
@@ -270,6 +281,13 @@ if [ -n "$EXA_FETCHER" ]; then
 else
   echo "Exa unavailable: \$EXA_FETCHER unresolved; skipping this optional source." >&2
 fi
+```
+
+Optional helper guard pattern:
+
+```bash
+EXA_SCRIPT="$EXA_FETCHER"
+[ -n "$EXA_SCRIPT" ] && python3 "$EXA_SCRIPT" search "QUERY" --max 10 --content highlights || echo "Exa unavailable: helper unresolved; skipping this optional source." >&2
 ```
 
 If `exa_search.py` or the `exa-py` SDK is unavailable, skip this source gracefully and continue with the remaining requested sources.

@@ -41,6 +41,7 @@ Parameters pass through workflow chains automatically.
 ### Full Pipeline
 ```
 /research-pipeline "direction" → W1 → W1.5 → W2 → W3
+/business-research-pipeline "question" → literature → idea → design → analysis → claims → paper
 ```
 
 ### Individual Workflows
@@ -52,6 +53,29 @@ Parameters pass through workflow chains automatically.
 | W2: Auto Review | `/auto-review-loop "scope"` | paper + results | improved paper | Iterative improvement |
 | W3: Paper Writing | `/paper-writing "NARRATIVE_REPORT.md"` | narrative report | paper/main.pdf | Ready to write |
 | W4: Rebuttal | `/rebuttal "paper/ + reviews"` | paper + reviews | PASTE_READY.txt | Reviews received |
+
+### Business / Accounting / Finance Workflow
+
+Use this lane when the project is an accounting, finance, management, economics, or business-school paper whose evidence is literature, data construction, identification, regressions, tables, and referee positioning.
+
+Business-only Codex install:
+
+```bash
+bash tools/install_business_codex_skills.sh /path/to/paper-project --aris-repo /path/to/Auto-research-in-sleep
+```
+
+This installs only the business/accounting/finance workflow skills, R/Stata bridges, number audit, and shared support references. It does not install the ML research pipeline skills.
+
+| Stage | Invoke | Output | When to use |
+|-------|--------|--------|-------------|
+| Literature | `/business-lit-review "topic"` | `BUSINESS_LIT_REVIEW.md` | Map papers, working papers, and journal positioning |
+| Ideas | `/business-idea-creator "direction"` | `idea-stage/BUSINESS_IDEA_REPORT.md` | Generate feasible research questions |
+| Novelty | `/business-novelty-check "idea"` | novelty verdict | Check published and working-paper overlap |
+| Design | `/empirical-design-plan "idea"` | `empirical-design/` plans | Build identification, table shells, and robustness |
+| Analysis | `/data-analysis-bridge "plan"`, `/r-analysis-bridge "plan"`, or `/stata-analysis-bridge "plan"` | `analysis/` scripts + outputs, R/Stata logs, tables, figures | Turn design into R/Stata/Python analyses |
+| Claims | `/evidence-to-claim "results"` + `/business-number-audit "paper"` | `CLAIMS_FROM_EVIDENCE.md`, `BUSINESS_NUMBER_AUDIT.md` | Decide safe claim language and verify manuscript numbers |
+| Paper | `/business-paper-plan` → `/business-paper-writing` | `BUSINESS_PAPER_PLAN.md`, manuscript | Build and draft a journal-style paper |
+| Reviews | `/business-rebuttal "reviews"` | response letter + revision plan | Respond to referees and editors |
 
 ### Standalone Skills
 
@@ -75,6 +99,19 @@ Parameters pass through workflow chains automatically.
 | `/meta-optimize` | Self-improvement | Analyze usage, propose skill edits |
 | `/analyze-results` | Result analysis | Statistics and comparison tables |
 | `/ablation-planner` | Ablation design | Reviewer-perspective ablations |
+| `/business-lit-review "topic"` | Business literature | Journal-aware review across accounting, finance, management, economics |
+| `/business-idea-creator "direction"` | Business idea generation | Research questions with theory, data, identification, and journal fit |
+| `/business-novelty-check "idea"` | Business novelty | Published and working-paper overlap check |
+| `/empirical-design-plan "idea"` | Empirical design | Identification, variables, specifications, robustness, table shells |
+| `/data-analysis-bridge "plan"` | Empirical execution | R/Stata/Python scripts, cleaning, regressions, tables |
+| `/r-analysis-bridge "plan"` | R backend | R scripts, logs, modelsummary tables, ggplot figures, and results summary |
+| `/stata-analysis-bridge "plan"` | Stata backend | Do files, Stata logs, esttab tables, figures, and results summary |
+| `/evidence-to-claim "results"` | Claim discipline | Maps evidence to descriptive, associational, or causal claim levels |
+| `/business-number-audit "paper"` | Number QA | Verifies manuscript numbers against logs, tables, and specifications |
+| `/business-paper-plan "context"` | Business outline | Table-first journal paper plan |
+| `/business-paper-writing "plan"` | Business writing | Manuscript drafting with table traceability |
+| `/business-rebuttal "reviews"` | Business rebuttal | Referee issue board, revision plan, response letter |
+| `/business-research-pipeline "topic"` | Business full pipeline | End-to-end business-school paper workflow |
 
 ## Artifact Contracts
 
@@ -94,6 +131,16 @@ Skills communicate through plain-text files:
 | `CITATION_AUDIT.md/.json` | citation-audit | paper-writing Phase 5.8 submission gate |
 | `research-wiki/` | research-wiki | idea-creator, research-lit, result-to-claim |
 | `.aris/meta/events.jsonl` | hooks (passive) | meta-optimize |
+| `BUSINESS_LIT_REVIEW.md` | business-lit-review | business-idea-creator, business-paper-plan |
+| `idea-stage/BUSINESS_IDEA_REPORT.md` | business-idea-creator | business-novelty-check, empirical-design-plan |
+| `empirical-design/RESEARCH_DESIGN.md` | empirical-design-plan | data-analysis-bridge, business-paper-plan |
+| `empirical-design/TABLE_SHELLS.md` | empirical-design-plan | data-analysis-bridge, business-paper-plan |
+| `analysis/output/RESULTS_SUMMARY.md` | data-analysis-bridge | evidence-to-claim, business-paper-plan |
+| `R/`, `logs/`, `tables/`, `figures/` | r-analysis-bridge | business-number-audit, evidence-to-claim |
+| `do/`, `logs/`, `tables/`, `figures/` | stata-analysis-bridge | business-number-audit, evidence-to-claim |
+| `CLAIMS_FROM_EVIDENCE.md` | evidence-to-claim | business-paper-plan, business-paper-writing |
+| `BUSINESS_NUMBER_AUDIT.md` | business-number-audit | business-paper-writing, business-rebuttal |
+| `audit_issue_ledger.md` | business-number-audit, evidence-to-claim | business-paper-writing, business-rebuttal |
 
 ## Cross-Model Protocol
 

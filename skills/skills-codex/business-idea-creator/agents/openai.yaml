@@ -1,0 +1,4 @@
+interface:
+  display_name: "Business Idea Creator"
+  short_description: "Generate feasible business-school paper ideas with theory, data, identification, and journal-fit checks."
+  default_prompt: "Generate and rank business research ideas for this topic, including data paths, hypotheses, and referee risks."

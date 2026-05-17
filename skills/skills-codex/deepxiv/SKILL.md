@@ -90,6 +90,13 @@ If the adapter is unresolved, fall back to raw `deepxiv` commands.
 
 ### Step 3: Execute the Minimal Command
 
+Generic optional-helper guard pattern:
+
+```bash
+SCRIPT="$DEEPXIV_FETCHER"
+[ -n "$SCRIPT" ] && python3 "$SCRIPT" search "QUERY" --max MAX_RESULTS
+```
+
 ```bash
 [ -n "$DEEPXIV_FETCHER" ] && python3 "$DEEPXIV_FETCHER" search "QUERY" --max MAX_RESULTS
 [ -n "$DEEPXIV_FETCHER" ] && python3 "$DEEPXIV_FETCHER" paper-brief ARXIV_ID
