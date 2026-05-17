@@ -65,6 +65,12 @@ Business-only Codex install:
 bash tools/install_business_codex_skills.sh /path/to/paper-project --aris-repo /path/to/Auto-research-in-sleep
 ```
 
+Optional global install for a personal Codex environment:
+
+```bash
+bash tools/install_business_codex_skills_global.sh --aris-repo /path/to/Auto-research-in-sleep
+```
+
 This installs only the business/accounting/finance workflow skills, R/Stata bridges, passport, audit gates, style profile, and shared support references. It does not install the ML research pipeline skills.
 
 User-facing install and usage guide: [`docs/BUSINESS_CODEX_SKILLS_GUIDE_CN.md`](docs/BUSINESS_CODEX_SKILLS_GUIDE_CN.md).

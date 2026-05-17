@@ -6,6 +6,7 @@ from pathlib import Path
 
 REPO_ROOT = Path(__file__).resolve().parents[1]
 INSTALL_SCRIPT = REPO_ROOT / "tools" / "install_business_codex_skills.sh"
+GLOBAL_INSTALL_SCRIPT = REPO_ROOT / "tools" / "install_business_codex_skills_global.sh"
 
 EXPECTED_ENTRIES = {
     "business-research-suite",
@@ -156,3 +157,108 @@ def test_business_codex_install_refuses_full_codex_manifest(tmp_path: Path) -> N
     assert result.returncode != 0
     assert "full Codex install manifest exists" in result.stderr
     assert not (project / ".agents").exists()
+
+
+def test_business_codex_global_install_dry_run_has_no_writes(tmp_path: Path) -> None:
+    codex_home = tmp_path / "codex-home"
+
+    result = run(
+        [
+            "bash",
+            str(GLOBAL_INSTALL_SCRIPT),
+            "--codex-home",
+            str(codex_home),
+            "--aris-repo",
+            str(REPO_ROOT),
+            "--dry-run",
+        ]
+    )
+
+    assert "Business-only global Codex skill install plan" in result.stdout
+    assert "(dry-run) no changes made" in result.stdout
+    assert not codex_home.exists()
+
+
+def test_business_codex_global_install_reconcile_and_uninstall(tmp_path: Path) -> None:
+    codex_home = tmp_path / "codex-home"
+
+    run(
+        [
+            "bash",
+            str(GLOBAL_INSTALL_SCRIPT),
+            "--codex-home",
+            str(codex_home),
+            "--aris-repo",
+            str(REPO_ROOT),
+            "--quiet",
+        ]
+    )
+
+    skills_dir = codex_home / "skills"
+    installed = {path.name for path in skills_dir.iterdir() if not path.name.startswith(".")}
+    assert installed == EXPECTED_ENTRIES
+    assert (skills_dir / "business-research-suite").is_symlink()
+    assert (skills_dir / "business-run-passport").is_symlink()
+    assert (skills_dir / "business-claim-source-audit").is_symlink()
+    assert (skills_dir / "shared-references").is_symlink()
+
+    manifest = codex_home / "skills" / ".aris" / "installed-business-skills-codex-global.txt"
+    assert manifest.exists()
+    manifest_text = manifest.read_text()
+    assert "profile\tbusiness-codex-global" in manifest_text
+    assert "entry\tbusiness-research-suite" in manifest_text
+    assert "entry\tresearch-pipeline" not in manifest_text
+
+    local_only = skills_dir / "local-only"
+    local_only.mkdir()
+
+    run(
+        [
+            "bash",
+            str(GLOBAL_INSTALL_SCRIPT),
+            "--codex-home",
+            str(codex_home),
+            "--aris-repo",
+            str(REPO_ROOT),
+            "--reconcile",
+            "--quiet",
+        ]
+    )
+    assert local_only.exists()
+
+    run(
+        [
+            "bash",
+            str(GLOBAL_INSTALL_SCRIPT),
+            "--codex-home",
+            str(codex_home),
+            "--uninstall",
+            "--quiet",
+        ]
+    )
+    assert local_only.exists()
+    for entry in EXPECTED_ENTRIES:
+        assert not (skills_dir / entry).exists()
+    assert not manifest.exists()
+    assert (codex_home / "skills" / ".aris" / "installed-business-skills-codex-global.txt.prev").exists()
+
+
+def test_business_codex_global_install_refuses_unmanaged_existing_skill(tmp_path: Path) -> None:
+    codex_home = tmp_path / "codex-home"
+    existing = codex_home / "skills" / "business-lit-review"
+    existing.mkdir(parents=True)
+
+    result = run(
+        [
+            "bash",
+            str(GLOBAL_INSTALL_SCRIPT),
+            "--codex-home",
+            str(codex_home),
+            "--aris-repo",
+            str(REPO_ROOT),
+        ],
+        check=False,
+    )
+
+    assert result.returncode != 0
+    assert "target exists and is not a managed symlink" in result.stderr

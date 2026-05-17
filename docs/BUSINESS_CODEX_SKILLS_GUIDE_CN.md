@@ -15,7 +15,67 @@ git pull --ff-only
 
 日常安装时不需要每次切到目标论文项目的分支。关键是 `--aris-repo` 指向这个已经在 `codex/business-research-skills` 分支上的 ARIS 工作树。
 
-## 2. 安装到论文项目
+## 2. 安装方式选择
+
+推荐顺序：
+
+- **个人常用环境**：用全局安装。以后所有 Codex 项目都能看到这些 business skills。
+- **要共享、复现、隔离的论文项目**：用项目级安装。项目里会有 manifest 和 `AGENTS.md` 管理块，别人打开项目也知道 skill 来源。
+
+两种方式都只安装 business-only 那 18 个条目。全局安装更省事；项目级安装更可控。
+
+## 3. 全局安装到 Codex
+
+全局安装默认写入 `$CODEX_HOME/skills`；如果没有设置 `CODEX_HOME`，写入 `~/.codex/skills`。
+
+```bash
+bash /Users/wyih/Projects/ARIS-business-skills/tools/install_business_codex_skills_global.sh \
+  --aris-repo /Users/wyih/Projects/ARIS-business-skills
+```
+
+指定 Codex home：
+
+```bash
+bash /Users/wyih/Projects/ARIS-business-skills/tools/install_business_codex_skills_global.sh \
+  --codex-home ~/.codex \
+  --aris-repo /Users/wyih/Projects/ARIS-business-skills
+```
+
+全局安装会创建：
+
+```text
+~/.codex/skills/<skill-name> -> /Users/wyih/Projects/ARIS-business-skills/skills/skills-codex/<skill-name>
+~/.codex/skills/.aris/installed-business-skills-codex-global.txt
+```
+
+验证：
+
+```bash
+ls ~/.codex/skills | grep business
+cat ~/.codex/skills/.aris/installed-business-skills-codex-global.txt
+```
+
+更新：
+
+```bash
+cd /Users/wyih/Projects/ARIS-business-skills
+git pull --ff-only
+
+bash /Users/wyih/Projects/ARIS-business-skills/tools/install_business_codex_skills_global.sh \
+  --reconcile \
+  --aris-repo /Users/wyih/Projects/ARIS-business-skills
+```
+
+卸载：
+
+```bash
+bash /Users/wyih/Projects/ARIS-business-skills/tools/install_business_codex_skills_global.sh \
+  --uninstall
+```
+
+全局安装适合你自己的机器。它不会改任何论文项目的 `AGENTS.md`。
+
+## 4. 安装到单个论文项目
 
 把 `/path/to/paper-project` 换成你的论文项目目录：
 
@@ -33,7 +93,7 @@ bash /Users/wyih/Projects/ARIS-business-skills/tools/install_business_codex_skil
 /path/to/paper-project/AGENTS.md 里的 ARIS Business Codex 管理块
 ```
 
-## 3. 安装内容
+## 5. 安装内容
 
 安装器会安装 18 个条目：
 
@@ -60,7 +120,7 @@ shared-references
 
 `shared-references` 是依赖文件目录，包含 handoff schemas、mode registry、run passport、repro lock、style calibration、claim-source audit 等共享协议。
 
-## 4. 验证安装
+## 6. 验证项目级安装
 
 ```bash
 ls /path/to/paper-project/.agents/skills
@@ -69,7 +129,7 @@ cat /path/to/paper-project/.aris/installed-business-skills-codex.txt
 
 你应该能看到 `business-research-suite`、`r-analysis-bridge`、`stata-analysis-bridge`、`business-number-audit`、`business-claim-source-audit` 等条目。
 
-## 5. 更新、重装、卸载
+## 7. 更新、重装、卸载项目级安装
 
 更新本地 ARIS 分支后，在论文项目上 reconcile：
 
@@ -93,7 +153,7 @@ bash /Users/wyih/Projects/ARIS-business-skills/tools/install_business_codex_skil
 
 卸载只移除 manifest 记录的 business-only symlink，保留你项目里的本地文件。
 
-## 6. 日常使用方式
+## 8. 日常使用方式
 
 在 Codex 里打开目标论文项目目录后，优先从总入口开始：
 
@@ -123,7 +183,7 @@ bash /Users/wyih/Projects/ARIS-business-skills/tools/install_business_codex_skil
 | 回复审稿意见 | `/business-rebuttal "reviews"` |
 | 明确要全流程 | `/business-research-pipeline "full pipeline: topic"` |
 
-## 7. 推荐项目顺序
+## 9. 推荐项目顺序
 
 早期保持开放：
 
@@ -168,7 +228,7 @@ bash /Users/wyih/Projects/ARIS-business-skills/tools/install_business_codex_skil
 /business-paper-writing "BUSINESS_PAPER_PLAN.md"
 ```
 
-## 8. Toy 项目
+## 10. Toy 项目
 
 公开数据 R 示例在：
 
@@ -184,11 +244,19 @@ examples/r-ff-industry-toy/BUSINESS_RUN_PASSPORT.md
 examples/r-ff-industry-toy/SOURCE_CLAIM_AUDIT.md
 ```
 
-## 9. 常见问题
+## 11. 常见问题
+
+### 全局安装和项目级安装怎么选
+
+个人日常用全局安装。正式论文项目、多人协作项目、需要保留 reproducibility trail 的项目，用项目级安装。
+
+### 全局安装后每个项目都能用吗
+
+能。打开新 Codex 会话后，Codex 会从全局 skills 发现这些 business skills。已打开的旧会话可能需要重开。
 
 ### 安装器提示 full Codex install manifest exists
 
-目标项目已经装过完整 Codex skill 套件。建议换一个干净项目目录，或先卸载完整套件后再装 business-only 套件。
+项目级安装时，目标项目已经装过完整 Codex skill 套件。建议换一个干净项目目录，或先卸载完整套件后再装 business-only 套件。
 
 ### 修改 ARIS 分支后项目里 skill 没更新
 
