@@ -13,6 +13,8 @@ Assess whether a business-school research idea has a credible contribution after
 
 ## Workflow
 
+Read `BUSINESS_RUN_PASSPORT.md` when present. Read `../shared-references/business-handoff-schemas.md` when this novelty check feeds the pipeline.
+
 ### Step 1: Parse the Idea
 
 Extract:
@@ -81,8 +83,10 @@ Use:
 
 ## Rules
 
+- For local tasks, complete only the requested stage and mark downstream gaps as next-stage inputs.
 - Include working papers in the novelty judgment.
 - Treat same authors with changed titles as the same project until evidence says otherwise.
 - Distinguish setting novelty from theoretical novelty.
 - Preserve uncertainty when full PDFs or appendices are inaccessible.
 - Recommend a pivot when the remaining delta is a footnote.
+- Update the Business Run Passport through `business-run-passport` when the novelty verdict changes the project route.

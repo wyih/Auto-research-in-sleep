@@ -8,8 +8,9 @@
 #   <project>/.aris/installed-business-skills-codex.txt
 #
 # Included entries:
-#   business/accounting/finance skills, R/Stata analysis bridges, number audit,
-#   and shared-references support files. It does not install the ML workflow skills.
+#   business/accounting/finance skills, R/Stata analysis bridges, passport,
+#   audit gates, and shared-references support files. It does not install the
+#   ML workflow skills.
 #
 # Usage:
 #   bash tools/install_business_codex_skills.sh [project_path] [options]
@@ -38,16 +39,20 @@ BLOCK_END="<!-- ARIS-BUSINESS-CODEX:END -->"
 PACKAGE_REL="skills/skills-codex"
 
 BUSINESS_ENTRIES=(
+    business-research-suite
     business-lit-review
     business-idea-creator
     business-novelty-check
+    business-run-passport
     empirical-design-plan
     data-analysis-bridge
     r-analysis-bridge
     stata-analysis-bridge
     evidence-to-claim
     business-number-audit
+    business-claim-source-audit
     business-paper-plan
+    business-author-style-profile
     business-paper-writing
     business-rebuttal
     business-research-pipeline
@@ -149,24 +154,19 @@ write_doc_block() {
     {
         [[ -f "$doc" ]] && cat "$doc"
         [[ -f "$doc" ]] && printf '\n'
-        cat <<EOF
-$BLOCK_BEGIN
-## ARIS Business Codex Skill Scope
-
-Business-only ARIS Codex skills are installed project-locally under \`$SKILLS_REL/\`.
-This install intentionally includes business/accounting/finance workflow skills and their support files only.
-
-- ARIS repo root: \`$ARIS_REPO\`
-- Manifest: \`$ARIS_DIR_NAME/$MANIFEST_NAME\`
-- Update/reconcile:
-  \`bash $ARIS_REPO/tools/install_business_codex_skills.sh "$PROJECT_PATH" --reconcile --aris-repo "$ARIS_REPO"\`
-- Uninstall:
-  \`bash $ARIS_REPO/tools/install_business_codex_skills.sh "$PROJECT_PATH" --uninstall\`
-
-Primary invocations:
-\`/business-lit-review\`, \`/business-idea-creator\`, \`/business-novelty-check\`, \`/empirical-design-plan\`, \`/data-analysis-bridge\`, \`/r-analysis-bridge\`, \`/stata-analysis-bridge\`, \`/evidence-to-claim\`, \`/business-number-audit\`, \`/business-paper-plan\`, \`/business-paper-writing\`, \`/business-rebuttal\`, \`/business-research-pipeline\`.
-$BLOCK_END
-EOF
+        printf '%s\n' "$BLOCK_BEGIN"
+        printf '%s\n\n' "## ARIS Business Codex Skill Scope"
+        printf 'Business-only ARIS Codex skills are installed project-locally under `%s/`.\n' "$SKILLS_REL"
+        printf '%s\n\n' "This install intentionally includes business/accounting/finance workflow skills and their support files only."
+        printf -- '- ARIS repo root: `%s`\n' "$ARIS_REPO"
+        printf -- '- Manifest: `%s/%s`\n' "$ARIS_DIR_NAME" "$MANIFEST_NAME"
+        printf '%s\n' "- Update/reconcile:"
+        printf '  `bash %s/tools/install_business_codex_skills.sh "%s" --reconcile --aris-repo "%s"`\n' "$ARIS_REPO" "$PROJECT_PATH" "$ARIS_REPO"
+        printf '%s\n' "- Uninstall:"
+        printf '  `bash %s/tools/install_business_codex_skills.sh "%s" --uninstall`\n\n' "$ARIS_REPO" "$PROJECT_PATH"
+        printf '%s\n' "Primary invocations:"
+        printf '%s\n' '`/business-research-suite`, `/business-lit-review`, `/business-idea-creator`, `/business-novelty-check`, `/business-run-passport`, `/empirical-design-plan`, `/data-analysis-bridge`, `/r-analysis-bridge`, `/stata-analysis-bridge`, `/evidence-to-claim`, `/business-number-audit`, `/business-claim-source-audit`, `/business-paper-plan`, `/business-author-style-profile`, `/business-paper-writing`, `/business-rebuttal`, `/business-research-pipeline`.'
+        printf '%s\n' "$BLOCK_END"
     } > "$doc.tmp"
     mv "$doc.tmp" "$doc"
 }

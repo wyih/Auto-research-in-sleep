@@ -20,9 +20,13 @@ Read available files:
 3. `empirical-design/TABLE_SHELLS.md`
 4. `BUSINESS_LIT_REVIEW.md`
 5. `analysis/output/RESULTS_SUMMARY.md`
-6. `NARRATIVE_REPORT.md`
+6. `BUSINESS_RUN_PASSPORT.md`
+7. `SOURCE_CLAIM_AUDIT.md` if a draft or source-claim inventory exists
+8. `AUTHOR_STYLE_PROFILE.md` if the paper must follow calibrated style
+9. `NARRATIVE_REPORT.md`
 
 If `— style-ref: <source>` is provided, use the existing ARIS style-reference workflow for structural guidance only.
+Read `../shared-references/business-handoff-schemas.md` when inputs are incomplete.
 
 ## Standard Structure
 
@@ -75,6 +79,15 @@ Force the Introduction to answer:
 
 For each major section, list the likely referee objection and the planned answer.
 
+### Step 5: Audit Gates
+
+Before full drafting, list the gate status:
+
+- `BUSINESS_NUMBER_AUDIT.md`
+- `SOURCE_CLAIM_AUDIT.md`
+- `AUTHOR_STYLE_PROFILE.md` when style calibration is requested
+- `BUSINESS_RUN_PASSPORT.md`
+
 ## Output
 
 Write `BUSINESS_PAPER_PLAN.md` when writing is allowed.
@@ -89,12 +102,15 @@ Include:
 - table and figure plan
 - related-work positioning
 - referee-risk map
+- audit gate checklist
 - missing evidence markers
 
 ## Rules
 
+- For local tasks, complete only the requested stage and mark downstream gaps as next-stage inputs.
 - Put data and identification before decorative prose.
 - Avoid promising tests that are absent from the table plan.
 - Make contribution type explicit: theory, construct, setting, identification, data, or reconciliation.
 - Keep the Introduction front-loaded with the actual finding.
 - Mark missing evidence as `DATA_NEEDED` rather than inventing content.
+- Mark missing source support as `SOURCE_NEEDED`.

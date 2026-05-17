@@ -20,6 +20,9 @@ Read:
 3. `empirical-design/RESEARCH_DESIGN.md`
 4. `empirical-design/TABLE_SHELLS.md`
 5. table files, regression logs, and figure outputs
+6. `BUSINESS_RUN_PASSPORT.md` when present
+
+Read `../shared-references/business-handoff-schemas.md` when producing or validating `CLAIMS_FROM_EVIDENCE.md`.
 
 ## Claim Levels
 
@@ -73,6 +76,7 @@ For each intended claim, assign:
 - `plausibly_causal`: state assumptions and identification source.
 - `mechanism_consistent`: frame as mechanism evidence, not proof.
 - `not_supported`: revise the paper claim or return to `empirical-design-plan`.
+- citation-heavy, institutional, or literature claims: route to `business-claim-source-audit` after drafting exists.
 
 ## Output
 
@@ -95,8 +99,10 @@ Write `CLAIMS_FROM_EVIDENCE.md` when writing is allowed:
 
 ## Rules
 
+- For local tasks, complete only the requested stage and mark downstream gaps as next-stage inputs.
 - Keep causal verbs reserved for designs that support them.
 - Report null and mixed results as design information.
 - Treat economic magnitude as separate from statistical significance.
 - State when a result supports a mechanism only indirectly.
 - Preserve uncertainty in the final claim language.
+- Leave source-support verification to `business-claim-source-audit`; keep this skill focused on empirical evidence ceilings.

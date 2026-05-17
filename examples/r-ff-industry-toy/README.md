@@ -31,6 +31,7 @@ Rscript R/04_main_results.R
 
 ## Expected Outputs
 
+- `BUSINESS_RUN_PASSPORT.md`
 - `tables/table_capm_by_industry.csv`
 - `tables/table_capm_by_industry.tex`
 - `tables/table_summary_stats.csv`
@@ -40,6 +41,8 @@ Rscript R/04_main_results.R
 - `analysis/output/TABLE_INDEX.md`
 - `analysis/output/RESULTS_SUMMARY.md`
 - `paper/toy_results.md`
+- `SOURCE_CLAIM_AUDIT.md`
+- `AUTHOR_STYLE_PROFILE.md`
 
 After outputs exist, run:
 
@@ -50,3 +53,5 @@ python3 ../../skills/business-number-audit/scripts/verify_numbers.py \
   --output BUSINESS_NUMBER_AUDIT.md \
   --allow-unmatched
 ```
+
+The completed example also includes `BUSINESS_RUN_PASSPORT.md`, `SOURCE_CLAIM_AUDIT.md`, and `AUTHOR_STYLE_PROFILE.md` to show the full business-suite governance layer.

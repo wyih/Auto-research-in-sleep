@@ -21,6 +21,7 @@ Load only the reference needed for the current task:
 - `references/venue-tiering.md` for accounting, finance, management, and economics venue tiers.
 - `references/domain-taxonomy.md` for topic grouping and trigger boundaries.
 - `references/output-template.md` for the default literature table and synthesis structure.
+- `../shared-references/business-handoff-schemas.md` for the required `BUSINESS_LIT_REVIEW.md` fields when this review feeds a pipeline.
 
 ## Source Selection
 
@@ -121,8 +122,11 @@ Always include:
 4. unresolved search gaps
 5. recommended next search or design action
 
+Update `BUSINESS_RUN_PASSPORT.md` through `business-run-passport` when writing is allowed and this review becomes a project input.
+
 ## Rules
 
+- For local tasks, complete only the requested stage and mark downstream gaps as next-stage inputs.
 - Prefer journal and working-paper primary sources over tertiary summaries.
 - Preserve working-paper status instead of smoothing it into publication status.
 - Separate accounting, finance, management, and economics conversations when they use different constructs or referee standards.

@@ -63,6 +63,7 @@ skills/r-analysis-bridge/scripts/r_submit.sh --foreground R/04_main_results.R
 
 The latest foreground run returned `COMPLETED`.
 The number audit checked `paper/toy_results.md` against logs and tables, found 4 prose numbers, matched all 4, and reported 0 unmatched numbers.
+The source-claim audit checked the toy prose against the R script, results summary, table output, and claim ceiling. It reported `GATE2: PASS`.
 
 ## Output Files
 
@@ -75,3 +76,6 @@ The number audit checked `paper/toy_results.md` against logs and tables, found 4
 | `figures/hitec_excess_returns.pdf` | final HiTec return time-series figure |
 | `paper/toy_results.md` | short manuscript-style result note |
 | `BUSINESS_NUMBER_AUDIT.md` | automated number audit report |
+| `SOURCE_CLAIM_AUDIT.md` | source and claim-support audit report |
+| `BUSINESS_RUN_PASSPORT.md` | project-stage, artifact, audit, and repro-lock spine |
+| `AUTHOR_STYLE_PROFILE.md` | concise finance-result writing style profile |

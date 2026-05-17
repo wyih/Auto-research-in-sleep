@@ -31,6 +31,7 @@ Read available files in this order:
 4. `empirical-design/ROBUSTNESS_PLAN.md`
 5. existing `data_wrangle.md`, `key_variables.md`, or data dictionaries
 6. existing `do/`, `logs/`, `tables/`, and `figures/`
+7. `BUSINESS_RUN_PASSPORT.md` when present
 
 If Stata execution details matter, read `references/stata-analysis-guide.md`.
 
@@ -116,6 +117,7 @@ Write:
 - `analysis/ANALYSIS_LOG.md`
 - `analysis/output/TABLE_INDEX.md`
 - `analysis/output/RESULTS_SUMMARY.md`
+- update `BUSINESS_RUN_PASSPORT.md` through `business-run-passport` when writing is allowed
 
 `RESULTS_SUMMARY.md` must list each table or figure, source do file, source log, sample, specification, fixed effects, clustering, key estimates, economic magnitude, and claim it can support.
 
@@ -139,8 +141,10 @@ End every substantial Stata run with:
 
 ## Rules
 
+- For local tasks, complete only the requested stage and mark downstream gaps as next-stage inputs.
 - Keep Stata outputs traceable from paper claim to table, log, and do file.
 - Treat sample construction and variable construction as empirical evidence, not clerical setup.
 - Do not shrink samples, drop fixed effects, or simplify clustering to save runtime unless the design requires it.
 - Use parallel do files only when each loads its own dataset independently.
 - Route manuscript number checking to `business-number-audit`.
+- Record Stata version, command dependencies, and output hashes in the `repro_lock` when the results feed writing.

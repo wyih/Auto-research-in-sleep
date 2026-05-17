@@ -1,0 +1,4 @@
+interface:
+  display_name: "Business Author Style Profile"
+  short_description: "Build an author or journal style profile for business-school manuscript drafting."
+  default_prompt: "Use $business-author-style-profile to calibrate manuscript style from writing samples and journal norms."

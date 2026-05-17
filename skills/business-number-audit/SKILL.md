@@ -9,7 +9,7 @@ Audit target: $ARGUMENTS
 
 ## Purpose
 
-Verify that paper claims match the empirical outputs on disk. This is the replication and number QA gate for the business research workflow.
+Verify that paper claims match the empirical outputs on disk. This is the replication and number QA gate for the business research workflow. Run `business-claim-source-audit` as the companion gate when the draft contains citation-supported, institutional, literature, causal, or mechanism claims.
 
 ## Inputs
 
@@ -23,6 +23,7 @@ Read what exists:
 6. Stata, R, or Python logs under `logs/` or `analysis/output/logs/`
 7. tables under `tables/` or `analysis/output/tables/`
 8. `audit_issue_ledger.md` if present
+9. `SOURCE_CLAIM_AUDIT.md` if source-claim audit already exists
 
 Read `references/number-audit-checklist.md` when the audit is high-stakes or the paper is near submission.
 
@@ -78,6 +79,7 @@ Use `Severity = BLOCKING` for any issue that makes a headline claim numerically 
 - Fix paper text directly when the correct number or label is clear from existing outputs.
 - Return to `stata-analysis-bridge` or `data-analysis-bridge` when code or generated outputs must change.
 - Return to `evidence-to-claim` when the number is correct but the claim is too strong.
+- Return to `business-claim-source-audit` when the number is correct but source, literature, or institutional support remains unresolved.
 
 ## Output
 
@@ -101,7 +103,9 @@ GATE1: PASS | REOPEN_TEXT | REOPEN_ANALYSIS
 
 ## Rules
 
+- For local tasks, complete only the requested stage and mark downstream gaps as next-stage inputs.
 - Matching numbers are necessary; they do not by themselves validate causal or theoretical claims.
 - Keep conceptual claim ceilings in `CLAIMS_FROM_EVIDENCE.md` open unless the underlying issue is resolved.
+- Keep source-support verdicts in `SOURCE_CLAIM_AUDIT.md` separate from numeric matching.
 - Preserve audit issues in the ledger until they are explicitly resolved, reframed, or dropped.
 - Do not delete inconvenient null results or failed robustness checks.

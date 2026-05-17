@@ -18,9 +18,11 @@ Read available context in this order:
 1. `BUSINESS_LIT_REVIEW.md`
 2. `research-wiki/`
 3. `RESEARCH_BRIEF.md`
-4. local notes, paper summaries, or user-provided constraints
+4. `BUSINESS_RUN_PASSPORT.md` when present
+5. local notes, paper summaries, or user-provided constraints
 
 If no context exists, derive from `$ARGUMENTS` and state the assumptions.
+Read `../shared-references/business-handoff-schemas.md` when producing `BUSINESS_IDEA_REPORT.md`.
 
 ## Workflow
 
@@ -88,6 +90,7 @@ For the top 3-5 ideas, create:
 ## Output
 
 Write `idea-stage/BUSINESS_IDEA_REPORT.md` when writing is allowed.
+Update `BUSINESS_RUN_PASSPORT.md` through `business-run-passport` when the user selects a top idea.
 
 Use this structure:
 
@@ -115,6 +118,7 @@ Use this structure:
 
 ## Rules
 
+- For local tasks, complete only the requested stage and mark downstream gaps as next-stage inputs.
 - Prefer one strong, feasible paper over a broad agenda.
 - Keep claim strength aligned with achievable evidence.
 - Treat data access as a first-class constraint.

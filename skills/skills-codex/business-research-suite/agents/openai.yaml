@@ -1,0 +1,4 @@
+interface:
+  display_name: "Business Research Suite"
+  short_description: "Route business, accounting, finance, management, and economics research tasks to the right workflow skill."
+  default_prompt: "Use $business-research-suite to choose the right business research workflow and the next artifact to produce."

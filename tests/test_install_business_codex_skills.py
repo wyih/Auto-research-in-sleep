@@ -8,16 +8,20 @@ REPO_ROOT = Path(__file__).resolve().parents[1]
 INSTALL_SCRIPT = REPO_ROOT / "tools" / "install_business_codex_skills.sh"
 
 EXPECTED_ENTRIES = {
+    "business-research-suite",
     "business-lit-review",
     "business-idea-creator",
     "business-novelty-check",
+    "business-run-passport",
     "empirical-design-plan",
     "data-analysis-bridge",
     "r-analysis-bridge",
     "stata-analysis-bridge",
     "evidence-to-claim",
     "business-number-audit",
+    "business-claim-source-audit",
     "business-paper-plan",
+    "business-author-style-profile",
     "business-paper-writing",
     "business-rebuttal",
     "business-research-pipeline",
@@ -74,20 +78,30 @@ def test_business_codex_install_reconcile_and_uninstall(tmp_path: Path) -> None:
     assert installed == EXPECTED_ENTRIES
     assert not (skills_dir / "research-pipeline").exists()
     assert not (skills_dir / "experiment-bridge").exists()
+    assert (skills_dir / "business-research-suite").is_symlink()
+    assert (skills_dir / "business-run-passport").is_symlink()
     assert (skills_dir / "business-lit-review").is_symlink()
     assert (skills_dir / "r-analysis-bridge").is_symlink()
+    assert (skills_dir / "business-claim-source-audit").is_symlink()
+    assert (skills_dir / "business-author-style-profile").is_symlink()
     assert (skills_dir / "shared-references").is_symlink()
 
     manifest = project / ".aris" / "installed-business-skills-codex.txt"
     assert manifest.exists()
     manifest_text = manifest.read_text()
     assert "profile\tbusiness-codex" in manifest_text
+    assert "entry\tbusiness-research-suite" in manifest_text
     assert "entry\tbusiness-research-pipeline" in manifest_text
+    assert "entry\tbusiness-claim-source-audit" in manifest_text
     assert "entry\tresearch-pipeline" not in manifest_text
 
     agents_text = (project / "AGENTS.md").read_text()
     assert "ARIS Business Codex Skill Scope" in agents_text
     assert "business/accounting/finance workflow skills" in agents_text
+    assert "/business-research-suite" in agents_text
+    assert "/business-run-passport" in agents_text
+    assert "/business-claim-source-audit" in agents_text
+    assert "/business-author-style-profile" in agents_text
 
     local_only = skills_dir / "local-only"
     local_only.mkdir()

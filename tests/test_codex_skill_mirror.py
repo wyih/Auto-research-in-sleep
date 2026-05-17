@@ -30,7 +30,7 @@ def has_send_input_block(text: str) -> bool:
 def test_codex_skill_set_matches_mainline() -> None:
     main_names = skill_names(MAIN_SKILLS)
     codex_names = skill_names(CODEX_SKILLS)
-    assert len(main_names) == 87
+    assert len(main_names) == 91
     assert main_names == codex_names
 
 
@@ -162,6 +162,106 @@ def test_codex_shared_reference_links_exist() -> None:
                 failures.append(f"{skill_file.relative_to(REPO_ROOT)} -> shared-references/{ref_name}")
 
     assert not failures, "Codex skill shared-reference links must resolve inside skills-codex:\n" + "\n".join(failures)
+
+
+def test_business_codex_governance_assets_exist() -> None:
+    required_skills = {
+        "business-research-suite": [
+            "business-mode-registry.md",
+            "BUSINESS_RUN_PASSPORT.md",
+            "business-run-passport",
+            "business-claim-source-audit",
+        ],
+        "business-run-passport": [
+            "business-run-passport.md",
+            "business-repro-lock.md",
+            "repro_lock",
+            "BUSINESS_RUN_PASSPORT.md",
+        ],
+        "business-claim-source-audit": [
+            "business-claim-source-audit.md",
+            "VERIFIED",
+            "UNVERIFIABLE_ACCESS",
+            "SOURCE_CLAIM_AUDIT.md",
+        ],
+        "business-author-style-profile": [
+            "business-style-calibration.md",
+            "AUTHOR_STYLE_PROFILE.md",
+            "Journal and discipline norms override personal style",
+        ],
+        "business-paper-writing": [
+            "AUTHOR_STYLE_PROFILE.md",
+            "business-author-style-profile",
+        ],
+        "business-research-pipeline": [
+            "business-run-passport",
+            "business-claim-source-audit",
+            "Business Run Passport",
+        ],
+    }
+
+    for skill, needles in required_skills.items():
+        text = read(CODEX_SKILLS / skill / "SKILL.md")
+        for needle in needles:
+            assert needle in text, f"{skill}: missing {needle}"
+
+    required_references = {
+        "business-handoff-schemas.md",
+        "business-run-passport.md",
+        "business-repro-lock.md",
+        "business-mode-registry.md",
+        "business-style-calibration.md",
+        "business-claim-source-audit.md",
+    }
+    for ref in required_references:
+        assert (CODEX_SKILLS / "shared-references" / ref).exists()
+
+
+def test_business_router_and_pipeline_default_to_light_context() -> None:
+    checks = {
+        "business-research-suite": [
+            "Default Mode: Light Router",
+            "load one focused skill body",
+            "Load shared references only after the focused skill needs them",
+            "Full-pipeline mode requires explicit user wording",
+        ],
+        "business-research-pipeline": [
+            "Default Mode: Current Stage",
+            "load only the current stage skill",
+            "Full Pipeline Mode",
+            "Stop at the next checkpoint",
+        ],
+    }
+
+    for skill, needles in checks.items():
+        text = read(CODEX_SKILLS / skill / "SKILL.md")
+        for needle in needles:
+            assert needle in text, f"{skill}: missing {needle}"
+
+
+def test_business_skills_have_local_task_boundary() -> None:
+    scoped_skills = {
+        "business-lit-review",
+        "business-idea-creator",
+        "business-novelty-check",
+        "business-run-passport",
+        "empirical-design-plan",
+        "data-analysis-bridge",
+        "r-analysis-bridge",
+        "stata-analysis-bridge",
+        "evidence-to-claim",
+        "business-number-audit",
+        "business-claim-source-audit",
+        "business-paper-plan",
+        "business-author-style-profile",
+        "business-paper-writing",
+        "business-rebuttal",
+    }
+
+    needle = "For local tasks, complete only the requested stage and mark downstream gaps as next-stage inputs."
+    for skill in scoped_skills:
+        text = read(CODEX_SKILLS / skill / "SKILL.md")
+        assert needle in text, f"{skill}: missing local task boundary"
 
 
 def test_codex_high_risk_skills_preserve_claude_semantics() -> None:

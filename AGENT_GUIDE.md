@@ -41,7 +41,8 @@ Parameters pass through workflow chains automatically.
 ### Full Pipeline
 ```
 /research-pipeline "direction" → W1 → W1.5 → W2 → W3
-/business-research-pipeline "question" → literature → idea → design → analysis → claims → paper
+/business-research-suite "question" → route to the focused business skill
+/business-research-pipeline "question" → passport → literature → idea → design → analysis → claims → audits → paper
 ```
 
 ### Individual Workflows
@@ -64,16 +65,21 @@ Business-only Codex install:
 bash tools/install_business_codex_skills.sh /path/to/paper-project --aris-repo /path/to/Auto-research-in-sleep
 ```
 
-This installs only the business/accounting/finance workflow skills, R/Stata bridges, number audit, and shared support references. It does not install the ML research pipeline skills.
+This installs only the business/accounting/finance workflow skills, R/Stata bridges, passport, audit gates, style profile, and shared support references. It does not install the ML research pipeline skills.
+
+User-facing install and usage guide: [`docs/BUSINESS_CODEX_SKILLS_GUIDE_CN.md`](docs/BUSINESS_CODEX_SKILLS_GUIDE_CN.md).
 
 | Stage | Invoke | Output | When to use |
 |-------|--------|--------|-------------|
+| Router | `/business-research-suite "task"` | recommended mode and skill | Use one entry point for the business workflow |
+| Passport | `/business-run-passport "project"` | `BUSINESS_RUN_PASSPORT.md` | Track materials, stages, artifacts, audit gates, and reproducibility |
 | Literature | `/business-lit-review "topic"` | `BUSINESS_LIT_REVIEW.md` | Map papers, working papers, and journal positioning |
 | Ideas | `/business-idea-creator "direction"` | `idea-stage/BUSINESS_IDEA_REPORT.md` | Generate feasible research questions |
 | Novelty | `/business-novelty-check "idea"` | novelty verdict | Check published and working-paper overlap |
 | Design | `/empirical-design-plan "idea"` | `empirical-design/` plans | Build identification, table shells, and robustness |
 | Analysis | `/data-analysis-bridge "plan"`, `/r-analysis-bridge "plan"`, or `/stata-analysis-bridge "plan"` | `analysis/` scripts + outputs, R/Stata logs, tables, figures | Turn design into R/Stata/Python analyses |
-| Claims | `/evidence-to-claim "results"` + `/business-number-audit "paper"` | `CLAIMS_FROM_EVIDENCE.md`, `BUSINESS_NUMBER_AUDIT.md` | Decide safe claim language and verify manuscript numbers |
+| Claims | `/evidence-to-claim "results"` + `/business-number-audit "paper"` + `/business-claim-source-audit "paper"` | `CLAIMS_FROM_EVIDENCE.md`, `BUSINESS_NUMBER_AUDIT.md`, `SOURCE_CLAIM_AUDIT.md` | Decide safe claim language and verify manuscript numbers and source-supported claims |
+| Style | `/business-author-style-profile "samples"` | `AUTHOR_STYLE_PROFILE.md` | Calibrate writing to author samples and journal norms |
 | Paper | `/business-paper-plan` → `/business-paper-writing` | `BUSINESS_PAPER_PLAN.md`, manuscript | Build and draft a journal-style paper |
 | Reviews | `/business-rebuttal "reviews"` | response letter + revision plan | Respond to referees and editors |
 
@@ -99,6 +105,8 @@ This installs only the business/accounting/finance workflow skills, R/Stata brid
 | `/meta-optimize` | Self-improvement | Analyze usage, propose skill edits |
 | `/analyze-results` | Result analysis | Statistics and comparison tables |
 | `/ablation-planner` | Ablation design | Reviewer-perspective ablations |
+| `/business-research-suite "task"` | Business router | Chooses the right business/accounting/finance skill and gate |
+| `/business-run-passport "project"` | Business passport | Tracks project materials, stages, audit gates, and repro lock |
 | `/business-lit-review "topic"` | Business literature | Journal-aware review across accounting, finance, management, economics |
 | `/business-idea-creator "direction"` | Business idea generation | Research questions with theory, data, identification, and journal fit |
 | `/business-novelty-check "idea"` | Business novelty | Published and working-paper overlap check |
@@ -108,7 +116,9 @@ This installs only the business/accounting/finance workflow skills, R/Stata brid
 | `/stata-analysis-bridge "plan"` | Stata backend | Do files, Stata logs, esttab tables, figures, and results summary |
 | `/evidence-to-claim "results"` | Claim discipline | Maps evidence to descriptive, associational, or causal claim levels |
 | `/business-number-audit "paper"` | Number QA | Verifies manuscript numbers against logs, tables, and specifications |
+| `/business-claim-source-audit "paper"` | Source-claim QA | Verifies prose, citation, institutional, causal, and mechanism claims against sources |
 | `/business-paper-plan "context"` | Business outline | Table-first journal paper plan |
+| `/business-author-style-profile "samples"` | Business style | Builds an author/journal style profile for drafting |
 | `/business-paper-writing "plan"` | Business writing | Manuscript drafting with table traceability |
 | `/business-rebuttal "reviews"` | Business rebuttal | Referee issue board, revision plan, response letter |
 | `/business-research-pipeline "topic"` | Business full pipeline | End-to-end business-school paper workflow |
@@ -131,6 +141,7 @@ Skills communicate through plain-text files:
 | `CITATION_AUDIT.md/.json` | citation-audit | paper-writing Phase 5.8 submission gate |
 | `research-wiki/` | research-wiki | idea-creator, research-lit, result-to-claim |
 | `.aris/meta/events.jsonl` | hooks (passive) | meta-optimize |
+| `BUSINESS_RUN_PASSPORT.md` | business-run-passport | all business workflow skills |
 | `BUSINESS_LIT_REVIEW.md` | business-lit-review | business-idea-creator, business-paper-plan |
 | `idea-stage/BUSINESS_IDEA_REPORT.md` | business-idea-creator | business-novelty-check, empirical-design-plan |
 | `empirical-design/RESEARCH_DESIGN.md` | empirical-design-plan | data-analysis-bridge, business-paper-plan |
@@ -140,6 +151,8 @@ Skills communicate through plain-text files:
 | `do/`, `logs/`, `tables/`, `figures/` | stata-analysis-bridge | business-number-audit, evidence-to-claim |
 | `CLAIMS_FROM_EVIDENCE.md` | evidence-to-claim | business-paper-plan, business-paper-writing |
 | `BUSINESS_NUMBER_AUDIT.md` | business-number-audit | business-paper-writing, business-rebuttal |
+| `SOURCE_CLAIM_AUDIT.md` | business-claim-source-audit | business-paper-writing, business-rebuttal |
+| `AUTHOR_STYLE_PROFILE.md` | business-author-style-profile | business-paper-writing |
 | `audit_issue_ledger.md` | business-number-audit, evidence-to-claim | business-paper-writing, business-rebuttal |
 
 ## Cross-Model Protocol

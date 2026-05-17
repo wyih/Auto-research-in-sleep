@@ -19,7 +19,10 @@ Read available files in this order:
 2. `BUSINESS_LIT_REVIEW.md`
 3. `BUSINESS_NOVELTY_CHECK.md`
 4. `RESEARCH_BRIEF.md`
-5. user-provided data dictionaries or sample notes
+5. `BUSINESS_RUN_PASSPORT.md` when present
+6. user-provided data dictionaries or sample notes
+
+Read `../shared-references/business-handoff-schemas.md` when writing design artifacts.
 
 ## Workflow
 
@@ -99,6 +102,7 @@ When writing is allowed, create:
 - `empirical-design/DATA_PLAN.md`
 - `empirical-design/TABLE_SHELLS.md`
 - `empirical-design/ROBUSTNESS_PLAN.md`
+- update `BUSINESS_RUN_PASSPORT.md` through `business-run-passport` when the design is accepted
 
 ## Output Summary
 
@@ -111,8 +115,10 @@ End with:
 
 ## Rules
 
+- For local tasks, complete only the requested stage and mark downstream gaps as next-stage inputs.
 - Design tables around claims, not around available variables.
 - State what the design can and cannot identify.
 - Treat clustering and fixed effects as design decisions.
 - Prefer a small number of decisive robustness checks over a long appendix list.
 - Flag any result that would require causal language beyond the design.
+- Keep data access levels visible when raw data cannot be shared with downstream writing or audit stages.

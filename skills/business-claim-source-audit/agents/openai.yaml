@@ -1,0 +1,4 @@
+interface:
+  display_name: "Business Claim Source Audit"
+  short_description: "Verify that business-paper prose claims are supported by cited sources and project evidence."
+  default_prompt: "Use $business-claim-source-audit to audit manuscript claims against citations, sources, and evidence ceilings."

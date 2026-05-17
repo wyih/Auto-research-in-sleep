@@ -26,6 +26,7 @@ Read:
 3. `empirical-design/TABLE_SHELLS.md`
 4. existing scripts and data dictionaries
 5. raw or derived data folders if available
+6. `BUSINESS_RUN_PASSPORT.md` when present
 
 ## Workflow
 
@@ -91,11 +92,14 @@ Write:
 - `analysis/ANALYSIS_LOG.md`
 - `analysis/output/TABLE_INDEX.md`
 - `analysis/output/RESULTS_SUMMARY.md`
+- update `BUSINESS_RUN_PASSPORT.md` through `business-run-passport` when writing is allowed
 
 ## Rules
 
+- For local tasks, complete only the requested stage and mark downstream gaps as next-stage inputs.
 - Never overwrite raw data.
 - Keep all filters auditable.
 - Report sample attrition explicitly.
 - Preserve failed or null results in logs.
 - Flag data access gaps instead of fabricating placeholder outputs.
+- Record analysis backend and output hashes in the Business Run Passport when the run becomes a paper input.

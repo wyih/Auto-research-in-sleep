@@ -91,6 +91,7 @@ When writing is allowed, create:
 
 ## Rules
 
+- For local tasks, complete only the requested stage and mark downstream gaps as next-stage inputs.
 - Match every factual claim to a manuscript location, table, or user-confirmed result.
 - Narrow claims when the evidence cannot answer the referee's causal concern.
 - Keep tone professional and specific.
