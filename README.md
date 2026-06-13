@@ -33,9 +33,9 @@
 >
 > 📝 *Three long-form blogs, cross-model collaborative writing via `/render-html` — [Continuous DLM — a representation-perspective survey (2026 H1)](https://wanshuiyin.github.io/ARIS-in-AI-Offer/blogs/continuous_dlm_representation_perspective.html) · [Cosmos 3 — understanding + generation in one Transformer (MoT)](https://wanshuiyin.github.io/ARIS-in-AI-Offer/blogs/cosmos3_mot_guide.html) · [Diffusion × representation × manifold learning](https://wanshuiyin.github.io/ARIS-in-AI-Offer/blogs/diffusion_representation_manifold.html).*
 
-🛰 **社区好物 · [Claude Fleet](https://github.com/tianyilt/claude-fleet)**（by [@tianyilt](https://github.com/tianyilt)）—— 一个本地**只读**数据看板，同时盯住你开的一堆 **Claude Code / Codex** 窗口：triage（谁在干活 / 等你点权限 / 跑完了）· 一键 **Focus** 跳到对应终端 · ~50ms 全文搜所有 transcript · skill / memory 用量分析。像 ARIS 这种动辄并行一片 agent 的工作流特别合适。**好用的话点个 ⭐**
+🛰 **社区好物 · [Claude Fleet](https://github.com/tianyilt/claude-fleet)**（by [@tianyilt](https://github.com/tianyilt)）—— 本地**只读**看板，一眼盯住并行的一堆 **Claude Code / Codex** 窗口(谁在跑 / 等授权 / 跑完了)，一键跳转 + 全文搜 transcript。多 agent 工作流神器，**好用点个 ⭐**
 
-🪟 **更轻的自家选择 · [ARIS-Monitor](aris-monitor/)** —— 不想开浏览器？ARIS 自带一个 macOS 置顶**悬浮小窗**(纯 Python stdlib,**无浏览器 · 无 Chrome 扩展**):只盯"**哪个会话在等你授权**" 🔴,点一行直接跳到那个终端。**Claude Fleet = 全功能网页看板;ARIS-Monitor = 同一想法的极简常驻版**,各取所需。
+🪟 **更轻的自家选择 · [ARIS-Monitor](aris-monitor/)** —— ARIS 自带的 macOS 置顶**悬浮小窗**(纯 Python · 无浏览器)：只亮"**哪个会话在等你授权**" 🔴，点一行跳到那个终端。
 
 <table align="center" width="100%">
 <tr>
