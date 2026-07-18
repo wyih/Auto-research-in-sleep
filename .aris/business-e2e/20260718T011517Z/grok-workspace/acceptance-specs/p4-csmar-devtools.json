@@ -1,0 +1,31 @@
+{
+  "schema_version": "aris.grok-browser-acceptance-spec.v1",
+  "stage": "P4",
+  "site": "csmar",
+  "artifact": {
+    "path": ".aris/business-e2e/20260718T011517Z/cn-data/raw/csmar/2026-07-18_grok_v1/csmar-fs-combas-000001-2020.zip",
+    "format": "zip",
+    "min_bytes": 1024
+  },
+  "p4": {
+    "expected_headers": [
+      "Stkcd",
+      "ShortName",
+      "Accper",
+      "Typrep",
+      "A001000000"
+    ],
+    "exact_rows": [
+      {
+        "Stkcd": "000001",
+        "ShortName": "平安银行",
+        "Accper": "2020-12-31",
+        "Typrep": "A",
+        "A001000000": "4468514000000.00"
+      }
+    ],
+    "min_rows": 1,
+    "archive_member": "FS_Combas.csv",
+    "member_format": "csv"
+  }
+}

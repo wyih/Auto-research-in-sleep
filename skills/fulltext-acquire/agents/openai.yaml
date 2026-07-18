@@ -1,0 +1,4 @@
+interface:
+  display_name: "Fulltext Acquire"
+  short_description: "Acquire and verify research paper fulltext"
+  default_prompt: "Use $fulltext-acquire to obtain the requested paper through the best authorized channel and return a verified local artifact."

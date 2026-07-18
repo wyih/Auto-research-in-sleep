@@ -1,0 +1,20 @@
+{
+  "schema_version": "aris.grok-browser-acceptance-spec.v1",
+  "stage": "P3",
+  "site": "ssrn",
+  "artifact": {
+    "path": ".aris/business-e2e/20260718T011517Z/grok-workspace/artifacts/fulltext/ssrn/grok-devtools-ssrn-2937525-corporate-culture-evidence-field.pdf",
+    "format": "pdf",
+    "min_bytes": 10240
+  },
+  "p3": {
+    "expected_title": "Corporate Culture: Evidence from the Field",
+    "expected_authors": [
+      "John R. Graham",
+      "Campbell R. Harvey",
+      "Jillian Popadak",
+      "Shivaram Rajgopal"
+    ],
+    "expected_ssrn_id": "2937525"
+  }
+}

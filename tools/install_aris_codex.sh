@@ -1,5 +1,8 @@
 #!/usr/bin/env bash
-# install_aris_codex.sh -- Project-local ARIS Codex skill installation.
+# install_aris_codex.sh -- Project-local ARIS agent-skill installation.
+#
+# The filename/manifest keep their historical Codex name for compatibility,
+# but the flat .agents/skills package is also discovered by Grok Build.
 #
 # This installer manages a flat Codex project layout:
 #   <project>/.agents/skills/<skill-name> -> <aris-repo>/skills/<package>/<skill-name>
@@ -45,6 +48,7 @@
 #   --dry-run                        show plan, no writes
 #   --quiet                          no prompts
 #   --no-doc                         skip AGENTS.md managed block update
+#   --no-global-pointer              skip the optional ~/.aris/repo helper pointer
 #   --replace-link NAME              replace a conflicting symlink for NAME
 #   --clear-stale-lock               clear a stale installer lock
 
@@ -72,6 +76,7 @@ DRY_RUN=false
 QUIET=false
 NO_DOC=false
 CLEAR_STALE_LOCK=false
+WRITE_GLOBAL_POINTER=true
 WITH_CLAUDE_OVERLAY=false
 WITH_GEMINI_OVERLAY=false
 REPLACE_LINK_NAMES=()
@@ -94,6 +99,7 @@ while [[ $# -gt 0 ]]; do
         --dry-run) DRY_RUN=true; shift ;;
         --quiet) QUIET=true; shift ;;
         --no-doc) NO_DOC=true; shift ;;
+        --no-global-pointer) WRITE_GLOBAL_POINTER=false; shift ;;
         --replace-link) REPLACE_LINK_NAMES+=("${2:?--replace-link requires NAME}"); shift 2 ;;
         --clear-stale-lock) CLEAR_STALE_LOCK=true; shift ;;
         --groups) SELECT_GROUPS="${SELECT_GROUPS:+$SELECT_GROUPS,}${2:?--groups requires A,B,...}"; shift 2 ;;
@@ -493,6 +499,7 @@ filter_upstream_by_selection() {  # $1 = upstream file, $2 = selected file, $3 =
 # installed skills find $ARIS_REPO/tools without a per-project install.
 ensure_global_pointer() {
     $DRY_RUN && return 0
+    $WRITE_GLOBAL_POINTER || return 0
     mkdir -p "$(dirname "$GLOBAL_POINTER")" 2>/dev/null || { warn "cannot create $(dirname "$GLOBAL_POINTER") — skipping global pointer"; return 0; }
     local cur=""
     [[ -f "$GLOBAL_POINTER" ]] && cur="$(cat "$GLOBAL_POINTER" 2>/dev/null || true)"

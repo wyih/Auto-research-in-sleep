@@ -1,0 +1,4 @@
+interface:
+  display_name: "Empirical Design Plan"
+  short_description: "Plan identification, variables, specifications, fixed effects, clustering, robustness, and table shells."
+  default_prompt: "Turn this business research idea into an empirical design plan with table shells and robustness checks."

@@ -1,0 +1,53 @@
+{
+  "schema_version": "aris.grok-browser-acceptance-spec.v1",
+  "stage": "P4",
+  "site": "cnrds",
+  "artifact": {
+    "path": ".aris/business-e2e/20260718T011517Z/cn-data/raw/cnrds/2026-07-18_grok_v1/cnrds-cird-000001-2020.zip",
+    "format": "zip",
+    "min_bytes": 1024
+  },
+  "p4": {
+    "expected_headers": [
+      "Scode",
+      "Year",
+      "Ftyp",
+      "Aplctm",
+      "Invia",
+      "Umia",
+      "Desia",
+      "Invja",
+      "Umja",
+      "Desja"
+    ],
+    "exact_rows": [
+      {
+        "Scode": "000001",
+        "Year": "2020",
+        "Ftyp": "集团公司合计",
+        "Aplctm": "上市后",
+        "Invia": "272",
+        "Umia": "1",
+        "Desia": "39",
+        "Invja": "0",
+        "Umja": "0",
+        "Desja": "0"
+      },
+      {
+        "Scode": "000001",
+        "Year": "2020",
+        "Ftyp": "上市公司本身",
+        "Aplctm": "上市后",
+        "Invia": "272",
+        "Umia": "1",
+        "Desia": "39",
+        "Invja": "0",
+        "Umja": "0",
+        "Desja": "0"
+      }
+    ],
+    "min_rows": 3,
+    "archive_member": "上市公司专利申请情况.csv",
+    "member_format": "csv"
+  }
+}

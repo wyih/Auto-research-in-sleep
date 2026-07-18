@@ -1,0 +1,16 @@
+{
+  "schema_version": "aris.grok-browser-acceptance-spec.v1",
+  "stage": "P3",
+  "site": "cnki",
+  "artifact": {
+    "path": ".aris/business-e2e/20260718T011517Z/grok-workspace/artifacts/fulltext/cnki/grok-devtools-duan-2018-quality-culture-performance.pdf",
+    "format": "pdf",
+    "min_bytes": 10240
+  },
+  "p3": {
+    "expected_title": "Research on the influence of quality culture on Enterprise Performance",
+    "expected_authors": [
+      "DuanJingjing"
+    ]
+  }
+}

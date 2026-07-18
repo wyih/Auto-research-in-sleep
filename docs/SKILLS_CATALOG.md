@@ -1,6 +1,6 @@
 # ARIS Skills Catalog
 
-Every skill that ships with ARIS, grouped by role. **80 skills** as of the
+Every skill that ships with ARIS, grouped by role. **104 skills** as of the
 latest update; new skills land via PR and get added to the table below.
 
 - Each `Skill` link goes to the canonical `SKILL.md` (the LLM-readable spec).
@@ -40,6 +40,37 @@ End-to-end pipelines that chain many sub-skills. Most users start here.
 | [`/dse-loop`](../skills/dse-loop/SKILL.md) | Autonomous design-space exploration loop for computer architecture / EDA — run → analyze → tune → iterate until objective met | Domain-specific tools |
 | [`/meta-optimize`](../skills/meta-optimize/SKILL.md) | **Workflow M** — analyze ARIS usage logs and propose SKILL.md / prompt / default-parameter improvements (outer-loop self-evolution) | Codex MCP, hook logging |
 | [`/meta-apply`](../skills/meta-apply/SKILL.md) | **Privileged landing gate** — the only skill allowed to mutate the skill corpus; lands `/meta-optimize` patches the human approved, after a fresh cross-model jury PASS on the staged diff (read-only producer ≠ privileged applier) | Codex MCP, human-in-loop |
+
+## 🏢 Business Empirical Research
+
+Portable business, accounting, finance, management, and economics workflows. The same canonical bodies are packaged for Codex and Grok; protected sites select Codex native Chrome, Grok's official DevTools safety facade, or an explicitly recorded legacy real-Chrome fallback at runtime.
+
+| Skill | Role | Requires |
+|---|---|---|
+| [`/business-research-suite`](../skills/business-research-suite/SKILL.md) | Light router for the next focused business-research stage | None |
+| [`/business-research-pipeline`](../skills/business-research-pipeline/SKILL.md) | Full staged chain: literature → fulltext/method → design → data → analysis → audits → writing | Stage-specific access |
+| [`/business-run-passport`](../skills/business-run-passport/SKILL.md) | Project spine for materials, acquisition, artifacts, decisions, gates, and reproducibility | None |
+| [`/browser-session-bridge`](../skills/browser-session-bridge/SKILL.md) | Authenticated Chrome contract with native Codex, official DevTools-facade Grok, and legacy fallback adapters | Codex Chrome capability or an accepted Grok MCP adapter |
+| [`/business-lit-review`](../skills/business-lit-review/SKILL.md) | Business literature map, journal conversation, closest papers, and method norms | Source-dependent |
+| [`/fulltext-acquire`](../skills/fulltext-acquire/SKILL.md) | Verified PDF acquisition through local, OA, CNKI, ScienceDirect, and authorized sessions | Source-dependent |
+| [`/method-harvest`](../skills/method-harvest/SKILL.md) | Evidence-located sample, design, variable, inference, and data method cards from verified PDFs | Local PDF + verifier |
+| [`/business-idea-creator`](../skills/business-idea-creator/SKILL.md) | Generate and rank research questions, mechanisms, data paths, and identification routes | None |
+| [`/business-novelty-check`](../skills/business-novelty-check/SKILL.md) | Closest-paper delta, incremental contribution, and risky framing check | Literature access |
+| [`/empirical-design-plan`](../skills/empirical-design-plan/SKILL.md) | Sample, variables, specification, identification, table shells, and robustness plan | None |
+| [`/wrds-query-bridge`](../skills/wrds-query-bridge/SKILL.md) | Default WRDS R/Postgres extraction, identifier links, caches, and manifests | WRDS account + R |
+| [`/wrds-sas-cloud`](../skills/wrds-sas-cloud/SKILL.md) | Policy-gated SAS Cloud submission, transfer, hash, and handoff | WRDS SAS/SSH access |
+| [`/cn-data-bridge`](../skills/cn-data-bridge/SKILL.md) | Minimal CSMAR/CNRDS field resolution and authorized portal export | Subscription/network access |
+| [`/data-analysis-bridge`](../skills/data-analysis-bridge/SKILL.md) | Backend-neutral routing and empirical output contract | Chosen backend |
+| [`/r-analysis-bridge`](../skills/r-analysis-bridge/SKILL.md) | R/fixest/tidyverse empirical analysis and reproducible outputs | R |
+| [`/stata-analysis-bridge`](../skills/stata-analysis-bridge/SKILL.md) | Stata do/dta empirical analysis and reproducible outputs | Stata |
+| [`/results-to-docx`](../skills/results-to-docx/SKILL.md) | Standalone academic Word package from tidy coefficients, descriptives, and figures | R or Python document stack |
+| [`/evidence-to-claim`](../skills/evidence-to-claim/SKILL.md) | Verdicts on claim strength, caveats, and safe result language | Analysis outputs |
+| [`/business-number-audit`](../skills/business-number-audit/SKILL.md) | Manuscript number and implemented-specification trace against outputs | Paper + outputs |
+| [`/business-claim-source-audit`](../skills/business-claim-source-audit/SKILL.md) | Source, literature, institution, mechanism, and citation claim support audit | Draft + sources |
+| [`/business-paper-plan`](../skills/business-paper-plan/SKILL.md) | Journal-facing paper architecture, narrative, and evidence placement | Accepted upstream artifacts |
+| [`/business-author-style-profile`](../skills/business-author-style-profile/SKILL.md) | Executable style constraints learned from author or journal examples | Writing samples |
+| [`/business-paper-writing`](../skills/business-paper-writing/SKILL.md) | Evidence-disciplined business paper drafting and revision | Accepted plan/audits |
+| [`/business-rebuttal`](../skills/business-rebuttal/SKILL.md) | Reviewer report parsing, revision strategy, and response letter | Review package |
 
 ## 📚 Literature & Search
 

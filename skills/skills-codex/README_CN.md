@@ -4,8 +4,9 @@
 
 ## 当前范围
 
-- 基座覆盖：主线 `skills/` 的 `80` 个 skill 全量同步
-- 支持目录：`shared-references/`，与主线 `30/30` 名称完整对齐
+- 基座覆盖：主线 `skills/` 的 `104` 个 skill 全量同步
+- 支持目录：`shared-references/`，与主线 `39/39` 名称完整对齐
+- 24 个商科实证 skill 由 `tools/sync_business_portable_mirror.py` 从运行时中立的 canonical source 机械同步；Codex 与 Grok 都从 `.agents/skills` 消费同一份内容，浏览器桥在运行时选择适配器。
 - reviewer-heavy skill 的默认 reviewer 契约：
   - 首轮：`spawn_agent`
   - 续接：`send_input`
@@ -19,13 +20,21 @@
 
 ## 推荐安装方式
 
-Codex 路线默认推荐项目级安装：
+Codex 默认推荐项目级安装；Grok Build 也会从同一个 `.agents/skills` 项目目录发现这些 skill：
 
 ```bash
 git clone https://github.com/wanshuiyin/Auto-claude-code-research-in-sleep.git ~/aris_repo
 cd ~/your-project
 
 bash ~/aris_repo/tools/install_aris_codex.sh .
+```
+
+如果是隔离的 Codex/Grok 烟测工作区，不希望更新可选的全局 helper 指针或 AGENTS 管理块：
+
+```bash
+bash ~/aris_repo/tools/install_aris_codex.sh . \
+  --groups business-research --quiet --no-doc --no-global-pointer
+grok inspect --json
 ```
 
 安装后会形成扁平布局：

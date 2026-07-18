@@ -1,0 +1,4 @@
+interface:
+  display_name: "Business Number Audit"
+  short_description: "Verify paper numbers against outputs"
+  default_prompt: "Use $business-number-audit to verify manuscript numbers against logs, tables, and figures."

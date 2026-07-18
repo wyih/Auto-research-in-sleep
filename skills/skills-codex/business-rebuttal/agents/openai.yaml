@@ -1,0 +1,4 @@
+interface:
+  display_name: "Business Rebuttal"
+  short_description: "Parse referee reports, plan revisions, and draft grounded response letters for business journals."
+  default_prompt: "Prepare a response strategy and draft for these business journal referee reports."

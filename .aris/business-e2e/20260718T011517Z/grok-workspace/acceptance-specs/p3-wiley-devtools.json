@@ -1,0 +1,20 @@
+{
+  "schema_version": "aris.grok-browser-acceptance-spec.v1",
+  "stage": "P3",
+  "site": "wiley",
+  "artifact": {
+    "path": ".aris/business-e2e/20260718T011517Z/grok-workspace/artifacts/fulltext/wiley/grok-devtools-graham-et-al-2023-corporate-culture-interview-evidence.pdf",
+    "format": "pdf",
+    "min_bytes": 10240
+  },
+  "p3": {
+    "expected_title": "Corporate culture: The interview evidence",
+    "expected_authors": [
+      "John R. Graham",
+      "Jillian A. Grennan",
+      "Campbell R. Harvey",
+      "Shivaram Rajgopal"
+    ],
+    "expected_doi": "10.1111/jacf.12528"
+  }
+}

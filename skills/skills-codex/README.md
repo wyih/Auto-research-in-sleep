@@ -4,8 +4,9 @@ Codex-native mirror and adaptation layer for the main ARIS `skills/` package.
 
 ## Scope
 
-- Base mirror coverage: all `80` mainline skills under `skills/`
-- Support directory: `shared-references/`, with all `30/30` mainline reference names mirrored
+- Base mirror coverage: all `104` mainline skills under `skills/`
+- Support directory: `shared-references/`, with all `39/39` mainline reference names mirrored
+- The 24 business empirical-research skills are runtime-neutral canonical copies synchronized by `tools/sync_business_portable_mirror.py`; Codex and Grok consume them through `.agents/skills`, while the browser bridge selects the runtime adapter.
 - Default reviewer contract for reviewer-heavy skills:
   - round 1: `spawn_agent`
   - follow-up: `send_input`
@@ -21,13 +22,21 @@ This package is still an appendage to the Claude mainline, not a separate Codex-
 
 ## Recommended Install
 
-Project-local install is the default path for Codex:
+Project-local install is the default path for Codex and is also the shared discovery path for Grok Build:
 
 ```bash
 git clone https://github.com/wanshuiyin/Auto-claude-code-research-in-sleep.git ~/aris_repo
 cd ~/your-project
 
 bash ~/aris_repo/tools/install_aris_codex.sh .
+```
+
+For an isolated Grok/Codex smoke workspace that should not update the optional global helper pointer or AGENTS block:
+
+```bash
+bash ~/aris_repo/tools/install_aris_codex.sh . \
+  --groups business-research --quiet --no-doc --no-global-pointer
+grok inspect --json
 ```
 
 This creates a flat managed layout:

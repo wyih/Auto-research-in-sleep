@@ -1,0 +1,4 @@
+interface:
+  display_name: "CN Data Bridge"
+  short_description: "On-demand CNRDS/CSMAR gap-fill with variable resolution, DOWNLOAD_SPEC, and MANIFEST."
+  default_prompt: "Use $cn-data-bridge to resolve CNRDS/CSMAR variables for open data gaps, write DOWNLOAD_SPEC when confidence is high (ask once if multi-definition), download only what is needed on the user network, land files under Data/raw/csmar or Data/raw/cnrds with MANIFEST, and update the passport if present."

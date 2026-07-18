@@ -1,0 +1,20 @@
+{
+  "schema_version": "aris.grok-browser-acceptance-spec.v1",
+  "stage": "P3",
+  "site": "sciencedirect",
+  "artifact": {
+    "path": ".aris/business-e2e/20260718T011517Z/grok-workspace/artifacts/fulltext/sciencedirect/grok-devtools-S1755309118300030-corporate-culture-firm-performance-china.pdf",
+    "format": "pdf",
+    "min_bytes": 10240
+  },
+  "p3": {
+    "expected_title": "The effect of corporate culture on firm performance: Evidence from China",
+    "expected_authors": [
+      "Hailin Zhao",
+      "Haimeng Teng",
+      "Qiang Wu"
+    ],
+    "expected_doi": "10.1016/j.cjar.2018.01.003",
+    "expected_pii": "S1755309118300030"
+  }
+}

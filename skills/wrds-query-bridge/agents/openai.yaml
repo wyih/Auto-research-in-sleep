@@ -1,0 +1,4 @@
+interface:
+  display_name: "WRDS Query Bridge"
+  short_description: "Pull WRDS data via R Postgres and cache parquet with DATA_MANIFEST."
+  default_prompt: "Use $wrds-query-bridge to design WRDS SQL pulls in R, cache parquet extracts, and update DATA_MANIFEST without storing secrets."
