@@ -12,6 +12,7 @@ Companion to `cn-data-bridge`. Describes how to obtain **on-demand** extracts us
 6. **Platform-agnostic** — do not hard-code one university VPN product, lab host, or portal skin as required.
 7. **Out of scope** — CNKI fulltext/PDF harvest; WRDS (use `wrds-query-bridge`).
 8. **Runtime separation** — Codex uses native Chrome. Grok prefers the official DevTools safety facade with its dedicated persistent profile and may use the legacy real-Chrome bridge only as an explicitly frozen fallback, selected only by `browser-session-bridge`.
+9. **Orchestration is neutral** — browser state and portal mutations still go through the selected bridge, but a checked-in helper may act as its MCP client and may wait, copy, hash, inspect archives, and verify rows. Acceptance depends on the fresh artifact and receipt, not on one-by-one interactive tool calls.
 
 ## Path And Naming
 
@@ -77,6 +78,12 @@ Example sidecar:
 6. Mark item status: `complete` | `partial` | `failed` | `blocked`.
 7. Preserve the bridge receipt and verifier output with the item evidence.
 
+### Observed Export Queue Details
+
+- After the official export request, wait for the queue row to show **压缩完成** and reconcile it with the requested dataset before the final download action.
+- In the current CNRDS skin the final control can appear in accessibility state as a short private-use icon-font `StaticText`, not a button. Use the bridge's fixed queue-icon action only when there is exactly one visible **压缩完成 + 未下载** row and exactly one matching icon; ambiguity is a re-inspection condition, not permission to click several candidates.
+- The portal can save ZIP bytes with a `.7z` filename. Treat detected structure as authoritative, retain the vendor filename when practical, and verify the archive plus its inner table. A filename token used for waiting should match the observed portal filename rather than forcing `.zip`.
+
 ### Session Hygiene
 
 - Reuse one login session across items in the same work block.
@@ -135,7 +142,7 @@ The following sequence was verified on 2026-07-18. Labels can move, so re-read t
 7. Re-read the complete frozen state—both dates, selected code, field count/order, and condition—together immediately before preview. If one component is wrong, repair that component directly; do not use global reset or **全选**.
 8. Run **预览数据** and verify row count, code, date, report type, and at least one requested domain value.
 9. Select the requested output format and activate **下载数据**. This creates a separate `sdownload.html` result page; it is not yet proof that a local file exists.
-10. On the result page, reconcile table, date range, code count, field IDs, condition expression, format, and record count with the `DOWNLOAD_SPEC`.
+10. On the result page, reconcile table, date range, code count, field IDs, condition expression, format, and record count with the `DOWNLOAD_SPEC`. CSMAR may retain several exact-URL `sdownload.html` sibling tabs. Claim the newest page by page identity only through the bridge's narrow CSMAR exception, then verify the complete visible summary; never infer that a same-URL tab is the intended result.
 11. Arm download completion immediately before **本地保存数据**, activate it once, and verify the landed file. CSMAR may wrap a selected CSV output in a ZIP; verify both the ZIP and the inner CSV.
 
 The result page may expose a short-lived object-storage URL. Never persist or print that URL. If normal browser saving is blocked only after the authorized UI has generated the result, use the browser-session bridge's narrowly scoped download fallback and record the transport; do not replay or generalize the signed URL.

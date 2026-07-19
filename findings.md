@@ -191,3 +191,60 @@ Update after every two browser/search observations.
 - The branch checkpoint intentionally preserves reusable Grok source and frozen
   non-secret prompt/spec fixtures while excluding PDFs, datasets, credentials,
   session logs, and runtime receipts.
+
+## 2026-07-19 Grok Goal Audit and Steer
+
+- A fresh root-verifier run confirms that Grok P3 is genuinely `PASS`: the
+  canonical P3 invocation passes 39 evidence checks, and CNKI, SSRN,
+  ScienceDirect, and Wiley each pass 22 browser-evidence checks. This supersedes
+  the pause-checkpoint statement that Grok P3 synthesis remained incomplete.
+- The overall root and Grok statuses remain `INCOMPLETE` only because neither
+  CNRDS nor CSMAR has a promoted Grok P4 receipt.
+- The CNRDS retry scripts contain a control-scoping bug: after clicking the main
+  download button, a generic substring search treats the permanent
+  `提交/添加条件` button as a download-modal confirmation. That click creates the
+  `请设置完整条件` dialog and invalidates subsequent diagnosis.
+- The same retry path fails open at the wrong layer: when
+  `compress_done_found=false`, it falls back to any generic `下载` control and
+  attempts download capture. P4 must instead stop until a real, fresh
+  `压缩完成` control is present.
+- The facade error `downloads_directory_unavailable` is independent of the
+  portal UI. On this host Grok keeps the normal HOME, but the strict macOS
+  sandbox denies access to the host Downloads directory; synthetic tests also
+  cover an unavailable HOME/Downloads boundary. The download boundary must be
+  corrected without exposing an arbitrary filesystem path to the model.
+- Grok began considering a raw child `evaluate_script` workaround. That turn was
+  cancelled because it violates the frozen 15-tool facade and would make P4
+  evidence ineligible. The Goal was compacted with these constraints and resumed.
+
+## 2026-07-19 CNRDS Grok download findings
+
+- Official queue download icon is a11y `StaticText` with a PUA glyph (`\uE618`); Playwright/chrome-devtools `click(uid)` fails because StaticText UIDs do not resolve to ElementHandles.
+- Safe fix is facade-only: after validating the selected control is a short PUA StaticText, run a fixed non-user-programmable DOM click near `压缩完成`, then baseline/wait/copy.
+- CNRDS packages CSV as a ZIP container but may name the file `上市公司专利申请情况.7z`. Acceptance still uses `format: zip` and ZIP CRC/member checks.
+- Grok download wait must use a filename filter present in the real landing name (`专利申请` or `.7z`), not only `.zip`.
+
+## 2026-07-19 Grok P4 CSMAR evidence
+
+- Independent Grok CSMAR export promoted: receipt `.aris/business-e2e/20260718T011517Z/cn-data/receipts/p4-csmar-grok.json`.
+- Artifact: `cn-data/raw/csmar/2026-07-18_grok_v1/csmar-fs-combas-000001-2020.zip` (215923 B; sha256 `a3b467bc8381a98efc22a107641bba9781c72edb8d6c2989759bd22eba440991`); member `FS_Combas.csv` exactly one data row: Stkcd=000001, Accper=2020-12-31, Typrep=A, A001000000=4468514000000.00.
+- Root verifier after promote: overall `PASS` for run `20260718T011517Z` (shared + Codex + Grok, including Grok P4_CNRDS and P4_CSMAR).
+- Facade note: multiple `sdownload.html` tabs share the same URL; facade now claims identical-URL matches by page id (`identical_url_matches`) so lease/inspect/download remain usable; content still verified on page before local-save. `child_hint` redaction runs through `safePublicString`.
+- Constraints held: 15-tool safe facade only for portal actions; accept/promote only via project scripts; no P3 reopen; no host Downloads symlink / no sandbox relax.
+
+## 2026-07-19 packaged Skill forward test
+
+- Grok 0.2.102 discovers `business-research-pipeline` and all 23 supporting
+  business skills from project `.agents/skills`.
+- A symlink install whose targets live outside the Grok workspace is discoverable
+  by name but unreadable under the strict sandbox. A self-contained copied package
+  avoids that cross-root boundary; same-repository installs are unaffected.
+- Fresh no-memory Grok session `e50f46c7-40d8-47ce-bd63-075a402bfdc6`
+  invoked `/business-research-pipeline` from an empty copied-package workspace.
+  It produced Stage 0–5 Passport, literature review, four identity-matched PDFs,
+  two method cards, cross-paper synthesis, idea/novelty artifacts, and all four
+  empirical-design files before the protected-data checkpoint.
+- Deterministic re-verification passed for all four PDFs and hashes; method-card
+  sample sizes and reported coefficients were found in the local text layers.
+  Grok's independent `/check-work` verdict was `PASS`; Codex independently
+  confirmed the required artifact and JSON paths.

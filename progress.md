@@ -300,3 +300,64 @@ Update after each phase and each material test.
   stopped. No P4 candidate/artifact was produced by the stopped attempts.
 - This is a development checkpoint, not dual-runtime final acceptance: Codex is
   fully accepted; Grok still needs canonical P3 synthesis plus CNRDS and CSMAR.
+
+## 2026-07-19 Grok Goal Audit and Steer
+
+- Exported Grok session `019f7614-f3fc-7863-8dfd-4f3cce31aa2a` and inspected the
+  live detached Goal plus its scratch logs.
+- Re-ran `scripts/verify_business_e2e.py --run-id 20260718T011517Z --json`.
+  Grok P3 is `PASS`; root and Grok remain `INCOMPLETE` because P4 CNRDS/CSMAR
+  receipts are absent.
+- Diagnosed the CNRDS failure as three separate issues: an unscoped
+  `提交/添加条件` click, a missing `压缩完成` fail-closed guard, and the facade's
+  inaccessible host `~/Downloads` under the strict macOS sandbox.
+- Cancelled the turn before it could use raw child `evaluate_script`, compacted
+  the session from roughly 327k to 8.7k context tokens with the authoritative
+  constraints, and resumed the Goal. The user's upstream 413 fix is treated as
+  complete and is not part of this work.
+
+## 2026-07-19 Grok P4 CNRDS completion
+
+- Root verifier Grok `P4_CNRDS` is `PASS` (26 evidence checks) after external accept/promote.
+- Artifact: `.aris/business-e2e/20260718T011517Z/cn-data/raw/cnrds/2026-07-18_grok_v1/cnrds-cird-000001-2020.zip`
+  - 538131 bytes, SHA-256 `c00058667171764fcd02ef5f18dc6600b0cdfd4882b392622b2a478fd20f2004`
+  - Portal named the download `*.7z` but content is ZIP (`PK` magic) with member `上市公司专利申请情况.csv`.
+- Wait filter must accept Chinese/`.7z` names; filtering only `.zip` falsely timed out after a successful queue download.
+- Facade change: allow PUA icon-font StaticText download triggers via fixed allowlisted leaf-click script; Codex mirror synced; focused facade tests pass.
+- Promoted receipt: `cn-data/receipts/p4-cnrds-grok.json`.
+- Remaining Grok gate: `P4_CSMAR` only.
+
+### Session: 2026-07-19 (Grok P4 CSMAR close-out)
+
+- **Status:** completed for Grok P4_CSMAR; root verifier overall PASS
+- **When:** 2026-07-19 10:36 UTC
+- Actions:
+  - Recovered continuity without full prior transcript (export tail + plan files).
+  - Prior CNRDS already PASS; completed frozen CSMAR `FS_Combas` export on dedicated Chrome via 15-tool safe facade only.
+  - Applied Typrep=A (合并报表 condition row present); preview 1 row; sdownload summary `共 1 条` and `[Typrep] = 'A'`.
+  - Landed ZIP `.aris/business-e2e/20260718T011517Z/cn-data/raw/csmar/2026-07-18_grok_v1/csmar-fs-combas-000001-2020.zip` (215923 bytes, sha256 `a3b467bc8381a98efc22a107641bba9781c72edb8d6c2989759bd22eba440991`); CSV 1 data row Typrep A.
+  - External accept + promote: `p4-csmar-devtools-acceptance.json`, `cn-data/receipts/p4-csmar-grok.json`.
+  - Facade: claim identical-URL tab siblings (CSMAR multi-sdownload) by last match / page id; lease uniqueness by page id; redact `child_hint` via `safePublicString`. Mirrored to Codex skill path. Focused facade tests green.
+- Verification:
+  - `python3.12 scripts/verify_business_e2e.py --run-id 20260718T011517Z --json` → overall PASS; Grok/Codex PASS; Grok P4_CNRDS and P4_CSMAR PASS.
+  - `python3.12 tools/sync_business_portable_mirror.py --check` → clean (24 skills, 9 refs).
+  - Focused GROK_HANDOFF pytest suite: 252 passed, 7 skipped (clean ARIS env).
+  - `node --check` on both facade copies OK.
+- Not done: final release commit/push (user not requested).
+
+## 2026-07-19 complete Skill packaging and forward acceptance
+
+- Updated the complete `business-research-pipeline` entry point, dual-runtime
+  browser/download contract, CNRDS/CSMAR observed recipes, and UI metadata.
+- Hardened the fixed CNRDS icon-font action to require one completed-undownloaded
+  queue row, one icon candidate, and exactly one click. Restricted duplicate-URL
+  auto-claim to exact CSMAR `sdownload.html` siblings.
+- Synchronized 24 portable skills plus nine shared references and installed the
+  full business group project-locally for new Codex and Grok sessions.
+- Validation: 24 Skill folders valid; clean install contains 24 skills plus
+  shared references; focused suite `267 passed, 7 skipped, 191 subtests passed`;
+  Node syntax and canonical/mirror equality pass.
+- Fresh copied-package Grok session
+  `e50f46c7-40d8-47ce-bd63-075a402bfdc6` completed the Stage 0–5 greenfield
+  task with verified PDFs, method cards, fulltext synthesis, novelty and design
+  artifacts. Grok `/check-work` and independent Codex artifact/hash checks pass.

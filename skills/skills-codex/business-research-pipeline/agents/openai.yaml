@@ -1,4 +1,4 @@
 interface:
   display_name: "Business Research Pipeline"
-  short_description: "Run the business-school paper workflow from literature review through writing and rebuttal."
-  default_prompt: "Run the business research pipeline for this topic, from literature and idea to empirical design and writing."
+  short_description: "Run a verified business-research chain from sources to paper."
+  default_prompt: "Use $business-research-pipeline to run the complete chain for this topic, including verified literature, design, data acquisition, analysis, audits, and writing."

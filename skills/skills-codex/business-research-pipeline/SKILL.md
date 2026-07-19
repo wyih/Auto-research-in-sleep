@@ -1,6 +1,6 @@
 ---
 name: business-research-pipeline
-description: End-to-end business, accounting, finance, management, and economics research workflow. Use when the user wants a business-school paper pipeline from literature review to idea, novelty, empirical design, data analysis, evidence-to-claim, paper plan, writing, rebuttal, or resubmission.
+description: Complete end-to-end business, accounting, finance, management, and economics research workflow for Codex or Grok. Use when the user wants one entry point that routes literature review, verified fulltext and method synthesis, idea and novelty, empirical design, WRDS or CSMAR/CNRDS acquisition, analysis, evidence audits, paper planning, writing, rebuttal, or resubmission.
 ---
 
 # Business Research Pipeline
@@ -130,7 +130,7 @@ Resolve every required source in `empirical-design/DATA_PLAN.md` before estimati
 
 - Run `wrds-query-bridge` for WRDS. Use its R/Postgres path by default.
 - Run `wrds-sas-cloud` only when the R path has a recorded timeout, OOM, hard failure, authentication blocker after retries, or the user explicitly requires SAS.
-- Run `cn-data-bridge` for minimal CSMAR/CNRDS exports. It must route protected portal actions through `browser-session-bridge`, which selects Codex native Chrome or Grok `chrome-mcp` at runtime.
+- Run `cn-data-bridge` for minimal CSMAR/CNRDS exports. It must route protected portal actions through `browser-session-bridge`, which selects Codex native Chrome or Grok's official DevTools safety facade at runtime; the legacy Grok bridge is an explicitly recorded fallback.
 
 Output:
 
@@ -198,7 +198,12 @@ Pause for user decision after:
 - Route missing fulltext through `fulltext-acquire` and method extraction through `method-harvest`; never infer method fields from abstracts.
 - Route WRDS through `wrds-query-bridge` first and record any `wrds-sas-cloud` escalation reason.
 - Route CSMAR/CNRDS through `cn-data-bridge`; its browser transport must come from `browser-session-bridge`.
+- Browser UI is required for authenticated navigation, login-state reuse, and portal mutations that depend on the visible session. Checked-in helper scripts may orchestrate the selected bridge, wait for and copy downloads, hash files, inspect archives, and run deterministic semantic checks. Do not fail an otherwise valid stage merely because the same approved bridge calls were issued by a helper script instead of one-by-one model tool calls.
 - Treat `results-to-docx` as a reproducible results package, not permission to overwrite a manuscript.
 - Route claim interpretation through `evidence-to-claim`.
 - Preserve ARIS audit discipline: source claims, table claims, citation claims, and reproducibility locks stay traceable.
 - For local tasks, complete only the requested stage and mark downstream gaps as next-stage inputs.
+
+## Full-Pipeline Acceptance
+
+The complete entry point passes only when a fresh session can discover this skill, route every requested stage through its named child skill, and leave independently checkable artifacts. Each stage must be either `passed` with its required evidence or `blocked` with a precise unresolved gap; inherited logs, old files, browser toasts, and unverified clicks are not fresh acceptance evidence. For protected sources, verify the landed PDF or data slice by identity, structure or required columns, size, and hash before allowing downstream synthesis or analysis.

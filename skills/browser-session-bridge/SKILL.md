@@ -46,6 +46,8 @@ Prefer the Grok primary path. Select the fallback only when the frozen run expli
 10. Run `scripts/verify_download.py` with the expected format and minimum size.
 11. Record a redacted execution receipt and return control to the calling skill.
 
+The caller may execute these steps as direct runtime tool calls or through a checked-in, bounded helper that acts as a client of the selected bridge. The browser owns authenticated page state and portal actions; helpers may own deterministic waiting, collision-safe copying, hashing, archive inspection, and verifier execution. Apply the same adapter freeze, redaction, and receipt requirements in either form.
+
 ## Download Verification
 
 Examples:
@@ -96,4 +98,5 @@ Never include cookies, tokens, account identifiers, raw IP addresses, or auth he
 - Do not ask for CAPTCHA handoff from hidden/offscreen markup alone; prove that the rendered challenge intersects the viewport and blocks the requested operation.
 - Download only the user-requested paper or minimal data extract; no bulk crawl.
 - Treat HTML masquerading as PDF/data, partial files, empty exports, and wrong formats as failures.
+- Judge acceptance from the fresh verified artifact and its receipt, not from whether orchestration used an interactive browser tool call or a checked-in helper client.
 - Do not claim cross-runtime acceptance from a single runtime receipt.

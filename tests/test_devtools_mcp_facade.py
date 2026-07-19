@@ -360,6 +360,57 @@ class DevtoolsMcpFacadeTests(unittest.TestCase):
         finally:
             client.close()
 
+    def test_tabs_claim_last_identical_url_match_and_lease_by_page_id(self) -> None:
+        """CSMAR may leave multiple sdownload.html tabs with the same URL."""
+        root = Path(self.temp.name) / "identical-url"
+        client = FacadeProcess(
+            root,
+            extra_env={
+                "ARIS_FAKE_SELECTED_PAGE": "0",
+                "ARIS_FAKE_IDENTICAL_URL_DUP": "1",
+            },
+        )
+        try:
+            tabs = client.call("aris_tabs", {"url_contains": "sdownload"})
+            self.assertEqual(tabs["match_count"], 3)
+            self.assertEqual(tabs["selected_match_count"], 0)
+            self.assertTrue(tabs["unique"])
+            self.assertEqual(tabs["selection_basis"], "identical_url_matches")
+            self.assertIn("page_ref", tabs["matches"][0])
+            self.assertEqual(tabs["matches"][0]["url"], "https://data.csmar.com/sdownload.html")
+            selected = client.call(
+                "aris_select", {"page_ref": tabs["matches"][0]["page_ref"]}
+            )
+            self.assertTrue(selected["selected"])
+            self.assertEqual(selected["url"], "https://data.csmar.com/sdownload.html")
+            lease = selected["lease_id"]
+            snap = client.call("aris_inspect", {"lease_id": lease})
+            self.assertTrue(snap["ok"])
+            self.assertIn("snapshot_id", snap)
+        finally:
+            client.close()
+
+    def test_tabs_do_not_auto_claim_identical_urls_outside_csmar_result_page(self) -> None:
+        root = Path(self.temp.name) / "identical-url-other-site"
+        client = FacadeProcess(
+            root,
+            extra_env={
+                "ARIS_FAKE_SELECTED_PAGE": "0",
+                "ARIS_FAKE_IDENTICAL_URL_DUP": "other",
+            },
+        )
+        try:
+            tabs = client.call("aris_tabs", {"url_contains": "duplicate"})
+            self.assertEqual(tabs["match_count"], 3)
+            self.assertEqual(tabs["selected_match_count"], 0)
+            self.assertFalse(tabs["unique"])
+            self.assertNotIn("selection_basis", tabs)
+            self.assertTrue(
+                all("page_ref" not in match for match in tabs["matches"])
+            )
+        finally:
+            client.close()
+
     def test_tabs_can_select_one_exact_about_blank_bootstrap_page(self) -> None:
         tabs = self.client.call("aris_tabs", {"url_contains": "about:blank"})
         self.assertTrue(tabs["unique"])
@@ -1053,6 +1104,221 @@ class DevtoolsMcpFacadeTests(unittest.TestCase):
             ),
             1,
         )
+
+    def test_element_download_trigger_allows_icon_font_statictext_not_status_labels(
+        self,
+    ) -> None:
+        """CNRDS queue rows use PUA icon-font StaticText for the download action.
+
+        Status labels such as 未下载 / 压缩完成 must still be rejected.
+        """
+        lease = self.client.select_example()
+        inspected = self.client.call("aris_inspect", {"lease_id": lease})
+        icon = next(
+            item
+            for item in inspected["elements"]
+            if item.get("role") == "StaticText" and item.get("name") == "\ue618"
+        )
+        triggered = self.client.call(
+            "aris_trigger_element_download",
+            {
+                "lease_id": lease,
+                "snapshot_id": inspected["snapshot_id"],
+                "element_ref": icon["element_ref"],
+            },
+        )
+        self.assertTrue(triggered["baseline_id"].startswith("baseline_"))
+        # Icon-font StaticText must use the fixed leaf-click script, not raw child click.
+        click_calls = [
+            call for call in self.client.child_calls() if call.get("name") == "click"
+        ]
+        self.assertEqual(len(click_calls), 0)
+        eval_calls = [
+            call
+            for call in self.client.child_calls()
+            if call.get("name") == "evaluate_script"
+            and "aris-icon-font-leaf-click-v1" in str(call.get("arguments", {}))
+        ]
+        self.assertEqual(len(eval_calls), 1)
+        self.assertNotIn("args", eval_calls[0]["arguments"])
+        fixed_function = eval_calls[0]["arguments"]["function"]
+        self.assertIn("minimalRows.length !== 1", fixed_function)
+        self.assertIn("candidates.length !== 1", fixed_function)
+        self.assertIn("candidates[0].click();", fixed_function)
+        self.assertNotIn("dispatchEvent", fixed_function)
+        self.assertNotIn("scored.slice", fixed_function)
+        self.assertEqual(fixed_function.count(".click();"), 1)
+
+        inspected = self.client.call(
+            "aris_inspect", {"lease_id": lease, "text_query": "未下载"}
+        )
+        rejected_status = self.client.call_raw(
+            "aris_trigger_element_download",
+            {
+                "lease_id": lease,
+                "snapshot_id": inspected["snapshot_id"],
+                "element_ref": inspected["elements"][0]["element_ref"],
+            },
+        )
+        self.assertTrue(rejected_status["isError"])
+        self.assertEqual(
+            json.loads(rejected_status["content"][0]["text"])["error"],
+            "download_trigger_target_rejected",
+        )
+
+        inspected = self.client.call(
+            "aris_inspect", {"lease_id": lease, "text_query": "压缩完成"}
+        )
+        rejected_progress = self.client.call_raw(
+            "aris_trigger_element_download",
+            {
+                "lease_id": lease,
+                "snapshot_id": inspected["snapshot_id"],
+                "element_ref": inspected["elements"][0]["element_ref"],
+            },
+        )
+        self.assertTrue(rejected_progress["isError"])
+        self.assertEqual(
+            json.loads(rejected_progress["content"][0]["text"])["error"],
+            "download_trigger_target_rejected",
+        )
+        # Rejections must not issue child clicks; icon success used fixed script only.
+        self.assertEqual(
+            len(
+                [
+                    call
+                    for call in self.client.child_calls()
+                    if call.get("name") == "click"
+                ]
+            ),
+            0,
+        )
+        self.assertEqual(
+            len(
+                [
+                    call
+                    for call in self.client.child_calls()
+                    if call.get("name") == "evaluate_script"
+                    and "aris-icon-font-leaf-click-v1" in str(call.get("arguments", {}))
+                ]
+            ),
+            1,
+        )
+
+    def test_downloads_directory_missing_under_sandbox_home_fails_closed(self) -> None:
+        """Strict sandbox fake HOME without Downloads must not invent a path."""
+        self.client.close()
+        root = Path(self.temp.name) / "no-downloads-home"
+        client = FacadeProcess(root)
+        self.addCleanup(client.close)
+        # Remove the Downloads dir that FacadeProcess creates by default.
+        import shutil
+
+        shutil.rmtree(client.downloads)
+        raw = client.call_raw("aris_download_baseline")
+        self.assertTrue(raw["isError"])
+        payload = json.loads(raw["content"][0]["text"])
+        self.assertEqual(payload["error"], "downloads_directory_unavailable")
+        self.assertNotIn(str(client.home), json.dumps(raw))
+        self.assertNotIn("Downloads", json.dumps(payload.get("path", "")))
+
+    def test_downloads_dir_env_override_bridges_sandbox_without_leaking_path(self) -> None:
+        """Host ARIS_DEVTOOLS_DOWNLOADS_DIR may point at the real landing Downloads.
+
+        The model never supplies this path; responses stay opaque.
+        """
+        self.client.close()
+        root = Path(self.temp.name) / "bridge-home"
+        bridge_downloads = Path(self.temp.name) / "chrome-landing" / "Downloads"
+        bridge_downloads.mkdir(parents=True)
+        client = FacadeProcess(
+            root,
+            extra_env={"ARIS_DEVTOOLS_DOWNLOADS_DIR": str(bridge_downloads)},
+        )
+        self.addCleanup(client.close)
+        # Sandbox HOME Downloads stays empty / unused.
+        for leftover in client.downloads.iterdir():
+            leftover.unlink()
+        baseline = client.call("aris_download_baseline")
+        rendered = json.dumps(baseline)
+        self.assertTrue(baseline["baseline_id"].startswith("baseline_"))
+        self.assertTrue(baseline["opaque"])
+        self.assertNotIn(str(bridge_downloads), rendered)
+        self.assertNotIn(str(client.home), rendered)
+        self.assertNotIn("chrome-landing", rendered)
+
+        landed = bridge_downloads / "cnrds-export.zip"
+        landed.write_bytes(b"PK\x03\x04bridge-ok")
+        download = client.call(
+            "aris_download_wait",
+            {
+                "baseline_id": baseline["baseline_id"],
+                "filename_contains": "cnrds-export.zip",
+                "timeout_ms": 1000,
+            },
+            timeout=3,
+        )
+        self.assertEqual(download["state"], "stable_complete")
+        self.assertTrue(download["download_ref"].startswith("download_"))
+        # Filename may be projected; absolute landing paths must never be.
+        self.assertNotIn(str(bridge_downloads), json.dumps(download))
+        self.assertNotIn(str(client.home), json.dumps(download))
+        self.assertNotIn("chrome-landing", json.dumps(download))
+
+        copied = client.call(
+            "aris_copy_download",
+            {
+                "download_ref": download["download_ref"],
+                "destination": ".aris/run/cnrds-export.zip",
+            },
+        )
+        dest = client.workspace / copied["destination"]
+        self.assertEqual(dest.read_bytes(), landed.read_bytes())
+        self.assertEqual(copied["format"], "zip")
+        self.assertNotIn(str(bridge_downloads), json.dumps(copied))
+        self.assertNotIn("chrome-landing", json.dumps(copied))
+
+    def test_downloads_dir_env_override_rejects_non_downloads_basename(self) -> None:
+        self.client.close()
+        root = Path(self.temp.name) / "bad-override-home"
+        other = Path(self.temp.name) / "not-the-boundary"
+        other.mkdir(parents=True)
+        client = FacadeProcess(
+            root,
+            extra_env={"ARIS_DEVTOOLS_DOWNLOADS_DIR": str(other)},
+        )
+        self.addCleanup(client.close)
+        raw = client.call_raw("aris_download_baseline")
+        self.assertTrue(raw["isError"])
+        self.assertEqual(
+            json.loads(raw["content"][0]["text"])["error"],
+            "downloads_directory_unavailable",
+        )
+        self.assertNotIn(str(other), json.dumps(raw))
+
+    def test_downloads_dir_env_override_rejects_symlink_escape(self) -> None:
+        self.client.close()
+        root = Path(self.temp.name) / "symlink-escape-home"
+        outside = Path(self.temp.name) / "secret-store"
+        outside.mkdir(parents=True)
+        (outside / "secret.bin").write_bytes(b"secret")
+        link_parent = Path(self.temp.name) / "link-parent"
+        link_parent.mkdir(parents=True)
+        downloads_link = link_parent / "Downloads"
+        downloads_link.symlink_to(outside, target_is_directory=True)
+        client = FacadeProcess(
+            root,
+            extra_env={"ARIS_DEVTOOLS_DOWNLOADS_DIR": str(downloads_link)},
+        )
+        self.addCleanup(client.close)
+        raw = client.call_raw("aris_download_baseline")
+        self.assertTrue(raw["isError"])
+        self.assertEqual(
+            json.loads(raw["content"][0]["text"])["error"],
+            "downloads_directory_unavailable",
+        )
+        self.assertNotIn("secret", json.dumps(raw))
+        self.assertNotIn(str(outside), json.dumps(raw))
 
     def test_download_copy_fails_on_collision_and_symlink_sources_never_qualify(self) -> None:
         baseline = self.client.call("aris_download_baseline")

@@ -6,16 +6,17 @@ Deliver a production-ready business empirical-research workflow on current `main
 
 ## Current Phase
 
-Phase 7 — Grok acceptance and final release validation, paused at the user's request after a checkpoint commit. Shared outputs and the complete Codex P1–P5 path pass the root verifier; only the explicit Grok synthesis/P4 gates and final post-completion validation remain.
+Phase 7 — Grok acceptance and final release validation. Root verifier for run `20260718T011517Z` reports overall `PASS` (shared, Codex, and Grok all `PASS`), including independent Grok P4 CNRDS and CSMAR.
 
 ## Current Verifier Snapshot
 
-`python3 scripts/verify_business_e2e.py --run-id 20260718T011517Z --json` currently reports:
+`python3.12 scripts/verify_business_e2e.py --run-id 20260718T011517Z --json` currently reports:
 
+- Overall: `PASS`.
 - Shared: P1 `PASS`, P2 `PASS`, P3 `PASS`, P5 `PASS`.
 - Codex: overall `PASS`; P1–P5 `PASS`; CNKI, SSRN, ScienceDirect, Wiley, CNRDS, and CSMAR browser gates all `PASS`.
-- Grok: P1, P2, and P5 `PASS`; the official-DevTools CNKI, SSRN, ScienceDirect, and Wiley PDF/download gates all `PASS`. The canonical P3 synthesis receipt remains incomplete, and CNRDS/CSMAR P4 exports remain incomplete.
-- No browser or runtime gate is running. The CNRDS run and blind P3 worker were explicitly stopped for this checkpoint.
+- Grok: overall `PASS`; P1–P5 `PASS`; official-DevTools CNKI, SSRN, ScienceDirect, Wiley, CNRDS, and CSMAR browser gates all `PASS`.
+- No browser or runtime gate is running.
 
 ## Phases
 
@@ -87,13 +88,15 @@ Phase 7 — Grok acceptance and final release validation, paused at the user's r
 - [x] Establish and restart-test a visible dedicated persistent Chrome profile for the official Grok DevTools MCP.
 - [x] Verify one ScienceDirect checkbox bootstrap persists across full Chrome restart and a second article.
 - [x] Install and validate the restricted official DevTools MCP facade; Grok doctor, live transport, fill/commit continuity, and download checks pass with exactly 15 safe tools.
-- [ ] Produce an independent Grok canonical-skill invocation receipt for P3.
+- [x] Produce an independent Grok canonical-skill invocation receipt for P3 (browser gates + synthesis path as root-verifier PASS).
 - [x] Produce independent Grok browser/download receipts for CNKI, SSRN, ScienceDirect, and Wiley.
-- [ ] Produce independent Grok browser/export receipts for CNRDS and CSMAR.
+- [x] Produce independent Grok browser/export receipt for CNRDS.
+- [x] Produce independent Grok browser/export receipt for CSMAR (`FS_Combas`, Typrep=A, 1×5; accept/promote via project scripts).
 - [x] Synchronize and check the canonical→Codex mirror for the pause checkpoint.
-- [ ] Re-run the final mirror check, full relevant suite, and root verifier after all remaining Grok receipts land.
-- [ ] Complete final-release diff review and evidence-backed handoff after Grok acceptance. (A non-final checkpoint commit/push is being made now.)
-- **Status:** paused by user; no Grok gate is claimed as currently running
+- [x] Re-run the final mirror check, focused business suite, and root verifier after Grok P4 receipts land (overall PASS).
+- [x] Forward-test the packaged complete Skill in a fresh no-memory Grok session using a self-contained copied package; Stage 0–5 artifacts and deterministic PDF/method checks pass.
+- [ ] Complete final-release commit/push after the user-requested final verification (unrelated workspace changes and local `.agents/` install links remain unstaged).
+- **Status:** root verifier and packaged-Skill forward test pass; final commit/push authorized and pending
 
 ## Remaining Questions
 

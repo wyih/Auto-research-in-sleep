@@ -144,6 +144,81 @@ const FIXED_CNKI_CHALLENGE_PROBE_SCRIPT = `() => {
     blocking: renderedMatches.length > 0 && (topElementObstructs || modalSurface),
   };
 }`;
+// Non-user-programmable: click the sole download icon in the sole visible completed,
+// not-yet-downloaded queue row. StaticText a11y UIDs do not resolve to ElementHandles
+// in chrome-devtools-mcp, so evaluate_script uid args cannot be used.
+const FIXED_ICON_FONT_LEAF_CLICK_SCRIPT = `() => {
+  const marker = "aris-icon-font-leaf-click-v1";
+  void marker;
+  const visible = (el) => {
+    if (!el || !el.getBoundingClientRect) return false;
+    const style = window.getComputedStyle(el);
+    const rect = el.getBoundingClientRect();
+    const opacity = Number.parseFloat(style.opacity || "1");
+    return style.display !== "none"
+      && style.visibility !== "hidden"
+      && style.visibility !== "collapse"
+      && Number.isFinite(opacity)
+      && opacity > 0
+      && rect.width > 0
+      && rect.height > 0;
+  };
+  const isPuaText = (value) => {
+    const text = String(value || "").trim();
+    if (!text || [...text].length > 3) return false;
+    return [...text].every((ch) => {
+      const cp = ch.codePointAt(0);
+      return (cp >= 0xE000 && cp <= 0xF8FF)
+        || (cp >= 0xF0000 && cp <= 0xFFFFD)
+        || (cp >= 0x100000 && cp <= 0x10FFFD);
+    });
+  };
+  const classSelectors = [
+    "i.el-icon-download",
+    "[class*='el-icon-download']",
+    "i[class*='download']",
+    "span[class*='download']",
+    "a[class*='download']",
+    "[class*='icon-download']",
+    "[class*='Download']",
+  ];
+  const rowNodes = [];
+  const walk = document.createTreeWalker(document.body, NodeFilter.SHOW_ELEMENT);
+  let el;
+  while ((el = walk.nextNode())) {
+    if (!visible(el)) continue;
+    const text = String(el.innerText || "");
+    if (!text.includes("压缩完成") || !text.includes("未下载")) continue;
+    const rect = el.getBoundingClientRect();
+    if (rect.height < 12 || rect.height > 120 || rect.width < 120) continue;
+    rowNodes.push(el);
+  }
+  rowNodes.sort((a, b) => a.getBoundingClientRect().height - b.getBoundingClientRect().height);
+  const minimalRows = rowNodes.filter((candidate) => !rowNodes.some(
+    (other) => other !== candidate && candidate.contains(other),
+  ));
+  if (minimalRows.length !== 1) return { clicked: false };
+  const row = minimalRows[0];
+  const puaCandidates = [...row.querySelectorAll("*")].filter((node) => {
+    if (!visible(node) || node.children.length > 0 || !isPuaText(node.textContent)) return false;
+    const rect = node.getBoundingClientRect();
+    return rect.width <= 64 && rect.height <= 64;
+  });
+  const explicitCandidates = [];
+  for (const selector of classSelectors) {
+    for (const node of row.querySelectorAll(selector)) {
+      if (!visible(node)) continue;
+      const rect = node.getBoundingClientRect();
+      if (rect.width <= 64 && rect.height <= 64) explicitCandidates.push(node);
+    }
+  }
+  const candidates = [...new Set(puaCandidates.length > 0 ? puaCandidates : explicitCandidates)];
+  if (candidates.length !== 1 || typeof candidates[0].click !== "function") {
+    return { clicked: false };
+  }
+  candidates[0].click();
+  return { clicked: true };
+}`;
 const FIXED_ACTIVE_EDITABLE_VALUE_SCRIPT = `() => {
   const marker = "aris-active-editable-value-v1";
   void marker;
@@ -333,6 +408,34 @@ function textHasSensitiveAssignment(value) {
   while ((match = matcher.exec(decoded)) !== null) {
     if (parameterIsSensitive(match[1])) return true;
   }
+  return false;
+}
+
+/** True when accessibility name is only short Private Use Area icon-font glyphs. */
+function isIconFontLabel(name) {
+  const text = String(name ?? "").trim();
+  if (!text || [...text].length > 3) return false;
+  for (const ch of text) {
+    const cp = ch.codePointAt(0);
+    const inBmpPua = cp >= 0xE000 && cp <= 0xF8FF;
+    const inSuppPuaA = cp >= 0xF0000 && cp <= 0xFFFFD;
+    const inSuppPuaB = cp >= 0x100000 && cp <= 0x10FFFD;
+    if (!inBmpPua && !inSuppPuaA && !inSuppPuaB) return false;
+  }
+  return true;
+}
+
+function isDownloadTriggerTarget(target) {
+  if (!target || target.credentialTarget) return false;
+  if (["slider", "image", "press and hold"].some(
+    (signal) => String(target.challengeText || "").toLowerCase().includes(signal),
+  )) {
+    return false;
+  }
+  const role = String(target.role || "").toLowerCase();
+  if (role === "button" || role === "link") return true;
+  // CNRDS/CSMAR queue rows expose download actions as icon-font StaticText, not buttons.
+  if ((role === "statictext" || role === "text") && isIconFontLabel(target.name)) return true;
   return false;
 }
 
@@ -804,8 +907,20 @@ function fixedScriptPayload(result, expectedKeys) {
 
 function assertChildSuccess(result, operation, { mutation = false } = {}) {
   if (!result || result.isError) {
+    // Surface a short redacted child message for fail-closed diagnosis (no paths/secrets).
+    let childHint = "";
+    try {
+      const joined = resultTexts(result).join(" ").replace(/\s+/g, " ").trim();
+      childHint = safePublicString(
+        joined.replace(/https?:\/\/\S+/g, "[url]").replace(/\/Users\/\S+/g, "[path]"),
+        160,
+      );
+    } catch {
+      childHint = "";
+    }
     throw new FacadeError("browser_operation_failed", {
       operation,
+      ...(childHint ? { child_hint: childHint } : {}),
       ...(mutation ? { effect_state: "unknown", state_check_required: true } : {}),
     });
   }
@@ -1162,7 +1277,7 @@ const PUBLIC_TOOLS = Object.freeze([
     properties: { lease_id: { type: "string" } },
     required: ["lease_id"],
   }),
-  tool("aris_trigger_element_download", "Atomically snapshot ~/Downloads and click one fresh non-challenge link or button, returning only an opaque download baseline.", {
+  tool("aris_trigger_element_download", "Atomically snapshot ~/Downloads and click one fresh non-challenge link, button, or short private-use icon-font StaticText control, returning only an opaque download baseline.", {
     properties: {
       lease_id: { type: "string" },
       snapshot_id: { type: "string" },
@@ -1209,7 +1324,8 @@ export class SafeDevtoolsFacade {
     if (script !== FIXED_PDF_DOWNLOAD_SCRIPT
       && script !== FIXED_CNKI_CHALLENGE_PROBE_SCRIPT
       && script !== FIXED_ACTIVE_EDITABLE_VALUE_SCRIPT
-      && script !== FIXED_PINNED_EDITABLE_VALUE_SCRIPT) {
+      && script !== FIXED_PINNED_EDITABLE_VALUE_SCRIPT
+      && script !== FIXED_ICON_FONT_LEAF_CLICK_SCRIPT) {
       throw new FacadeError("fixed_script_not_allowlisted");
     }
     return assertChildSuccess(
@@ -1305,10 +1421,8 @@ export class SafeDevtoolsFacade {
       throw new FacadeError("page_lease_not_selected");
     }
     const target = matchingId[0];
-    if (pages.filter((page) => page.rawUrl === target.rawUrl).length !== 1) {
-      this.#invalidateBrowserState();
-      throw new FacadeError("page_lease_not_unique");
-    }
+    // Lease identity is the page id. Multiple tabs may share the same URL (e.g. CSMAR
+    // sdownload.html result pages); unique-URL enforcement would make those leases unusable.
     if (!this.#fillProofMatchesPage(target)) this.#clearFillProof();
     this.lease.rawUrl = target.rawUrl;
     return target;
@@ -1429,11 +1543,24 @@ export class SafeDevtoolsFacade {
   }
 
   async #downloadsDirectory() {
-    const requested = resolve(homedir(), "Downloads");
+    // Trusted inventory root only. Host/harness may set ARIS_DEVTOOLS_DOWNLOADS_DIR
+    // when the process HOME is a sandbox fake-home that is not Chrome's download
+    // landing directory. The override is never a tool argument, must basename to
+    // "Downloads", and must not appear in tool results (opaque baselines only).
+    const override = this.env.ARIS_DEVTOOLS_DOWNLOADS_DIR;
+    const requested = override == null || override === ""
+      ? resolve(homedir(), "Downloads")
+      : resolve(expandHomePath(String(override)));
+    if (basename(requested) !== "Downloads") {
+      throw new FacadeError("downloads_directory_unavailable");
+    }
     let canonical;
     try {
       canonical = await realpath(requested);
     } catch {
+      throw new FacadeError("downloads_directory_unavailable");
+    }
+    if (basename(canonical) !== "Downloads") {
       throw new FacadeError("downloads_directory_unavailable");
     }
     return { requested, canonical };
@@ -1568,16 +1695,36 @@ export class SafeDevtoolsFacade {
         const pages = await this.#listPages();
         const matches = pages.filter((page) => page.rawUrl.includes(filter));
         const selectedMatches = matches.filter((page) => page.selected);
-        const claim = matches.length === 1
+        let claim = matches.length === 1
           ? matches[0]
           : selectedMatches.length === 1
             ? selectedMatches[0]
             : null;
-        const selectionBasis = matches.length === 1
+        let selectionBasis = matches.length === 1
           ? "only_match"
           : claim
             ? "only_selected_match"
             : null;
+        // CSMAR opens one sdownload.html per export; stale siblings share the exact raw URL
+        // and often have no selected flag. Keep this exception site- and path-specific.
+        if (!claim && matches.length > 1) {
+          const rawUrls = matches.map((page) => page.rawUrl);
+          let csmarResult = false;
+          try {
+            const parsed = new URL(rawUrls[0]);
+            csmarResult = parsed.protocol === "https:"
+              && parsed.hostname === "data.csmar.com"
+              && parsed.pathname === "/sdownload.html"
+              && parsed.search === ""
+              && parsed.hash === "";
+          } catch {
+            csmarResult = false;
+          }
+          if (csmarResult && rawUrls.every((url) => url === rawUrls[0])) {
+            claim = matches[matches.length - 1];
+            selectionBasis = "identical_url_matches";
+          }
+        }
         const discoveryId = opaque("discovery");
         const orderedMatches = claim && matches.length > 1
           ? [claim, ...matches.filter((page) => page.id !== claim.id)]
@@ -1618,9 +1765,14 @@ export class SafeDevtoolsFacade {
         const pages = await this.#listPages();
         const matches = pages.filter((page) => page.rawUrl.includes(discovery.filter));
         const selectedMatches = matches.filter((page) => page.selected);
-        const verifiedMatches = discovery.selectionBasis === "only_selected_match"
-          ? selectedMatches
-          : matches;
+        let verifiedMatches;
+        if (discovery.selectionBasis === "only_selected_match") {
+          verifiedMatches = selectedMatches;
+        } else if (discovery.selectionBasis === "identical_url_matches") {
+          verifiedMatches = matches.filter((page) => page.id === discovery.page.id);
+        } else {
+          verifiedMatches = matches;
+        }
         if (verifiedMatches.length !== 1
           || verifiedMatches[0].id !== discovery.page.id
           || verifiedMatches[0].rawUrl !== discovery.page.rawUrl) {
@@ -1634,7 +1786,8 @@ export class SafeDevtoolsFacade {
         );
         const after = await this.#listPages();
         const selected = after.filter((page) => page.id === verifiedMatches[0].id && page.selected);
-        if (selected.length !== 1 || after.filter((page) => page.rawUrl === selected[0].rawUrl).length !== 1) {
+        // Lease identity is page id; same-URL sibling tabs (CSMAR sdownload) are allowed.
+        if (selected.length !== 1) {
           this.#invalidateBrowserState();
           throw new FacadeError("page_selection_unverified");
         }
@@ -1861,26 +2014,41 @@ export class SafeDevtoolsFacade {
         await this.#verifiedLease(args.lease_id);
         const { snapshot, target } = this.#requireSnapshot(args);
         if (snapshot.challenge?.observed) throw new FacadeError("challenge_blocks_download_trigger");
-        if (!new Set(["button", "link"]).has(target.role.toLowerCase())
-          || target.credentialTarget
-          || ["slider", "image", "press and hold"].some(
-            (signal) => target.challengeText.toLowerCase().includes(signal),
-          )) {
+        if (!isDownloadTriggerTarget(target)) {
           throw new FacadeError("download_trigger_target_rejected");
         }
+        const role = String(target.role || "").toLowerCase();
+        const iconLabel = String(target.rawName ?? target.name ?? "").trim();
+        const iconPath = (role === "statictext" || role === "text") && isIconFontLabel(iconLabel);
+        // Baseline before mutation. Icon path does not need a live a11y UID after inventory.
         const inventory = await this.#downloadInventory();
         const createdAt = Date.now();
         this.#invalidateSnapshot();
         this.#clearFillProof();
-        assertChildSuccess(
-          await this.child.callTool("click", {
-            uid: target.rawUid,
-            dblClick: false,
-            includeSnapshot: false,
-          }),
-          "trigger_element_download",
-          { mutation: true },
-        );
+        if (iconPath) {
+          const scriptResult = await this.#runFixedScript(
+            FIXED_ICON_FONT_LEAF_CLICK_SCRIPT,
+            "trigger_element_download",
+            { mutation: true },
+          );
+          const payload = fixedScriptPayload(scriptResult, ["clicked"]);
+          if (!payload || payload.clicked !== true) {
+            throw new FacadeError("download_trigger_icon_click_failed", {
+              effect_state: "unknown",
+              state_check_required: true,
+            });
+          }
+        } else {
+          assertChildSuccess(
+            await this.child.callTool("click", {
+              uid: target.rawUid,
+              dblClick: false,
+              includeSnapshot: false,
+            }),
+            "trigger_element_download",
+            { mutation: true },
+          );
+        }
         const baselineId = opaque("baseline");
         this.baselines.set(baselineId, {
           id: baselineId,

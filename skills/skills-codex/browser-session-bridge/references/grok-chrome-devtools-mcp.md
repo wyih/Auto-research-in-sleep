@@ -40,6 +40,11 @@ user's ordinary Chrome profile and it is not the legacy extension bridge.
    profile_mode: dedicated_persistent
    ```
 
+Grok may invoke the public facade tools directly or use a checked-in bounded
+helper as an MCP client. The helper does not create a new adapter: it must expose
+no raw child tools, preserve the same page leases and opaque download handles,
+and produce the same redacted receipt. Shell orchestration alone is not a failure.
+
 ## Safe Tool Surface
 
 The facade, not the Grok prompt, enforces URL redaction, page leases, fresh
@@ -78,7 +83,11 @@ or post-action read:
 1. Call `aris_tabs` with a narrow stable origin/path filter. Accept either one
    exact sanitized match (`selection_basis=only_match`) or, when duplicate
    matching tabs exist, the sole currently selected match
-   (`selection_basis=only_selected_match`). The facade must withhold a page
+   (`selection_basis=only_selected_match`). The CSMAR result-page exception may
+   return `selection_basis=identical_url_matches` only for exact duplicate
+   `https://data.csmar.com/sdownload.html` tabs; select the claimed page by page
+   identity and verify its visible export summary before downloading. Outside
+   that exception, the facade must withhold a page
    reference when zero or multiple selected matches remain. If no site tab
    exists, an exact unique `about:blank` tab is the only permitted bootstrap
    exception.
@@ -160,10 +169,13 @@ article/export control that directly starts a file download:
    checks. Record `download_event: unsupported` and
    `completion: fallback_directory_increment`.
 
-Keep `aris_download_baseline` only for an exceptional flow whose final mutation
-cannot be represented by the atomic element trigger. Do not split baseline and
-click in ordinary PDF/ZIP/CSV flows; the atomic form removes a needless MCP
-round trip and closes the race between inventory and click.
+Prefer the atomic element trigger when the final action is a normal link or
+button. Use `aris_download_baseline` for a portal flow whose final mutation
+cannot be represented by that trigger, including a verified queue icon or a
+checked-in helper client. In that case, freeze the baseline immediately before
+the single final action and require the same fresh-file, stability, copy, hash,
+and semantic checks. Record the non-atomic transport in the receipt; do not fail
+an otherwise verified artifact solely because the flow required this form.
 
 A click, viewer page, browser PDF tab, filename, or facade success is not artifact
 acceptance by itself.

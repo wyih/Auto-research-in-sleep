@@ -48,34 +48,68 @@ function send(message) {
 }
 
 function pagesResult() {
-  const pages = [
-    {
-      id: 1,
-      url: mode === "ordinary"
-        ? "https://example.test/paper?sessionId=RAW-QUERY-SECRET"
-        : mode === "pdf"
-          ? "https://assets.example.test/session/main.pdf?X-Amz-Signature=RAW-PDF-SECRET"
-          : mode.startsWith("cnki-")
-            ? `https://kns.cnki.net/kns8s/search/${mode.slice(5)}`
-            : mode === "wiley-wrapper"
-              ? "https://onlinelibrary.wiley.com/doi/pdf/10.1111/test"
-          : `https://example.test/${mode}?token=RAW-CHALLENGE-QUERY`,
-      title: "Research paper token=RAW-TITLE-SECRET",
-      selected: selectedPage === 1,
-    },
-    {
-      id: 2,
-      url: "https://other.test/home?apiKey=OTHER-QUERY-SECRET",
-      title: "Other",
-      selected: selectedPage === 2,
-    },
-    {
-      id: 3,
-      url: "about:blank",
-      title: "about:blank",
-      selected: selectedPage === 3,
-    },
-  ];
+  let pages;
+  if (process.env.ARIS_FAKE_IDENTICAL_URL_DUP) {
+    const duplicateUrl = process.env.ARIS_FAKE_IDENTICAL_URL_DUP === "1"
+      ? "https://data.csmar.com/sdownload.html"
+      : "https://example.test/duplicate";
+    // Three same-URL siblings; none selected by default.
+    pages = [
+      {
+        id: 11,
+        url: duplicateUrl,
+        title: "CSMAR",
+        selected: selectedPage === 11,
+      },
+      {
+        id: 12,
+        url: duplicateUrl,
+        title: "CSMAR",
+        selected: selectedPage === 12,
+      },
+      {
+        id: 13,
+        url: duplicateUrl,
+        title: "CSMAR",
+        selected: selectedPage === 13,
+      },
+      {
+        id: 3,
+        url: "about:blank",
+        title: "about:blank",
+        selected: selectedPage === 3,
+      },
+    ];
+  } else {
+    pages = [
+      {
+        id: 1,
+        url: mode === "ordinary"
+          ? "https://example.test/paper?sessionId=RAW-QUERY-SECRET"
+          : mode === "pdf"
+            ? "https://assets.example.test/session/main.pdf?X-Amz-Signature=RAW-PDF-SECRET"
+            : mode.startsWith("cnki-")
+              ? `https://kns.cnki.net/kns8s/search/${mode.slice(5)}`
+              : mode === "wiley-wrapper"
+                ? "https://onlinelibrary.wiley.com/doi/pdf/10.1111/test"
+            : `https://example.test/${mode}?token=RAW-CHALLENGE-QUERY`,
+        title: "Research paper token=RAW-TITLE-SECRET",
+        selected: selectedPage === 1,
+      },
+      {
+        id: 2,
+        url: "https://other.test/home?apiKey=OTHER-QUERY-SECRET",
+        title: "Other",
+        selected: selectedPage === 2,
+      },
+      {
+        id: 3,
+        url: "about:blank",
+        title: "about:blank",
+        selected: selectedPage === 3,
+      },
+    ];
+  }
   return {
     content: [{
       type: "text",
@@ -125,7 +159,10 @@ uid=5_0 RootWebArea "Paper"
   uid=5_3 StaticText "password=STATIC-PASSWORD-SECRET"
   uid=5_4 link "Download https://example.test/file.pdf?X-Amz-Signature=SNAPSHOT-QUERY-SECRET"
   uid=5_5 textbox "Password" focusable protected value="PASSWORD-FIELD-SECRET"
-  uid=5_6 textbox "Start date" focusable value="2026-06-30"`;
+  uid=5_6 textbox "Start date" focusable value="2026-06-30"
+  uid=5_7 StaticText "\uE618"
+  uid=5_8 StaticText "未下载"
+  uid=5_9 StaticText " 压缩完成"`;
   }
   return { content: [{ type: "text", text: snapshot }] };
 }
@@ -191,6 +228,18 @@ function handle(message) {
         content: [{
           type: "text",
           text: "password=CHILD-ERROR-SECRET https://private.test/fail?token=CHILD-QUERY-SECRET",
+        }],
+      },
+    });
+  } else if (name === "evaluate_script"
+    && String(args.function || "").includes("aris-icon-font-leaf-click-v1")) {
+    send({
+      jsonrpc: "2.0",
+      id: message.id,
+      result: {
+        content: [{
+          type: "text",
+          text: "Script ran on page and returned:\n```json\n{\"clicked\":true}\n```",
         }],
       },
     });
