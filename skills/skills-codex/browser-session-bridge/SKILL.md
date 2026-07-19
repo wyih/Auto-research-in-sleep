@@ -39,12 +39,13 @@ Prefer the Grok primary path. Select the fallback only when the frozen run expli
 3. Attach to or claim a suitable existing Chrome tab; otherwise open one in the same Chrome profile.
 4. Navigate and inspect visible page state without reading cookies, storage, passwords, or auth headers.
 5. Detect whether the page is usable, logged out, access-denied, or blocked by a human challenge. A preloaded/offscreen challenge component is not a blocker; require viewport intersection plus an obstructed intended action.
-6. If the user has authorized saved-login submission and Chrome has already populated the normal login form, click its login/continue control once without reading or typing any field value, then re-inspect. If fields are empty, the attempt errors, MFA/account choice is required, or a hard CAPTCHA is active, pause once and ask the user to complete it in the same Chrome tab. Resume from fresh page state after confirmation.
-7. Execute the caller's site recipe using semantic operations from the shared contract.
-8. Snapshot the approved landing directory and arm download handling before the final click when the runtime supports download events.
-9. Land the file in the caller's requested directory without overwriting an accepted raw artifact. If no event arrives, use the contract's narrow new/stabilized-file fallback and record that path in the receipt.
-10. Run `scripts/verify_download.py` with the expected format and minimum size.
-11. Record a redacted execution receipt and return control to the calling skill.
+6. If the caller's site recipe identifies a dismissible inactivity/auto-logout overlay on a persistent-session or institutional-IP portal, treat it as a soft timeout rather than proven logout and run `auth.recover_soft_timeout`. Re-inspect, click only its close control, reload the same recipe-approved stable page once, wait, and re-inspect. Continue when the underlying session is restored; enter the normal login/access branch only when fresh post-reload state still proves it necessary. Never click the overlay's re-login action during this recovery probe or loop the probe.
+7. If the user has authorized saved-login submission and Chrome has already populated the normal login form, click its login/continue control once without reading or typing any field value, then re-inspect. If fields are empty, the attempt errors, MFA/account choice is required, or a hard CAPTCHA is active, pause once and ask the user to complete it in the same Chrome tab. Resume from fresh page state after confirmation.
+8. Execute the caller's site recipe using semantic operations from the shared contract.
+9. Snapshot the approved landing directory and arm download handling before the final click when the runtime supports download events.
+10. Land the file in the caller's requested directory without overwriting an accepted raw artifact. If no event arrives, use the contract's narrow new/stabilized-file fallback and record that path in the receipt.
+11. Run `scripts/verify_download.py` with the expected format and minimum size.
+12. Record a redacted execution receipt and return control to the calling skill.
 
 The caller may execute these steps as direct runtime tool calls or through a checked-in, bounded helper that acts as a client of the selected bridge. The browser owns authenticated page state and portal actions; helpers may own deterministic waiting, collision-safe copying, hashing, archive inspection, and verifier execution. Apply the same adapter freeze, redaction, and receipt requirements in either form.
 
@@ -73,8 +74,9 @@ implementation: codex_chrome | chrome-devtools-mcp | legacy_chrome_extension_bri
 profile_mode: user_chrome | dedicated_persistent
 site: cnki | sciencedirect | csmar | cnrds | other
 session_reused: true | false
+session_recovery: not_needed | dismiss_refresh_restored | dismiss_refresh_still_logged_out
 saved_login_submitted: true | false
-login_state: already_authenticated | saved_login_submitted_and_verified | human_handoff_completed | not_required
+login_state: already_authenticated | soft_timeout_recovered | saved_login_submitted_and_verified | human_handoff_completed | not_required
 operation: search | inspect | export | download
 artifact_path: relative/or/redacted/path
 expected_format: pdf | xlsx | zip | csv | any
@@ -93,6 +95,7 @@ Never include cookies, tokens, account identifiers, raw IP addresses, or auth he
 - Keep site selectors and business filters in the calling site's recipe, not in runtime adapters.
 - Never expose Grok directly to raw `evaluate_script`, `initScript`, network, console, heap, emulation, drag, bulk-form, upload, cookie, storage, or history tools. The official MCP path must go through the project safety facade.
 - Treat a dedicated persistent profile as reusable, not permanent: site expiry, IP/institution changes, MFA, and fresh challenges may require another handoff.
+- Do not infer logout or missing institutional access from a dismissible inactivity overlay alone. Run the caller-approved close → single reload → fresh inspection recovery before login or access-gap classification.
 - Re-read page state after navigation, login, challenge completion, or modal changes; do not reuse stale element identifiers.
 - Do not automate hard CAPTCHAs or credential entry. A user-authorized one-time submit of an already Chrome-autofilled form is permitted by `auth.submit_saved`; never inspect the saved values.
 - Do not ask for CAPTCHA handoff from hidden/offscreen markup alone; prove that the rendered challenge intersects the viewport and blocks the requested operation.

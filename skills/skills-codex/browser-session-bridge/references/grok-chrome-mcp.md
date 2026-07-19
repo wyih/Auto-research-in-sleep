@@ -56,9 +56,10 @@ Use the exact current tool schema shown by Grok; the common mapping is:
 | Contract operation | Grok `chrome-mcp` tool |
 |---|---|
 | `session.attach`, `tab.list` | `get_windows_and_tabs` |
-| `tab.open_or_claim`, `page.navigate` | `chrome_navigate` |
+| `tab.open_or_claim`, `page.navigate`, `page.reload` | `chrome_navigate` to the recipe-approved stable URL; use a native refresh only when the live schema exposes it |
 | `page.inspect` | `chrome_read_page` |
 | `element.act` | `chrome_click_element` or `chrome_computer` |
+| `auth.recover_soft_timeout` | Fresh read → click only the recipe-identified close control → one stable-page reload → fresh read before login |
 | `script.evaluate` | `chrome_javascript` |
 | `download.wait` | `chrome_handle_download` armed before the final click when required by its schema |
 
@@ -68,7 +69,7 @@ Before the final click, also inventory only the approved landing directory. If `
 
 ## Human Handoff
 
-- Logged out: ask the user to sign in in the same Chrome tab, then inspect again.
+- Logged out: first complete any recipe-identified soft-timeout recovery. If fresh post-reload state still proves logout, ask the user to sign in in the same Chrome tab, then inspect again.
 - Hard CAPTCHA, slider, or press-and-hold challenge that visibly intersects the viewport and blocks the intended operation: stop and ask the user; do not automate it. Hidden/preloaded challenge markup is not a handoff.
 - Subscription or institutional access denial: return `access_denied`; do not switch to an unauthorized source.
 

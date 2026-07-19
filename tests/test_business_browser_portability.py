@@ -239,6 +239,42 @@ class BusinessBrowserPortabilityTests(unittest.TestCase):
         self.assertIn("silently revert", recipe)
         self.assertIn("inner CSV", recipe)
 
+    def test_soft_timeout_recovery_precedes_login_or_access_gap(self) -> None:
+        contract = (SKILLS / "shared-references" / "browser-session-contract.md").read_text(
+            encoding="utf-8"
+        )
+        bridge = (SKILLS / "browser-session-bridge" / "SKILL.md").read_text(
+            encoding="utf-8"
+        )
+        cn_data = (SKILLS / "cn-data-bridge" / "SKILL.md").read_text(
+            encoding="utf-8"
+        )
+        recipe = (
+            SKILLS / "cn-data-bridge" / "references" / "cnrds-csmar-adapters.md"
+        ).read_text(encoding="utf-8")
+        codex = (
+            SKILLS / "browser-session-bridge" / "references" / "codex-chrome.md"
+        ).read_text(encoding="utf-8")
+        grok = (
+            SKILLS
+            / "browser-session-bridge"
+            / "references"
+            / "grok-chrome-devtools-mcp.md"
+        ).read_text(encoding="utf-8")
+
+        self.assertIn("auth.recover_soft_timeout", contract)
+        self.assertIn("dismiss_refresh_restored", contract)
+        self.assertIn("close → single refresh → re-inspect", cn_data)
+        self.assertIn("top-right `×`", recipe)
+        self.assertIn("do **not** click **重新登录**", recipe)
+        self.assertLess(
+            recipe.index("Soft-Timeout Recovery"),
+            recipe.index("Operator Sequence", recipe.index("## CSMAR Adapter")),
+        )
+        for text in (bridge, codex, grok):
+            self.assertIn("recover_soft_timeout", text)
+            self.assertIn("reload", text.lower())
+
 
 if __name__ == "__main__":
     unittest.main()

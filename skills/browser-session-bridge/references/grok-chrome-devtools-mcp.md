@@ -56,7 +56,7 @@ invalidation. Use only:
 | health/capability check | `aris_health` |
 | sanitized page list | `aris_tabs` |
 | unique page selection and bring-to-front | `aris_select` |
-| credential-free stable navigation | `aris_navigate` |
+| credential-free stable navigation or same-stable-page reload | `aris_navigate` |
 | bounded sanitized accessibility state | `aris_inspect` |
 | one fresh-UID click | `aris_click` |
 | one non-credential field fill plus non-echoing boolean value match | `aris_fill` |
@@ -133,6 +133,15 @@ when the caller authorized `auth.submit_saved`; re-inspect after the action.
 The profile persists cookies and site storage across independent Grok launches,
 but the receipt must not promise permanent login. Site expiry, IP or institution
 changes, MFA, and renewed bot checks can require another handoff.
+
+For a recipe-identified inactivity/auto-logout overlay, use a final targeted
+`aris_inspect`, `aris_click` only on its fresh close-control UID, reacquire the
+page, then call `aris_navigate` once with the same recipe-approved stable,
+credential-free URL and inspect again. This is the facade mapping for
+`auth.recover_soft_timeout`; do not click the overlay's re-login action or infer
+lost IP access before the post-reload inspection. If the SPA builder resets,
+replay the frozen business filters from the caller's spec rather than assuming
+they survived.
 
 ## Challenges
 

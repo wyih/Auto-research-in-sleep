@@ -11,8 +11,10 @@ This contract separates stable research intent from runtime-specific browser too
 | `tab.open_or_claim` | Reuse a suitable tab or open one in the same profile | Active target tab |
 | `page.inspect` | Read fresh visible/DOM state | Page title, URL, and actionable controls |
 | `page.navigate` | Navigate the active tab | Fresh state at the expected destination |
+| `page.reload` | Reload the active tab once, or navigate once to the same recipe-approved stable URL when the adapter has no native reload primitive | Fresh settled state from the same site without entering a credential flow |
 | `element.act` | Click, type, select, or scroll through supported UI controls | Resulting page/UI state |
 | `auth.submit_saved` | With user authorization, click one normal login/continue control when Chrome has already populated the form; never inspect, extract, copy, or type credential values | Fresh authenticated state after the click |
+| `auth.recover_soft_timeout` | When a site recipe identifies a dismissible inactivity/auto-logout overlay on a persistent-session or IP-authenticated portal, click only its non-destructive close control, call `page.reload` once, wait, and inspect before entering any login branch; never choose the overlay's re-login action during this probe | `dismiss_refresh_restored` or `dismiss_refresh_still_logged_out`, backed by fresh post-reload page evidence |
 | `script.evaluate` | Run only adapter-owned fixed, bounded, non-secret probes when semantic inspection is insufficient; never accept caller-supplied code | Redacted fixed-shape return value |
 | `download.wait` | Snapshot the controlled landing directory and arm runtime completion handling before the final download action | Completed new/stabilized local file, not a notification alone |
 | `human.handoff` | Pause for login or hard challenge in the same tab | User confirmation plus fresh authenticated state |
@@ -24,6 +26,7 @@ This contract separates stable research intent from runtime-specific browser too
 - Never read or emit cookies, local storage, credentials, session tokens, auth headers, or password-manager data.
 - Freeze one adapter, implementation, MCP server, and profile mode before the first browser action. Never splice multiple browser backends into one success receipt.
 - `auth.submit_saved` is a submit-only operation: do not read form values or password-manager UI, do not fill missing fields, and do not retry after an error. Empty fields, MFA, account choice requiring identity disclosure, or a hard challenge require `human.handoff`.
+- A visible inactivity/auto-logout overlay is not by itself proof that the underlying browser or institutional-IP session is unusable. When the site recipe classifies it as a soft timeout, run `auth.recover_soft_timeout` exactly once before `auth.submit_saved`, `human.handoff`, or `access_denied`. Reacquire controls after the close and reload; never create a recovery loop or assume that pre-refresh form filters survived.
 - Never treat successful navigation, HTTP status, a button click, or a `.pdf`/`.xlsx` extension as download success.
 - Re-inspect after every navigation, authentication transition, modal transition, or challenge completion.
 - Classify a CAPTCHA as active only when its rendered box intersects the current viewport and it blocks the intended action. DOM text, preloaded markup, or a locator-level `isVisible()` result alone is insufficient; record hidden/offscreen challenge components as non-blocking observations.
@@ -57,4 +60,4 @@ The runtime bridge verifies generic file integrity. The caller must additionally
 
 ## Redacted Receipt
 
-Each operation returns adapter, implementation, MCP server, profile mode, site, session reuse, `saved_login_submitted: true|false`, login-state category, operation, artifact path, expected format, size, hash, verification status, and blocker. `saved_login_submitted` records only that the authorized submit-only transition occurred; it never records form values, account identity, or password-manager state. It omits all authentication material and account identifiers.
+Each operation returns adapter, implementation, MCP server, profile mode, site, session reuse, `session_recovery: not_needed|dismiss_refresh_restored|dismiss_refresh_still_logged_out`, `saved_login_submitted: true|false`, login-state category, operation, artifact path, expected format, size, hash, verification status, and blocker. `saved_login_submitted` records only that the authorized submit-only transition occurred; it never records form values, account identity, or password-manager state. It omits all authentication material and account identifiers.

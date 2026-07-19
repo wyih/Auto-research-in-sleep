@@ -13,6 +13,7 @@ Companion to `cn-data-bridge`. Describes how to obtain **on-demand** extracts us
 7. **Out of scope** — CNKI fulltext/PDF harvest; WRDS (use `wrds-query-bridge`).
 8. **Runtime separation** — Codex uses native Chrome. Grok prefers the official DevTools safety facade with its dedicated persistent profile and may use the legacy real-Chrome bridge only as an explicitly frozen fallback, selected only by `browser-session-bridge`.
 9. **Orchestration is neutral** — browser state and portal mutations still go through the selected bridge, but a checked-in helper may act as its MCP client and may wait, copy, hash, inspect archives, and verify rows. Acceptance depends on the fresh artifact and receipt, not on one-by-one interactive tool calls.
+10. **Soft timeout is recoverable state, not proven logout** — when the recipe below identifies a dismissible inactivity overlay, close it, refresh once, and inspect before login or `data_access_gap`.
 
 ## Path And Naming
 
@@ -111,6 +112,20 @@ Example sidecar:
 - Before large exports, confirm the current network can reach the download service (boolean check only)
 - Optional non-secret env labels: `CN_DATA_NETWORK=campus|home|vpn_label`
 
+### Soft-Timeout Recovery (Verified Current Skin)
+
+CSMAR can display an **信息** modal saying that more than 40 minutes of inactivity caused automatic logout, with a **重新登录** button and a top-right `×`. On an institutional/IP-authenticated session, this modal can be stale front-end state: a normal refresh can restore the authorized session without credentials.
+
+Run this sequence exactly once before treating the page as logged out:
+
+1. Re-inspect the live page and confirm the visible inactivity modal.
+2. Click only the modal's top-right `×`; do **not** click **重新登录**.
+3. Refresh/reload the same recipe-approved stable CSMAR page once, wait for settled state, and re-inspect.
+4. If institutional/IP-authenticated UI is present, record `session_recovery: dismiss_refresh_restored` and continue without a login branch.
+5. If fresh state still explicitly shows logout or IP denial, record `session_recovery: dismiss_refresh_still_logged_out` and then follow the normal login/access-gap branch.
+
+Do not loop this recovery. A refresh may reset table-builder state, so re-read table identity, dates, codes, fields, and conditions and replay the frozen `DOWNLOAD_SPEC` slice as needed.
+
 ### Operator Sequence
 
 1. Confirm network path (campus IP / approved VPN). If home network without access, stop with `data_access_gap` rather than bulk retry.
@@ -157,6 +172,7 @@ The result page may expose a short-lived object-storage URL. Never persist or pr
 
 | Symptom | Status | Action |
 |---|---|---|
+| Visible 40-minute inactivity/auto-logout **信息** modal with **重新登录** | recover before auth classification | Close top-right `×`, refresh once, and inspect IP-authenticated state; do not press **重新登录** during the probe |
 | IP denied / not on allowlist | `blocked` | `data_access_gap`; switch network with user |
 | Query builder rejects filter | adjust or download minimal superset | Document analysis-side filters |
 | Date appears changed but reverts | retry once with explicit widget commit | Re-read both endpoint values after focus changes and before preview |

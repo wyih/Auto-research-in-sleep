@@ -99,7 +99,7 @@ Rules:
 
 - Credentials, cookies, session tokens, and portal passwords stay in the browser or OS secret store the user already uses. **Never** write them into markdown, scripts, YAML, logs, or passport.
 - Access is **platform-agnostic**: no single university VPN name, VPN client, or lab machine is required by the skill. Site-specific steps belong in project notes or env labels (`CN_DATA_NETWORK=campus|home|vpn_label`).
-- If login or IP access is missing, stop with `data_access_gap`. Do not fabricate extracts.
+- If fresh state proves login or IP access is missing, stop with `data_access_gap`. A dismissible inactivity/auto-logout overlay alone is not fresh proof: run the site recipe's close → single refresh → re-inspect recovery first. Do not fabricate extracts.
 
 ## Workflow
 
@@ -192,8 +192,9 @@ Principles:
 2. Prefer official export formats the portal supports (csv/xlsx/dta/txt).
 3. Land files under `Data/raw/<source>/<YYYY-MM-DD>/` without renaming away vendor identity; add a short sidecar `.meta.md` if the portal filename is opaque.
 4. Never overwrite a completed prior extract; use a new date folder or version suffix.
-5. On auth failure, captcha block, or IP deny: record `data_access_gap` and stop. Do not brute-force or bypass paywalls.
-6. Arm download completion before the final export click; a portal toast or browser notification is not a landed file.
+5. On a recipe-identified inactivity/auto-logout overlay, invoke the bridge's one-shot soft-timeout recovery before any login or access-gap classification. Do not click an embedded re-login action during the probe.
+6. Only when fresh post-recovery state still proves auth failure, captcha block, or IP deny, record `data_access_gap` and stop. Do not brute-force or bypass paywalls.
+7. Arm download completion before the final export click; a portal toast or browser notification is not a landed file.
 
 CNRDS:
 
@@ -205,6 +206,7 @@ CNRDS:
 CSMAR:
 
 - Confirm IP/institutional access before large exports.
+- If an inactivity 信息 dialog claims automatic logout and offers `重新登录`, do not press it first. Close the dialog with its top-right `×`, refresh the same CSMAR page once, wait, and re-inspect for the institutional/IP-authenticated state. Enter a login/access-gap branch only if the refreshed page still proves it. Reapply the frozen table/filter state if refresh reset the builder.
 - Use the minimal query builder filters matching the gap list.
 - Prefer batch export of the specified tables/fields only.
 
