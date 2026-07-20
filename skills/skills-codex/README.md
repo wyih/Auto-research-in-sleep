@@ -127,6 +127,21 @@ a compatible browser runtime, local files, model-native web search, open sources
 design, analysis, and writing remain usable; protected acquisition reports an
 explicit adapter/access gap.
 
+Full-text verification and `method-harvest` also require Poppler's `pdfinfo` and
+`pdftotext` executables on `PATH`. Install `poppler` with Homebrew on macOS, or
+`poppler-utils` with the distribution package manager on Debian/Ubuntu and WSL.
+On native Windows, install a trusted Windows Poppler distribution (or the
+`conda-forge` `poppler` package) and add its `Library\bin`/binary directory to
+`PATH`. Verify both commands before running a PDF workflow:
+
+```text
+pdfinfo -v
+pdftotext -v
+```
+
+The skill installer manages project links only; it deliberately does not install
+or elevate privileges for operating-system packages.
+
 ## Optional Overlays
 
 Install the base first, then choose an overlay:

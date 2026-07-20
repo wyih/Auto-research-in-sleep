@@ -120,6 +120,19 @@ Grok Build 发现。不要把已经安装好的 `.agents/skills` 直接复制到
 如果缺少兼容的浏览器运行时，本地资料、模型原生 web search、开放来源、设计、
 分析和写作仍可使用；受保护获取会明确报告 adapter/access gap。
 
+全文验真和 `method-harvest` 还要求 Poppler 的 `pdfinfo`、`pdftotext` 已加入
+`PATH`。macOS 用 Homebrew 安装 `poppler`；Debian/Ubuntu 和 WSL 用发行版包
+管理器安装 `poppler-utils`。原生 Windows 应安装可信的 Windows Poppler 发行版
+（或 `conda-forge` 的 `poppler` 包），并把它的 `Library\bin`/二进制目录加入
+`PATH`。运行 PDF 流程前验证：
+
+```text
+pdfinfo -v
+pdftotext -v
+```
+
+Skill 安装器只管理项目链接，不会替用户安装需要系统权限的 OS 软件包。
+
 ## Overlay 安装
 
 先装基座，再选装 overlay：

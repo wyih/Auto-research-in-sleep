@@ -9,6 +9,7 @@ REPO_ROOT = Path(__file__).resolve().parents[1]
 CATALOG = REPO_ROOT / "tools" / "skill-groups.tsv"
 INSTALLER = REPO_ROOT / "tools" / "install_aris_codex.sh"
 PACKAGE_ROOT = REPO_ROOT / "skills" / "skills-codex"
+TEST_SUITE_WORKFLOW = REPO_ROOT / ".github" / "workflows" / "test-suite.yml"
 sys.path.insert(0, str(REPO_ROOT))
 
 from tools.sync_business_portable_mirror import (
@@ -60,6 +61,17 @@ def test_portable_package_documents_native_windows_and_wsl_separately() -> None:
         assert "WSLg" in text
         assert "/mnt/c" in text
         assert "Linux Chrome" in text
+        assert "pdfinfo" in text
+        assert "pdftotext" in text
+        assert "poppler-utils" in text
+
+
+def test_full_suite_ci_installs_pdf_verifiers_on_linux_and_macos() -> None:
+    text = TEST_SUITE_WORKFLOW.read_text(encoding="utf-8")
+    assert "if: runner.os == 'Linux'" in text
+    assert "sudo apt-get update && sudo apt-get install -y poppler-utils" in text
+    assert "if: runner.os == 'macOS'" in text
+    assert "brew install poppler" in text
 
 
 
