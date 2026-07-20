@@ -47,6 +47,18 @@ def test_business_research_catalog_group_is_exact_portable_set() -> None:
     assert catalog_names == set(PORTABLE_SKILLS)
 
 
+def test_portable_package_documents_unix_and_windows_team_install() -> None:
+    for readme_name in ("README.md", "README_CN.md"):
+        text = (PACKAGE_ROOT / readme_name).read_text(encoding="utf-8")
+        assert "--groups business-research --quiet" in text
+        assert "install_aris.ps1" in text
+        assert "-Platform codex" in text
+        assert "-Groups business-research" in text
+        assert ".agents/skills" in text
+        assert "release tag" in text
+
+
+
 def test_business_group_install_is_exact_and_does_not_write_global_pointer(
     tmp_path: Path,
 ) -> None:

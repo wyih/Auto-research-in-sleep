@@ -109,6 +109,52 @@ def test_install_aris_ps1_codex_dry_run_has_no_project_writes(tmp_path: Path) ->
     assert not (project / "AGENTS.md").exists()
 
 
+def test_install_aris_ps1_codex_business_group_is_selective(tmp_path: Path) -> None:
+    repo = make_minimal_repo(tmp_path)
+    (repo / "tools" / "skill-groups.tsv").write_text(
+        "\n".join(
+            (
+                "group\tbusiness-research\tBusiness research\tPortable suite",
+                "group\tother\tOther\tUnrelated skills",
+                "skill\talpha\tbusiness-research\t-\tSelected business skill",
+                "skill\tbeta\tother\t-\tUnrelated skill",
+            )
+        )
+        + "\n",
+        encoding="utf-8",
+    )
+    project = tmp_path / "project"
+    project.mkdir()
+
+    run_ps(
+        [
+            str(project),
+            "-Platform",
+            "codex",
+            "-ArisRepo",
+            str(repo),
+            "-Groups",
+            "business-research",
+            "-Quiet",
+        ]
+    )
+
+    assert junction_target(project / ".agents" / "skills" / "alpha") == (
+        repo / "skills" / "skills-codex" / "alpha"
+    )
+    assert not path_item_exists(project / ".agents" / "skills" / "beta")
+    assert junction_target(project / ".agents" / "skills" / "shared-references") == (
+        repo / "skills" / "skills-codex" / "shared-references"
+    )
+    manifest = project / ".aris" / "installed-skills-codex.txt"
+    manifest_names = {
+        fields[1]
+        for line in manifest.read_text(encoding="utf-8").splitlines()
+        if (fields := line.split("\t"))[0] == "skill"
+    }
+    assert manifest_names == {"alpha"}
+
+
 def test_install_aris_ps1_codex_apply_reconcile_and_uninstall(tmp_path: Path) -> None:
     repo = make_minimal_repo(tmp_path)
     project = tmp_path / "project"

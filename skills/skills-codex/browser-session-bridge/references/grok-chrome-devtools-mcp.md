@@ -68,6 +68,7 @@ invalidation. Use only:
 | opaque `~/Downloads` baseline | `aris_download_baseline` |
 | stable post-click download delta | `aris_download_wait` |
 | collision-safe copy into this run's `.aris/` tree | `aris_copy_download` |
+| explicit controller release after artifact verification | `aris_release` |
 
 Never call raw `chrome-devtools-mcp` tools. In particular, never expose or call
 raw/arbitrary `evaluate_script` or `initScript`, network/console/heap inspection,
@@ -93,7 +94,11 @@ or post-action read:
    exception.
 2. Call `aris_select` for that page and require the returned page lease. Bringing
    a DevTools page forward is not proof that the macOS Chrome window has OS focus;
-   record only `page_selected_and_brought_to_front`.
+   record only `page_selected_and_brought_to_front`. `aris_select` also claims an
+   atomic controller lease shared by every facade process using this dedicated
+   profile. If another Grok run owns it, stop browser actions with
+   `waiting_browser_turn`; do not retry page mutations in parallel. A prose grant
+   file or a selected tab is not a controller lease.
 3. Call `aris_inspect` and use only the returned bounded state plus its fresh
    snapshot identifier and UID set. Every new `aris_inspect` call immediately
    invalidates all identifiers from every earlier inspection, even when no
@@ -107,6 +112,13 @@ or post-action read:
 5. Treat the prior snapshot and all of its UIDs as invalid after the action,
    timeout, navigation, modal change, new page, or challenge transition. Start
    again at step 1 and verify the intended post-state before retrying.
+6. After the protected action and any download copy/verification complete, call
+   `aris_release` with the current page lease. Release before public web search,
+   local analysis, or report writing so another project can claim the profile.
+
+The facade fails closed if a mutating or download-helper call lacks ownership of
+the shared controller lease. It reclaims an abandoned owner only after bounded
+staleness/dead-process checks; callers must never delete or overwrite the lock.
 
 Do not place signed URLs, credential-bearing queries/fragments, passwords,
 tokens, cookies, auth headers, or autofilled values in tool arguments or receipts.
@@ -177,6 +189,8 @@ article/export control that directly starts a file download:
 4. Run the shared deterministic verifier and the caller's content/column identity
    checks. Record `download_event: unsupported` and
    `completion: fallback_directory_increment`.
+5. Call `aris_release` immediately after the verified copy and receipt fields are
+   captured.
 
 Prefer the atomic element trigger when the final action is a normal link or
 button. Use `aris_download_baseline` for a portal flow whose final mutation

@@ -13,6 +13,7 @@ Execute one authenticated browser operation through the current runtime while pr
 - site recipe supplied by the calling skill
 - expected artifact type and landing directory
 - any search, date, universe, or field filters
+- `browser_required_reason`: `authenticated_session` | `protected_schema` | `interactive_export` | `entitled_download` | `active_challenge`
 
 Read `../shared-references/browser-session-contract.md` before execution. Read `../shared-references/business-helper-resolution.md` before invoking the verifier outside the ARIS repository. Then read exactly one runtime adapter:
 
@@ -21,6 +22,12 @@ Read `../shared-references/browser-session-contract.md` before execution. Read `
 - Grok fallback path with the legacy real-Chrome bridge: `references/grok-chrome-mcp.md`
 
 Do not infer a runtime from prose alone. Select from the capabilities actually available in the current session.
+
+## Admission Gate
+
+Invoke this bridge only after the caller has used or ruled out project-local evidence, model-native web search/fetch, and a bounded public API/direct-download path. If those lighter channels answer the discovery question or land the required open artifact, return without acquiring a browser lease. A browser is justified only by the recorded `browser_required_reason`; convenience or generic web search is not sufficient.
+
+Public web evidence may identify a candidate page, table, or paper. It does not prove current authenticated access, live subscription state, protected field availability, or completion of a portal export.
 
 ## Runtime Gate
 
@@ -46,6 +53,8 @@ Prefer the Grok primary path. Select the fallback only when the frozen run expli
 10. Land the file in the caller's requested directory without overwriting an accepted raw artifact. If no event arrives, use the contract's narrow new/stabilized-file fallback and record that path in the receipt.
 11. Run `scripts/verify_download.py` with the expected format and minimum size.
 12. Record a redacted execution receipt and return control to the calling skill.
+
+Release the runtime controller lease as soon as the protected operation and any armed download verification finish; do not retain it while doing local analysis, public web search, or writing artifacts.
 
 The caller may execute these steps as direct runtime tool calls or through a checked-in, bounded helper that acts as a client of the selected bridge. The browser owns authenticated page state and portal actions; helpers may own deterministic waiting, collision-safe copying, hashing, archive inspection, and verifier execution. Apply the same adapter freeze, redaction, and receipt requirements in either form.
 
@@ -78,6 +87,7 @@ session_recovery: not_needed | dismiss_refresh_restored | dismiss_refresh_still_
 saved_login_submitted: true | false
 login_state: already_authenticated | soft_timeout_recovered | saved_login_submitted_and_verified | human_handoff_completed | not_required
 operation: search | inspect | export | download
+browser_required_reason: authenticated_session | protected_schema | interactive_export | entitled_download | active_challenge
 artifact_path: relative/or/redacted/path
 expected_format: pdf | xlsx | zip | csv | any
 size_bytes: 0

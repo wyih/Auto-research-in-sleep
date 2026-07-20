@@ -58,6 +58,43 @@ bash ~/aris_repo/tools/install_aris_codex.sh ~/your-project --reconcile
 bash ~/aris_repo/tools/install_aris_codex.sh ~/your-project --uninstall
 ```
 
+## 跨机器与团队安装
+
+先发布或选定一个不可变的 release tag，然后每台机器都克隆这个固定版本。
+应安装整个 `business-research` 分组，而不是只复制总 Pipeline；该分组是精确的
+24 个便携 Skill 加共享契约。
+
+macOS 或 Linux：
+
+```bash
+git clone --branch <release-tag> <repository-url> ~/aris_repo
+bash ~/aris_repo/tools/install_aris_codex.sh /absolute/path/to/project \
+  --groups business-research --quiet
+```
+
+Windows PowerShell 5.1 或 PowerShell 7：
+
+```powershell
+git clone --branch <release-tag> <repository-url> "$HOME\aris_repo"
+powershell.exe -NoProfile -ExecutionPolicy Bypass `
+  -File "$HOME\aris_repo\tools\install_aris.ps1" `
+  "C:\absolute\path\to\project" `
+  -Platform codex `
+  -ArisRepo "$HOME\aris_repo" `
+  -Groups business-research `
+  -Quiet
+```
+
+Windows 安装器创建 junction，macOS/Linux 安装器创建 symlink；两者最终都把
+同一份包暴露到 `.agents/skills`，供 Codex 与 Grok Build 发现。不要把已经安装
+好的 `.agents/skills` 直接复制到另一台机器，因为链接仍指向原机器路径。应把
+release 克隆或解压到稳定目录，再运行对应安装器。
+
+浏览器 Profile、cookie、保存的账号密码、WRDS 凭证、授权论文和商业数据库
+数据都不进入发行包。每个使用者必须在自己的机器上建立授权 Profile 并登录。
+如果缺少兼容的浏览器运行时，本地资料、模型原生 web search、开放来源、设计、
+分析和写作仍可使用；受保护获取会明确报告 adapter/access gap。
+
 ## Overlay 安装
 
 先装基座，再选装 overlay：

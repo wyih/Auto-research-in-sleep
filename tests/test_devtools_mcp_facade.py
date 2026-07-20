@@ -44,6 +44,7 @@ PUBLIC_TOOL_NAMES = {
     "aris_download_baseline",
     "aris_download_wait",
     "aris_copy_download",
+    "aris_release",
 }
 
 FORBIDDEN_CHILD_TOOLS = {
@@ -857,6 +858,7 @@ class DevtoolsMcpFacadeTests(unittest.TestCase):
         self.assertTrue(stale["isError"])
 
     def test_downloads_use_opaque_baseline_stability_partial_rejection_and_scoped_copy(self) -> None:
+        lease = self.client.select_example()
         existing = self.client.downloads / "existing.pdf"
         existing.write_bytes(b"old")
         baseline = self.client.call("aris_download_baseline")
@@ -935,6 +937,58 @@ class DevtoolsMcpFacadeTests(unittest.TestCase):
             copied["sha256"], hashlib.sha256(destination.read_bytes()).hexdigest()
         )
         self.assertEqual(copied["collision_policy"], "fail")
+        released = self.client.call("aris_release", {"lease_id": lease})
+        self.assertTrue(released["released"])
+
+    def test_shared_controller_lease_serializes_independent_facade_processes(self) -> None:
+        self.client.close()
+        shared_lock = Path(self.temp.name) / "shared-controller.lock"
+        first = FacadeProcess(
+            Path(self.temp.name) / "controller-first",
+            extra_env={"ARIS_BROWSER_CONTROLLER_LOCK_DIR": str(shared_lock)},
+        )
+        second = FacadeProcess(
+            Path(self.temp.name) / "controller-second",
+            extra_env={"ARIS_BROWSER_CONTROLLER_LOCK_DIR": str(shared_lock)},
+        )
+        self.addCleanup(first.close)
+        self.addCleanup(second.close)
+
+        first_lease = first.select_example()
+        self.assertEqual(
+            first.call("aris_health")["controller_lease_state"],
+            "owned_by_this_process",
+        )
+        self.assertEqual(
+            second.call("aris_health")["controller_lease_state"],
+            "held_by_other",
+        )
+
+        tabs = second.call("aris_tabs", {"url_contains": "example.test/paper"})
+        blocked = second.call_raw(
+            "aris_select", {"page_ref": tabs["matches"][0]["page_ref"]}
+        )
+        self.assertTrue(blocked["isError"])
+        self.assertEqual(
+            json.loads(blocked["content"][0]["text"])["error"],
+            "browser_controller_lease_held_by_other",
+        )
+        self.assertFalse(
+            any(call.get("name") == "select_page" for call in second.child_calls())
+        )
+
+        self.assertTrue(
+            first.call("aris_release", {"lease_id": first_lease})["released"]
+        )
+        second_selected = second.call(
+            "aris_select", {"page_ref": tabs["matches"][0]["page_ref"]}
+        )
+        self.assertTrue(second_selected["selected"])
+        self.assertTrue(
+            second.call(
+                "aris_release", {"lease_id": second_selected["lease_id"]}
+            )["released"]
+        )
 
     def test_loaded_pdf_download_uses_one_fixed_script_and_returns_only_opaque_baseline(self) -> None:
         lease = self.client.select_example()
@@ -1215,6 +1269,7 @@ class DevtoolsMcpFacadeTests(unittest.TestCase):
         import shutil
 
         shutil.rmtree(client.downloads)
+        client.select_example()
         raw = client.call_raw("aris_download_baseline")
         self.assertTrue(raw["isError"])
         payload = json.loads(raw["content"][0]["text"])
@@ -1239,6 +1294,7 @@ class DevtoolsMcpFacadeTests(unittest.TestCase):
         # Sandbox HOME Downloads stays empty / unused.
         for leftover in client.downloads.iterdir():
             leftover.unlink()
+        client.select_example()
         baseline = client.call("aris_download_baseline")
         rendered = json.dumps(baseline)
         self.assertTrue(baseline["baseline_id"].startswith("baseline_"))
@@ -1288,6 +1344,7 @@ class DevtoolsMcpFacadeTests(unittest.TestCase):
             extra_env={"ARIS_DEVTOOLS_DOWNLOADS_DIR": str(other)},
         )
         self.addCleanup(client.close)
+        client.select_example()
         raw = client.call_raw("aris_download_baseline")
         self.assertTrue(raw["isError"])
         self.assertEqual(
@@ -1311,6 +1368,7 @@ class DevtoolsMcpFacadeTests(unittest.TestCase):
             extra_env={"ARIS_DEVTOOLS_DOWNLOADS_DIR": str(downloads_link)},
         )
         self.addCleanup(client.close)
+        client.select_example()
         raw = client.call_raw("aris_download_baseline")
         self.assertTrue(raw["isError"])
         self.assertEqual(
@@ -1321,6 +1379,7 @@ class DevtoolsMcpFacadeTests(unittest.TestCase):
         self.assertNotIn(str(outside), json.dumps(raw))
 
     def test_download_copy_fails_on_collision_and_symlink_sources_never_qualify(self) -> None:
+        self.client.select_example()
         baseline = self.client.call("aris_download_baseline")
         outside = Path(self.temp.name) / "outside.pdf"
         outside.write_bytes(b"outside")

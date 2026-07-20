@@ -68,16 +68,35 @@ Example sidecar:
 2. Open the CNRDS portal in the user's environment (browser tools or user-driven navigation).
 3. For each item:
    - navigate to a previously verified authenticated module deep link when available; otherwise locate the module / database from the portal
-   - select dataset or indicator set matching the variable map
+   - treat the home-page search box and suggestion list as discovery only; after selecting a suggestion, enter its module/table rather than stopping at the result label
+   - verify the candidate's exact dataset/table identity, row grain, coverage, and required fields against the variable map before applying filters
+   - reject an aggregate or semantically adjacent candidate when the gap needs a different grain (for example, annual guarantee counts do not replace event-level guarantee records); record the mismatch and continue discovery
+   - select the verified dataset or indicator set matching the variable map
    - set year/date and universe filters from the spec
    - select only required fields when the UI allows field picking
-   - export/download
+   - preview the frozen slice, reconcile it with the spec, then export/download
    - move/copy the file into `Data/raw/cnrds/<YYYY-MM-DD>/`
    - write sidecar meta if the filename is generic (`export.xlsx`)
 4. Verify columns against the variable map.
 5. Hash and append MANIFEST rows.
 6. Mark item status: `complete` | `partial` | `failed` | `blocked`.
 7. Preserve the bridge receipt and verifier output with the item evidence.
+
+### Target Transition And Disabled-Filter Gate
+
+After selecting a table, require at least one target-bound identity signal to change to that table: breadcrumb/table heading, stable table ID, or a distinctive field schema. Focus on the clicked link, a pressed state, or an unchanged sibling-table schema is not a transition. If the old identity remains, classify `table_transition_unverified`, reacquire the page, and retry once through a verified deep link or clean module re-entry. Do not make field-absence, access, or export claims about the target meanwhile.
+
+Classify a disabled requested filter only on a verified exact table:
+
+| State | Evidence and action |
+|---|---|
+| `filter_transient` | Page is still loading or a modal/overlay remains; wait, close the recipe-approved overlay, and re-inspect. |
+| `filter_prerequisite_unmet` | A visible table/date/mode prerequisite is missing; satisfy the frozen spec and re-inspect. |
+| `filter_access_denied` | The exact table explicitly shows no subscription/permission; record `data_access_gap`. |
+| `filter_capability_unavailable` | After clean exact-table re-entry, the filter remains disabled while other query/field/export controls are usable; record this as a capability of this table only. |
+| `filter_state_unverified` | None of the above is proven; do not export or generalize. |
+
+For `filter_capability_unavailable`, export a minimal safe superset only when the `DOWNLOAD_SPEC` explicitly allows local filtering and still bounds years, fields, expected size, and analysis-side filters. Otherwise pause or revise the spec. Never transfer a disabled-filter conclusion to a sibling table whose transition was not verified.
 
 ### Observed Export Queue Details
 
@@ -99,6 +118,10 @@ Example sidecar:
 | Chrome-autofilled login form | continue once | Submit once without reading fields; verify fresh authenticated state |
 | Empty/failed login, MFA, account choice, or hard captcha | `blocked` | User completes login; retry the intended data action once |
 | Module not in subscription | `blocked` | `data_access_gap`; consider CSMAR equivalent if definition matches |
+| Search suggestion selected but no table/query state entered | continue discovery | Open and inspect the candidate module/table; a search click alone is neither a download attempt nor a pass |
+| Target-table link focused but breadcrumb/schema remains on prior table | `table_transition_unverified` | Retry one verified entry path; do not infer target fields, filters, access, or grain |
+| Requested filter disabled | classify first | Use the disabled-filter gate; only an exact-table `filter_capability_unavailable` may justify an explicitly permitted minimal superset |
+| Candidate has wrong grain or missing required fields | reject candidate | Record the semantic mismatch and continue searching; do not export a convenient proxy as if it satisfied the gap |
 | Export empty | `failed` or `partial` | Loosen one filter carefully or re-check table choice |
 | Portal timeout | retry once | Then stop; record log path |
 | Wrong grain discovered post-download | `partial` | Keep file; fix mapping; do not delete without user OK |
@@ -126,6 +149,17 @@ Run this sequence exactly once before treating the page as logged out:
 
 Do not loop this recovery. A refresh may reset table-builder state, so re-read table identity, dates, codes, fields, and conditions and replay the frozen `DOWNLOAD_SPEC` slice as needed.
 
+### Sample Preview To Actual-Query Access Gate
+
+The **字段说明与样本数据** area can establish table identity, field names, definitions, and row grain, but it cannot establish download access and its rows are not a project extract. Use this state transition:
+
+1. Open **样本数据** at most once when schema or grain evidence is genuinely needed.
+2. Save only the needed redacted schema evidence, then click the modal's top-right `×` and verify the overlay is absent.
+3. Enter **数据查询下载 → 单表查询**, choose the exact table, and inspect the fresh table-level access state.
+4. If the query builder is available, continue with the frozen filters, preview, result summary, and local-save flow below.
+5. If the exact table visibly shows **无权限** or **我要购买**, preserve a receipt and report `blocked: data_access_gap` promptly. Do not retry the disabled CSMAR export, attempt re-login, or count sample rows as downloaded data.
+6. When the `DOWNLOAD_SPEC` allows a cross-source substitute, continue discovery in CNRDS and require a definition-, grain-, coverage-, and field-compatible table before export. A CNRDS search suggestion alone does not satisfy this fallback.
+
 ### Operator Sequence
 
 1. Confirm network path (campus IP / approved VPN). If home network without access, stop with `data_access_gap` rather than bulk retry.
@@ -148,7 +182,7 @@ Do not loop this recovery. A refresh may reset table-builder state, so re-read t
 
 The following sequence was verified on 2026-07-18. Labels can move, so re-read the live page rather than depending on coordinates:
 
-1. Enter **单表查询**, choose the database card, and select the exact table named by the variable map.
+1. After any sample-data modal has been closed and its absence verified, enter **单表查询**, choose the database card, and select the exact table named by the variable map. Stop at the access gate above if that exact table shows **无权限** or **我要购买**.
 2. If a clean start is required, use the builder's global **重置** exactly once immediately after verifying the table identity and **before** applying dates, codes, conditions, or requested fields. Re-read the default state. On the observed balance-sheet builder this meant four mandatory identity fields (`已选：4/154`). Never use global reset after filters are frozen: it clears dates and code as well as field selection.
 3. Set both time endpoints. A typed date may look changed and then silently revert; commit each date through the widget (for example, Enter or an explicit calendar-day choice), change focus, and re-read both values before preview.
 4. Choose **代码选择**, search the requested code, execute the search, move the exact result into **已选代码**, confirm, and verify both the selected-code count and disabled summary field show the requested code.
@@ -174,6 +208,8 @@ The result page may expose a short-lived object-storage URL. Never persist or pr
 |---|---|---|
 | Visible 40-minute inactivity/auto-logout **信息** modal with **重新登录** | recover before auth classification | Close top-right `×`, refresh once, and inspect IP-authenticated state; do not press **重新登录** during the probe |
 | IP denied / not on allowlist | `blocked` | `data_access_gap`; switch network with user |
+| Exact-table query page shows **无权限** or **我要购买** | `blocked` | Preserve evidence and report the CSMAR `data_access_gap` promptly; stop CSMAR retries and check CNRDS only for a definition- and grain-compatible substitute |
+| Sample-data modal remains open after schema capture | invalid transition | Close top-right `×`, verify the overlay is absent, and enter the real single-table query path; sample rows are not an extract |
 | Query builder rejects filter | adjust or download minimal superset | Document analysis-side filters |
 | Date appears changed but reverts | retry once with explicit widget commit | Re-read both endpoint values after focus changes and before preview |
 | Global reset used after filters | state invalidated | Reapply the frozen slice from the clean table state; do not infer that dates/code survived |

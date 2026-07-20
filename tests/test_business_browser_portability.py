@@ -81,6 +81,7 @@ class BusinessBrowserPortabilityTests(unittest.TestCase):
             "aris_download_baseline",
             "aris_download_wait",
             "aris_copy_download",
+            "aris_release",
         ):
             self.assertIn(tool, adapter)
         for forbidden in (
@@ -92,6 +93,8 @@ class BusinessBrowserPortabilityTests(unittest.TestCase):
             self.assertIn(forbidden, adapter)
         self.assertIn("action-time confirmation", adapter)
         self.assertIn("fallback_directory_increment", adapter)
+        self.assertIn("atomic controller lease", adapter)
+        self.assertIn("waiting_browser_turn", adapter)
 
     def test_acceptance_requires_separate_runtime_receipts(self) -> None:
         acceptance = (REPO_ROOT / "docs" / "BUSINESS_RESEARCH_E2E_ACCEPTANCE.md").read_text(
@@ -274,6 +277,126 @@ class BusinessBrowserPortabilityTests(unittest.TestCase):
         for text in (bridge, codex, grok):
             self.assertIn("recover_soft_timeout", text)
             self.assertIn("reload", text.lower())
+
+    def test_cn_data_sample_preview_exits_to_real_access_gate(self) -> None:
+        cn_data = (SKILLS / "cn-data-bridge" / "SKILL.md").read_text(
+            encoding="utf-8"
+        )
+        recipe = (
+            SKILLS / "cn-data-bridge" / "references" / "cnrds-csmar-adapters.md"
+        ).read_text(encoding="utf-8")
+
+        for text in (cn_data, recipe):
+            self.assertIn("样本数据", text)
+            self.assertIn("top-right `×`", text)
+            self.assertIn("无权限", text)
+            self.assertIn("data_access_gap", text)
+            self.assertIn("CNRDS", text)
+
+        gate = recipe.index("Sample Preview To Actual-Query Access Gate")
+        flow = recipe.index("Observed Single-Table Flow")
+        self.assertLess(gate, flow)
+        self.assertIn("A CNRDS search suggestion alone does not satisfy", recipe)
+        self.assertIn("wrong grain", recipe)
+
+    def test_pipeline_keeps_serialized_browser_gate_non_terminal(self) -> None:
+        pipeline = (SKILLS / "business-research-pipeline" / "SKILL.md").read_text(
+            encoding="utf-8"
+        )
+        passport_skill = (SKILLS / "business-run-passport" / "SKILL.md").read_text(
+            encoding="utf-8"
+        )
+        passport_contract = (
+            SKILLS / "shared-references" / "business-run-passport.md"
+        ).read_text(encoding="utf-8")
+
+        for text in (pipeline, passport_skill, passport_contract):
+            self.assertIn("terminal_stop", text)
+            self.assertIn("unattempted source", text)
+
+        self.assertIn("waiting_browser_turn", pipeline)
+        self.assertIn("source_not_attempted", pipeline)
+        self.assertIn("Keep the Goal active", pipeline)
+        self.assertIn("GOAL_BRIEF.md", pipeline)
+        self.assertIn("design_killed", passport_contract)
+        self.assertIn("This is never terminal", passport_contract)
+        self.assertIn("does not by itself complete the full Goal", pipeline)
+
+    def test_lightest_sufficient_source_ladder_precedes_browser_admission(self) -> None:
+        pipeline = (SKILLS / "business-research-pipeline" / "SKILL.md").read_text(
+            encoding="utf-8"
+        )
+        bridge = (SKILLS / "browser-session-bridge" / "SKILL.md").read_text(
+            encoding="utf-8"
+        )
+        cn_data = (SKILLS / "cn-data-bridge" / "SKILL.md").read_text(
+            encoding="utf-8"
+        )
+        fulltext = (SKILLS / "fulltext-acquire" / "SKILL.md").read_text(
+            encoding="utf-8"
+        )
+        sections = (
+            pipeline[
+                pipeline.index("## Lightest-Sufficient Source Escalation") :
+                pipeline.index("## Shared Contracts")
+            ],
+            bridge[
+                bridge.index("## Admission Gate") : bridge.index("## Runtime Gate")
+            ],
+            cn_data[
+                cn_data.index("## Discovery Before Protected Browser") :
+                cn_data.index("## Workflow")
+            ],
+            fulltext[
+                fulltext.index("## Channel Ladder") : fulltext.index("## Workflow")
+            ],
+        )
+        for section in sections:
+            lowered = section.lower()
+            self.assertLess(lowered.index("local"), lowered.index("model-native web"))
+            self.assertLess(
+                lowered.index("model-native web"),
+                lowered.rindex("browser"),
+            )
+
+        for text in (pipeline, bridge, cn_data, fulltext):
+            self.assertIn("browser_required_reason", text)
+        self.assertIn("public API/direct", bridge)
+        self.assertIn("cannot prove the user's current subscription", pipeline)
+
+    def test_cn_data_requires_target_transition_and_filter_state_evidence(self) -> None:
+        cn_data = (SKILLS / "cn-data-bridge" / "SKILL.md").read_text(
+            encoding="utf-8"
+        )
+        recipe = (
+            SKILLS / "cn-data-bridge" / "references" / "cnrds-csmar-adapters.md"
+        ).read_text(encoding="utf-8")
+        resolution = (
+            SKILLS / "cn-data-bridge" / "references" / "variable-resolution.md"
+        ).read_text(encoding="utf-8")
+
+        self.assertIn("table_transition_unverified", cn_data)
+        self.assertIn("minimal superset", cn_data.lower())
+        for state in (
+            "table_transition_unverified",
+            "filter_transient",
+            "filter_prerequisite_unmet",
+            "filter_access_denied",
+            "filter_capability_unavailable",
+            "filter_state_unverified",
+        ):
+            self.assertIn(state, recipe)
+        self.assertIn("stable table ID", recipe)
+        self.assertIn("minimal safe superset", recipe.lower())
+        self.assertIn("construct_unresolved", resolution)
+
+    def test_full_pipeline_acceptance_rejects_hybrid_pass_stop_labels(self) -> None:
+        pipeline = (SKILLS / "business-research-pipeline" / "SKILL.md").read_text(
+            encoding="utf-8"
+        )
+        self.assertIn("PASS with STOP", pipeline)
+        self.assertIn("PASS (gap-documented)", pipeline)
+        self.assertIn("another hybrid", pipeline)
 
 
 if __name__ == "__main__":

@@ -19,6 +19,17 @@ When the request names a stage, artifact, or local problem, load only the curren
 
 Run the whole chain only when the user explicitly asks for a full pipeline, end-to-end run, or all stages. In full-pipeline mode, advance stage by stage and keep later-stage references unloaded until their stage begins.
 
+## Lightest-Sufficient Source Escalation
+
+Use the cheapest sufficient channel and escalate only when the unresolved evidence requires it:
+
+1. project-local verified artifacts, manifests, caches, and checked-in scripts
+2. model-native web search/fetch, when available, for public discovery, official documentation, literature metadata, public filings, and openly downloadable data
+3. a bounded public API or direct HTTP helper when it yields a reproducible public artifact
+4. an authenticated browser only for a remaining login/session-bound page, protected portal schema, interactive query/export, challenge, or entitled download
+
+Do not acquire a browser turn for public discovery that model-native web search/fetch can complete. Before queuing protected work, record the exact unresolved item and a `browser_required_reason` accepted by `browser-session-bridge`. Public search can identify candidates and open alternatives; it cannot prove the user's current subscription, the live authenticated table state, or a protected export.
+
 ## Shared Contracts
 
 Read these references when the stage touches them:
@@ -190,6 +201,29 @@ Pause for user decision after:
 - source-claim audit verdict when the draft is source-heavy
 - paper plan before full manuscript drafting
 
+## Run-State And STOP Discipline
+
+Use these project-level states; do not collapse them into a generic `blocked` or `STOP`:
+
+| State | Terminal | Use |
+|---|---|---|
+| `active` | no | Work can proceed now. |
+| `waiting_external_gate` | no | A known next action awaits a serialized browser turn, user checkpoint, one-time login/challenge, network switch, or another temporary dependency. Use subtype `waiting_browser_turn` for a missing browser grant or lease. Keep the Goal active. |
+| `blocked_source` | no by default | An exact source was actually attempted and produced an evidenced access, coverage, or field gap. Continue permitted alternative-source discovery before considering project termination. |
+| `design_killed` | only for that design | Evidence rejects a named design such as sharp RDD. Preserve the research question and test a pre-specified or defensible pivot unless the rejected design is indispensable to the core question. |
+| `terminal_stop` | yes | The core research objective is infeasible under the terminal criteria below. |
+| `complete` | yes | All required stages and acceptance evidence are complete. |
+
+Apply these terminal criteria strictly:
+
+1. Never use absence of `BROWSER_TURN_GRANTED.md`, a busy browser/profile, an unserved queue turn, or a pending user checkpoint as evidence for `terminal_stop`; record `waiting_external_gate` and keep the Goal active.
+2. Never treat `source_not_attempted` as `source_failed`. Before a data-based STOP, actually test the recipe-approved source after the required gate is available and preserve its receipt or schema evidence.
+3. A public proxy, sample preview, search suggestion, wrong-grain table, or incomplete field set may reject that proxy; it cannot prove that an untested protected source lacks the required data.
+4. A failed kill test terminates only the design or claim it directly tests. Continue with a viable pivot unless the evidence also defeats the core research objective.
+5. Use `terminal_stop` only when at least one of these is true: decisive appropriate-grain evidence defeats the core question; every permitted required source and material alternative has been attempted and cannot supply indispensable data; every defensible identification path fails its stated kill test; or the user explicitly chooses to stop.
+6. A terminal report must distinguish attempted paths from unattempted paths, cite evidence for each decisive failure, state why remaining pivots cannot answer the core question, and contain no resume condition that is merely “obtain browser grant and run the unattempted source.” Such a resume condition proves the state is non-terminal.
+7. Obey a project `GOAL_BRIEF.md` instruction to remain active at a serialized gate even when another completion clause permits an evidence-backed STOP.
+
 ## Rules
 
 - Keep ML/GPU workflows out of the path unless the project truly needs predictive modeling.
@@ -203,7 +237,8 @@ Pause for user decision after:
 - Route claim interpretation through `evidence-to-claim`.
 - Preserve ARIS audit discipline: source claims, table claims, citation claims, and reproducibility locks stay traceable.
 - For local tasks, complete only the requested stage and mark downstream gaps as next-stage inputs.
+- Treat a valid STOP as an evidence verdict, never as a convenient way to complete a Goal while a required next action is merely queued or unattempted.
 
 ## Full-Pipeline Acceptance
 
-The complete entry point passes only when a fresh session can discover this skill, route every requested stage through its named child skill, and leave independently checkable artifacts. Each stage must be either `passed` with its required evidence or `blocked` with a precise unresolved gap; inherited logs, old files, browser toasts, and unverified clicks are not fresh acceptance evidence. For protected sources, verify the landed PDF or data slice by identity, structure or required columns, size, and hash before allowing downstream synthesis or analysis.
+The complete entry point passes only when a fresh session can discover this skill, route every requested stage through its named child skill, and leave independently checkable artifacts. Record each stage as `passed`, a precise non-terminal state, or a valid `terminal_stop`; a precise blocker makes reporting honest but does not by itself complete the full Goal. Keep the Goal active when the next required action is waiting on a temporary gate. Never report `PASS with STOP`, `PASS (gap-documented)`, or another hybrid that marks an unmet required artifact as passed. Inherited logs, old files, browser toasts, and unverified clicks are not fresh acceptance evidence. For protected sources, verify the landed PDF or data slice by identity, structure or required columns, size, and hash before allowing downstream synthesis or analysis.

@@ -12,6 +12,19 @@ Use one value for each material:
 
 Audit and reviewer-style skills should prefer `verified_only` when raw data is unnecessary.
 
+## Run State Contract
+
+Use one project-level state:
+
+- `active` — work can proceed.
+- `waiting_external_gate` — a known next step awaits a temporary dependency; use `waiting_browser_turn` when the browser grant, lease, or serialized turn is pending. This is never terminal.
+- `blocked_source` — an actually attempted source has an evidenced gap. This is non-terminal while a permitted material alternative remains untested.
+- `design_killed` — a named design failed its kill test; do not automatically kill the broader research question.
+- `terminal_stop` — decisive evidence defeats the core question, all indispensable permitted sources or defensible design paths have been exhausted, or the user explicitly stops.
+- `complete` — the requested evidence chain is complete.
+
+Never infer `terminal_stop` from a missing browser grant, queued profile, pending user checkpoint, unattempted source, sample preview, search result, or incomplete public proxy. If a STOP report says the project can resume merely by receiving a browser turn and running an unattempted source, record `waiting_external_gate` instead.
+
 ## Template
 
 ~~~markdown
@@ -24,6 +37,8 @@ Audit and reviewer-style skills should prefer `verified_only` when raw data is u
 | Research Area | |
 | Target Journals | |
 | Current Stage | |
+| Overall State | active / waiting_external_gate / blocked_source / design_killed / terminal_stop / complete |
+| Waiting On | |
 | Owner Decision Needed | |
 
 ## Materials
@@ -84,3 +99,5 @@ repro_lock:
 - Update `Acquisition Status` from actual fulltext/data manifests and redacted browser receipts; never from portal reachability alone.
 - Update `Audit Status` only from actual audit artifacts.
 - Keep unresolved issues visible until they are resolved, reframed, or dropped by the user.
+- Keep `waiting_external_gate` and `blocked_source` non-terminal. Do not mark the project complete merely because a precise gap or STOP file exists.
+- Record `terminal_stop` only after applying the pipeline's terminal criteria and distinguishing attempted from unattempted sources and designs.

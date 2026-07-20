@@ -10,6 +10,7 @@ Use this adapter only when the current runtime is Codex and the installed `chrom
 4. Name the browser session when the current Chrome documentation requires it.
 5. Use the native tab inspection, Playwright, or computer-input facilities documented by that skill.
 6. Do not inspect cookies, local storage, passwords, profiles, or session stores.
+7. Serialize protected Chrome work against this user profile. Do not dispatch multiple Codex agents or projects to mutate its tabs concurrently; the Grok facade's filesystem controller lease does not govern this native binding. Release/finalize the native session before another project takes its browser turn.
 
 ## Semantic Mapping
 

@@ -60,6 +60,47 @@ Uninstall only managed Codex entries:
 bash ~/aris_repo/tools/install_aris_codex.sh ~/your-project --uninstall
 ```
 
+## Cross-Machine And Team Install
+
+Publish or select an immutable release tag, then clone that exact tag on every
+machine. Install the `business-research` group rather than copying only the
+pipeline entry point; the group is the exact 24-skill portable suite plus its
+shared references.
+
+macOS or Linux:
+
+```bash
+git clone --branch <release-tag> <repository-url> ~/aris_repo
+bash ~/aris_repo/tools/install_aris_codex.sh /absolute/path/to/project \
+  --groups business-research --quiet
+```
+
+Windows PowerShell 5.1 or PowerShell 7:
+
+```powershell
+git clone --branch <release-tag> <repository-url> "$HOME\aris_repo"
+powershell.exe -NoProfile -ExecutionPolicy Bypass `
+  -File "$HOME\aris_repo\tools\install_aris.ps1" `
+  "C:\absolute\path\to\project" `
+  -Platform codex `
+  -ArisRepo "$HOME\aris_repo" `
+  -Groups business-research `
+  -Quiet
+```
+
+The Windows installer creates junctions; the macOS/Linux installer creates
+symlinks. Both expose the same package under `.agents/skills`, which Codex and
+Grok Build can discover. Do not copy an installed `.agents/skills` directory to
+another machine because its links retain source-machine paths. Clone/extract the
+release into a stable location and run the appropriate installer instead.
+
+Browser profiles, cookies, saved credentials, WRDS credentials, licensed PDFs,
+and commercial database extracts are deliberately outside the package. Each
+recipient must create and sign in to a local authorized browser profile. Without
+a compatible browser runtime, local files, model-native web search, open sources,
+design, analysis, and writing remain usable; protected acquisition reports an
+explicit adapter/access gap.
+
 ## Optional Overlays
 
 Install the base first, then choose an overlay:

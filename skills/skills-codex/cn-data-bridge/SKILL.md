@@ -101,6 +101,17 @@ Rules:
 - Access is **platform-agnostic**: no single university VPN name, VPN client, or lab machine is required by the skill. Site-specific steps belong in project notes or env labels (`CN_DATA_NETWORK=campus|home|vpn_label`).
 - If fresh state proves login or IP access is missing, stop with `data_access_gap`. A dismissible inactivity/auto-logout overlay alone is not fresh proof: run the site recipe's close → single refresh → re-inspect recovery first. Do not fabricate extracts.
 
+## Discovery Before Protected Browser
+
+Resolve as much as possible without taking a browser turn:
+
+1. inspect project-local codebooks, manifests, prior verified receipts, and already-landed extracts
+2. use model-native web search/fetch when available for public vendor documentation, public codebooks, official product descriptions, filings, and definition-compatible open alternatives
+3. use a bounded public API/direct download when it can close the named gap reproducibly
+4. enter CNRDS/CSMAR through `browser-session-bridge` only for a remaining live subscription check, protected schema confirmation, query-builder mutation, or export
+
+If a lighter source closes the gap, do not open the portal. Public web discovery can propose a table or field, but only fresh authenticated portal evidence can establish the user's current access, exact live table state, or protected export. Record `browser_required_reason` in every portal-bound `DOWNLOAD_SPEC` item.
+
 ## Workflow
 
 ### Step 1: Inventory Gaps (On-Demand Only)
@@ -163,6 +174,7 @@ For high-confidence (or user-resolved) gaps, write:
 - network: campus_ip | home | vpn_label | unknown
 - login_required: yes/no
 - session_reuse: yes/no (CNRDS)
+- browser_required_reason: protected_schema | interactive_export
 
 ## Items
 | item_id | source | module_or_db | table_or_dataset | fields | filters | years | expected_format | local_relpath | status |
@@ -195,18 +207,25 @@ Principles:
 5. On a recipe-identified inactivity/auto-logout overlay, invoke the bridge's one-shot soft-timeout recovery before any login or access-gap classification. Do not click an embedded re-login action during the probe.
 6. Only when fresh post-recovery state still proves auth failure, captcha block, or IP deny, record `data_access_gap` and stop. Do not brute-force or bypass paywalls.
 7. Arm download completion before the final export click; a portal toast or browser notification is not a landed file.
+8. Treat **字段说明/样本数据** as schema discovery only. After saving the needed field and grain evidence, close the modal with its top-right `×`, confirm the overlay is gone, and enter the actual table-query path. A sample-data view is never an extract, download receipt, or pass condition.
+9. Decide access only on the actual table-query/download page. A fresh, exact-table **无权限** or **我要购买** state is conclusive for that platform: preserve evidence, report the `data_access_gap` promptly, stop retrying that source, and continue with another authorized source only when its table definition and grain can satisfy the same gap.
+10. A target-table click is not a transition. Require a target-bound breadcrumb, heading/table ID, or field-schema change before interpreting fields, filters, or access. If the prior table remains, record `table_transition_unverified`, reacquire, and retry the bounded table-entry recipe once; do not infer that the target table lacks fields or permissions.
+11. Classify disabled filters with the site recipe before exporting. A filter disabled on one verified table is not evidence about a sibling table. Use a minimal superset only when the frozen `DOWNLOAD_SPEC` explicitly permits local filtering and the remaining year/field/size bounds are acceptable.
 
 CNRDS:
 
 - Prefer reusing an existing logged-in browser session.
 - When the user has authorized it and Chrome has already filled the login form, the bridge may click the ordinary login button once without inspecting or typing the credential fields; verify the post-login state immediately.
-- Navigate module → indicator/table → filter → export.
+- Portal search and its suggestion list are discovery only. After choosing a candidate, enter the candidate module/table and verify exact dataset identity, row grain, coverage, and required fields against the `DOWNLOAD_SPEC`; clicking **搜索** or a suggestion is not progress evidence and never a pass.
+- Navigate module → exact indicator/table → filter → preview → export. If a candidate is only an aggregate proxy (for example annual guarantee counts when event-level guarantee records are required), record the semantic mismatch and continue searching rather than exporting the wrong grain.
 - If the fields are empty, the saved submit fails, or MFA/account choice/hard CAPTCHA is required, ask the user to complete login once, then continue.
 
 CSMAR:
 
 - Confirm IP/institutional access before large exports.
 - If an inactivity 信息 dialog claims automatic logout and offers `重新登录`, do not press it first. Close the dialog with its top-right `×`, refresh the same CSMAR page once, wait, and re-inspect for the institutional/IP-authenticated state. Enter a login/access-gap branch only if the refreshed page still proves it. Reapply the frozen table/filter state if refresh reset the builder.
+- If **字段说明与样本数据** was opened to resolve the schema, save that evidence once, close its top-right `×`, confirm the modal is absent, then enter **数据查询下载 → 单表查询** for the exact table. Do not remain in or repeatedly inspect the sample modal.
+- On the exact single-table page, an explicit **无权限** or **我要购买** badge is a platform access result, not a browser-control failure. Save a receipt, report it immediately, mark the CSMAR item `blocked: data_access_gap`, and—when the variable map permits—search CNRDS for a definition- and grain-compatible substitute.
 - Use the minimal query builder filters matching the gap list.
 - Prefer batch export of the specified tables/fields only.
 

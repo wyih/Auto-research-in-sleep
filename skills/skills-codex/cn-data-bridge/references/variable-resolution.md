@@ -144,6 +144,10 @@ Push filters into the portal query when the UI allows:
 
 If the portal cannot filter safely, download the minimal superset and document analysis-side filters in the spec notes — still avoid whole-module dumps.
 
+A disabled portal control does not by itself prove that filtering is unsupported. First complete the site recipe's exact-table transition and disabled-filter classification. Download a superset only when the frozen spec explicitly permits local filtering and retains bounded years, fields, and expected size.
+
+Do not mark a construct-dependent field absent from its label alone. Require exact table identity plus the field code and definition; inspect a sample value when the definition remains ambiguous. Otherwise record `construct_unresolved`, not `field_absent`.
+
 ## Mapping Record Shape
 
 Every resolved gap should be representable as:

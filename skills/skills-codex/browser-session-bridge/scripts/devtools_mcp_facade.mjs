@@ -15,9 +15,12 @@ import {
   copyFile,
   lstat,
   mkdir,
+  open,
   readFile,
   readdir,
   realpath,
+  rename,
+  rmdir,
   stat,
   unlink,
   writeFile,
@@ -46,6 +49,9 @@ const MAX_INSPECT_PUBLIC_CHARS = 24_000;
 const MAX_TAB_RESULTS = 50;
 const PARTIAL_SUFFIXES = [".crdownload", ".part", ".partial", ".download", ".tmp"];
 const PROFILE_LOCK_NAME = "aris-external-profile.lock.json";
+const CONTROLLER_LOCK_NAME = "aris-browser-controller.lock";
+const CONTROLLER_OWNER_FILE = "owner.json";
+const DEFAULT_CONTROLLER_LEASE_TTL_MS = 10 * 60 * 1000;
 const DEFAULT_DEBUGGING_PORT = 39813;
 const FIXED_PDF_DOWNLOAD_SCRIPT = `() => {
   if (!document.body) return { triggered: false };
@@ -628,6 +634,71 @@ function pidAlive(pid) {
   } catch {
     return false;
   }
+}
+
+function controllerLeaseTtlMs(env = process.env) {
+  const raw = env.ARIS_BROWSER_CONTROLLER_LEASE_TTL_MS;
+  if (raw === undefined || raw === "") return DEFAULT_CONTROLLER_LEASE_TTL_MS;
+  const value = Number(raw);
+  const minimum = env.ARIS_DEVTOOLS_MCP_TEST_MODE === "1" ? 100 : 60_000;
+  if (!Number.isSafeInteger(value) || value < minimum || value > 60 * 60 * 1000) {
+    throw new FacadeError("browser_controller_lease_config_invalid");
+  }
+  return value;
+}
+
+function controllerLockDirectory(env = process.env) {
+  if (env.ARIS_BROWSER_CONTROLLER_LOCK_DIR) {
+    return resolve(expandHomePath(env.ARIS_BROWSER_CONTROLLER_LOCK_DIR));
+  }
+  return join(agentBrowserConfigPaths(env).configHome, CONTROLLER_LOCK_NAME);
+}
+
+async function readControllerOwner(lockDirectory) {
+  let directoryInfo;
+  try {
+    directoryInfo = await lstat(lockDirectory);
+  } catch (error) {
+    if (error?.code === "ENOENT") return null;
+    throw new FacadeError("browser_controller_lock_invalid");
+  }
+  if (!directoryInfo.isDirectory() || directoryInfo.isSymbolicLink()) {
+    throw new FacadeError("browser_controller_lock_invalid");
+  }
+  const ownerPath = join(lockDirectory, CONTROLLER_OWNER_FILE);
+  let ownerInfo;
+  try {
+    ownerInfo = await lstat(ownerPath);
+  } catch (error) {
+    if (error?.code === "ENOENT") {
+      return { initializing: true, directory_mtime_ms: directoryInfo.mtimeMs };
+    }
+    throw new FacadeError("browser_controller_lock_invalid");
+  }
+  if (!ownerInfo.isFile() || ownerInfo.isSymbolicLink()) {
+    throw new FacadeError("browser_controller_lock_invalid");
+  }
+  try {
+    const owner = JSON.parse(await readFile(ownerPath, "utf8"));
+    if (!owner || owner.version !== 1
+      || !Number.isSafeInteger(owner.pid) || owner.pid < 2
+      || typeof owner.owner_id !== "string" || !/^controller_[A-Za-z0-9_-]{20,}$/.test(owner.owner_id)
+      || !Number.isSafeInteger(owner.heartbeat_ms) || owner.heartbeat_ms < 1
+      || !Number.isSafeInteger(owner.expires_at_ms) || owner.expires_at_ms <= owner.heartbeat_ms) {
+      throw new Error("shape");
+    }
+    return owner;
+  } catch (error) {
+    if (error instanceof FacadeError) throw error;
+    throw new FacadeError("browser_controller_lock_invalid");
+  }
+}
+
+async function writeControllerOwner(handle, owner) {
+  const payload = Buffer.from(`${JSON.stringify(owner)}\n`, "utf8");
+  await handle.truncate(0);
+  await handle.write(payload, 0, payload.length, 0);
+  await handle.sync();
 }
 
 function findChromeExecutable() {
@@ -1305,6 +1376,10 @@ const PUBLIC_TOOLS = Object.freeze([
     },
     required: ["download_ref", "destination"],
   }),
+  tool("aris_release", "Release this facade process's shared browser-controller lease after protected work and download verification finish.", {
+    properties: { lease_id: { type: "string" } },
+    required: ["lease_id"],
+  }),
 ]);
 
 export class SafeDevtoolsFacade {
@@ -1314,10 +1389,165 @@ export class SafeDevtoolsFacade {
     this.child = child ?? new ChildMcpClient(env);
     this.discovery = null;
     this.lease = null;
+    this.controllerLockDirectory = controllerLockDirectory(env);
+    this.controllerLeaseTtlMs = controllerLeaseTtlMs(env);
+    this.controllerLease = null;
     this.activeSnapshot = null;
     this.lastFillProof = null;
     this.baselines = new Map();
     this.downloads = new Map();
+  }
+
+  async #controllerLeaseState() {
+    const owner = await readControllerOwner(this.controllerLockDirectory);
+    if (!owner) return "available";
+    if (owner.initializing) return "held_by_other";
+    if (this.controllerLease?.ownerId === owner.owner_id && owner.pid === process.pid) {
+      return "owned_by_this_process";
+    }
+    if (!pidAlive(owner.pid) || owner.expires_at_ms <= Date.now()) return "stale_reclaimable";
+    return "held_by_other";
+  }
+
+  async #createControllerLease() {
+    const now = Date.now();
+    const ownerId = opaque("controller");
+    await mkdir(dirname(this.controllerLockDirectory), { recursive: true, mode: 0o700 });
+    const ownerPath = join(this.controllerLockDirectory, CONTROLLER_OWNER_FILE);
+    let directoryCreated = false;
+    let handle;
+    try {
+      await mkdir(this.controllerLockDirectory, { mode: 0o700 });
+      directoryCreated = true;
+      handle = await open(ownerPath, "wx+", 0o600);
+      const owner = {
+        version: 1,
+        pid: process.pid,
+        owner_id: ownerId,
+        heartbeat_ms: now,
+        expires_at_ms: now + this.controllerLeaseTtlMs,
+      };
+      await writeControllerOwner(handle, owner);
+      this.controllerLease = { ownerId, handle, owner };
+      return this.controllerLease;
+    } catch (error) {
+      await handle?.close().catch(() => {});
+      if (directoryCreated) {
+        await unlink(ownerPath).catch(() => {});
+        await rmdir(this.controllerLockDirectory).catch(() => {});
+      }
+      if (error?.code === "EEXIST") throw error;
+      if (error instanceof FacadeError) throw error;
+      throw new FacadeError("browser_controller_lock_create_failed");
+    }
+  }
+
+  async #removeStaleControllerLease(expectedOwner) {
+    const current = await readControllerOwner(this.controllerLockDirectory);
+    if (!current || current.initializing
+      || current.owner_id !== expectedOwner.owner_id
+      || current.heartbeat_ms !== expectedOwner.heartbeat_ms) {
+      return false;
+    }
+    const quarantine = `${this.controllerLockDirectory}.stale-${opaque("lock")}`;
+    try {
+      await rename(this.controllerLockDirectory, quarantine);
+    } catch (error) {
+      if (error?.code === "ENOENT") return false;
+      throw new FacadeError("browser_controller_lock_invalid");
+    }
+    await unlink(join(quarantine, CONTROLLER_OWNER_FILE)).catch(() => {});
+    await rmdir(quarantine).catch(() => {});
+    return true;
+  }
+
+  async #acquireControllerLease() {
+    if (this.controllerLease) {
+      await this.#heartbeatControllerLease();
+      return this.controllerLease;
+    }
+    for (let attempt = 0; attempt < 12; attempt += 1) {
+      try {
+        return await this.#createControllerLease();
+      } catch (error) {
+        if (error?.code !== "EEXIST") throw error;
+      }
+      const owner = await readControllerOwner(this.controllerLockDirectory);
+      if (!owner) continue;
+      if (owner.initializing) {
+        await sleep(25);
+        continue;
+      }
+      if (pidAlive(owner.pid) && owner.expires_at_ms > Date.now()) {
+        throw new FacadeError("browser_controller_lease_held_by_other");
+      }
+      if (await this.#removeStaleControllerLease(owner)) continue;
+    }
+    throw new FacadeError("browser_controller_lease_held_by_other");
+  }
+
+  async #heartbeatControllerLease() {
+    const local = this.controllerLease;
+    if (!local) throw new FacadeError("browser_controller_lease_required");
+    const before = await readControllerOwner(this.controllerLockDirectory);
+    if (!before || before.initializing
+      || before.owner_id !== local.ownerId || before.pid !== process.pid) {
+      await local.handle.close().catch(() => {});
+      this.controllerLease = null;
+      this.#invalidateBrowserState();
+      this.baselines.clear();
+      this.downloads.clear();
+      throw new FacadeError("browser_controller_lease_lost");
+    }
+    const now = Date.now();
+    local.owner = {
+      ...local.owner,
+      heartbeat_ms: now,
+      expires_at_ms: now + this.controllerLeaseTtlMs,
+    };
+    await writeControllerOwner(local.handle, local.owner);
+    const after = await readControllerOwner(this.controllerLockDirectory);
+    if (!after || after.initializing
+      || after.owner_id !== local.ownerId || after.pid !== process.pid
+      || after.heartbeat_ms !== now) {
+      await local.handle.close().catch(() => {});
+      this.controllerLease = null;
+      this.#invalidateBrowserState();
+      this.baselines.clear();
+      this.downloads.clear();
+      throw new FacadeError("browser_controller_lease_lost");
+    }
+    return true;
+  }
+
+  async #releaseControllerLease({ strict = true } = {}) {
+    const local = this.controllerLease;
+    if (!local) {
+      if (strict) throw new FacadeError("browser_controller_lease_required");
+      return false;
+    }
+    const current = await readControllerOwner(this.controllerLockDirectory).catch(() => null);
+    if (!current || current.initializing
+      || current.owner_id !== local.ownerId || current.pid !== process.pid) {
+      await local.handle.close().catch(() => {});
+      this.controllerLease = null;
+      if (strict) throw new FacadeError("browser_controller_lease_lost");
+      return false;
+    }
+    const quarantine = `${this.controllerLockDirectory}.released-${opaque("lock")}`;
+    try {
+      await rename(this.controllerLockDirectory, quarantine);
+    } catch (error) {
+      await local.handle.close().catch(() => {});
+      this.controllerLease = null;
+      if (strict) throw new FacadeError("browser_controller_lease_lost");
+      return false;
+    }
+    await local.handle.close().catch(() => {});
+    await unlink(join(quarantine, CONTROLLER_OWNER_FILE)).catch(() => {});
+    await rmdir(quarantine).catch(() => {});
+    this.controllerLease = null;
+    return true;
   }
 
   async #runFixedScript(script, operation, { mutation = false } = {}) {
@@ -1414,10 +1644,14 @@ export class SafeDevtoolsFacade {
   async #verifiedLease(leaseId) {
     assertOpaque(leaseId, "lease");
     if (!this.lease || this.lease.id !== leaseId) throw new FacadeError("page_lease_stale");
+    await this.#heartbeatControllerLease();
     const pages = await this.#listPages();
     const matchingId = pages.filter((page) => page.id === this.lease.pageId);
     if (matchingId.length !== 1 || !matchingId[0].selected) {
       this.#invalidateBrowserState();
+      this.baselines.clear();
+      this.downloads.clear();
+      await this.#releaseControllerLease({ strict: false });
       throw new FacadeError("page_lease_not_selected");
     }
     const target = matchingId[0];
@@ -1652,6 +1886,7 @@ export class SafeDevtoolsFacade {
       case "aris_health": {
         assertExactKeys(args, []);
         const connection = await connectionMode(this.env);
+        const controllerLeaseState = await this.#controllerLeaseState();
         if (connection.mode === "external_browser_url") {
           await probeDevtoolsEndpoint(connection.external.origin);
         }
@@ -1681,6 +1916,8 @@ export class SafeDevtoolsFacade {
           legacy_http_dependency: false,
           connection_mode: connection.mode,
           browser_transport_verified: browserTransportVerified,
+          controller_lease_enforced: true,
+          controller_lease_state: controllerLeaseState,
           external_browser_lifecycle: connection.mode === "external_browser_url"
             ? "not_owned_not_stopped"
             : "managed_by_launcher",
@@ -1762,46 +1999,51 @@ export class SafeDevtoolsFacade {
         assertOpaque(args.page_ref, "page");
         const discovery = this.discovery;
         if (!discovery || discovery.pageRef !== args.page_ref) throw new FacadeError("page_reference_stale");
-        const pages = await this.#listPages();
-        const matches = pages.filter((page) => page.rawUrl.includes(discovery.filter));
-        const selectedMatches = matches.filter((page) => page.selected);
-        let verifiedMatches;
-        if (discovery.selectionBasis === "only_selected_match") {
-          verifiedMatches = selectedMatches;
-        } else if (discovery.selectionBasis === "identical_url_matches") {
-          verifiedMatches = matches.filter((page) => page.id === discovery.page.id);
-        } else {
-          verifiedMatches = matches;
-        }
-        if (verifiedMatches.length !== 1
-          || verifiedMatches[0].id !== discovery.page.id
-          || verifiedMatches[0].rawUrl !== discovery.page.rawUrl) {
+        await this.#acquireControllerLease();
+        try {
+          const pages = await this.#listPages();
+          const matches = pages.filter((page) => page.rawUrl.includes(discovery.filter));
+          const selectedMatches = matches.filter((page) => page.selected);
+          let verifiedMatches;
+          if (discovery.selectionBasis === "only_selected_match") {
+            verifiedMatches = selectedMatches;
+          } else if (discovery.selectionBasis === "identical_url_matches") {
+            verifiedMatches = matches.filter((page) => page.id === discovery.page.id);
+          } else {
+            verifiedMatches = matches;
+          }
+          if (verifiedMatches.length !== 1
+            || verifiedMatches[0].id !== discovery.page.id
+            || verifiedMatches[0].rawUrl !== discovery.page.rawUrl) {
+            throw new FacadeError("page_reference_no_longer_unique");
+          }
+          assertChildSuccess(
+            await this.child.callTool("select_page", { pageId: verifiedMatches[0].id, bringToFront: true }),
+            "select_page",
+            { mutation: true },
+          );
+          const after = await this.#listPages();
+          const selected = after.filter((page) => page.id === verifiedMatches[0].id && page.selected);
+          // Lease identity is page id; same-URL sibling tabs (CSMAR sdownload) are allowed.
+          if (selected.length !== 1) throw new FacadeError("page_selection_unverified");
+          const leaseId = opaque("lease");
+          this.lease = {
+            id: leaseId,
+            pageId: selected[0].id,
+            rawUrl: selected[0].rawUrl,
+            challengeClickConsumed: false,
+          };
+          if (!this.#fillProofMatchesPage(selected[0])) this.#clearFillProof();
+          this.discovery = null;
+          this.#invalidateSnapshot();
+          return { ok: true, lease_id: leaseId, selected: true, url: stripUrlDetails(selected[0].rawUrl) };
+        } catch (error) {
           this.#invalidateBrowserState();
-          throw new FacadeError("page_reference_no_longer_unique");
+          this.baselines.clear();
+          this.downloads.clear();
+          await this.#releaseControllerLease({ strict: false });
+          throw error;
         }
-        assertChildSuccess(
-          await this.child.callTool("select_page", { pageId: verifiedMatches[0].id, bringToFront: true }),
-          "select_page",
-          { mutation: true },
-        );
-        const after = await this.#listPages();
-        const selected = after.filter((page) => page.id === verifiedMatches[0].id && page.selected);
-        // Lease identity is page id; same-URL sibling tabs (CSMAR sdownload) are allowed.
-        if (selected.length !== 1) {
-          this.#invalidateBrowserState();
-          throw new FacadeError("page_selection_unverified");
-        }
-        const leaseId = opaque("lease");
-        this.lease = {
-          id: leaseId,
-          pageId: selected[0].id,
-          rawUrl: selected[0].rawUrl,
-          challengeClickConsumed: false,
-        };
-        if (!this.#fillProofMatchesPage(selected[0])) this.#clearFillProof();
-        this.discovery = null;
-        this.#invalidateSnapshot();
-        return { ok: true, lease_id: leaseId, selected: true, url: stripUrlDetails(selected[0].rawUrl) };
       }
       case "aris_navigate": {
         assertExactKeys(args, ["lease_id", "url"], ["lease_id", "url"]);
@@ -2117,6 +2359,7 @@ export class SafeDevtoolsFacade {
       }
       case "aris_download_baseline": {
         assertExactKeys(args, []);
+        await this.#heartbeatControllerLease();
         const inventory = await this.#downloadInventory();
         const baselineId = opaque("baseline");
         this.baselines.set(baselineId, {
@@ -2129,6 +2372,7 @@ export class SafeDevtoolsFacade {
       }
       case "aris_download_wait": {
         assertExactKeys(args, ["baseline_id", "filename_contains", "timeout_ms"], ["baseline_id", "filename_contains"]);
+        await this.#heartbeatControllerLease();
         assertOpaque(args.baseline_id, "baseline");
         const baseline = this.baselines.get(args.baseline_id);
         if (!baseline || baseline.consumed) throw new FacadeError("download_baseline_stale");
@@ -2165,6 +2409,7 @@ export class SafeDevtoolsFacade {
             const downloadRef = opaque("download");
             this.downloads.set(downloadRef, { ...entry, copied: false });
             baseline.consumed = true;
+            await this.#heartbeatControllerLease();
             return {
               ok: true,
               download_ref: downloadRef,
@@ -2179,6 +2424,7 @@ export class SafeDevtoolsFacade {
       }
       case "aris_copy_download": {
         assertExactKeys(args, ["download_ref", "destination"], ["download_ref", "destination"]);
+        await this.#heartbeatControllerLease();
         assertOpaque(args.download_ref, "download");
         const download = this.downloads.get(args.download_ref);
         if (!download || download.copied) throw new FacadeError("download_reference_stale");
@@ -2234,12 +2480,29 @@ export class SafeDevtoolsFacade {
           collision_policy: "fail",
         };
       }
+      case "aris_release": {
+        assertExactKeys(args, ["lease_id"], ["lease_id"]);
+        assertOpaque(args.lease_id, "lease");
+        if (!this.lease || this.lease.id !== args.lease_id) {
+          throw new FacadeError("page_lease_stale");
+        }
+        await this.#heartbeatControllerLease();
+        this.#invalidateBrowserState();
+        this.baselines.clear();
+        this.downloads.clear();
+        const released = await this.#releaseControllerLease();
+        return { ok: true, released };
+      }
       default:
         throw new FacadeError("tool_not_exposed");
     }
   }
 
-  close() {
+  async close() {
+    this.#invalidateBrowserState();
+    this.baselines.clear();
+    this.downloads.clear();
+    await this.#releaseControllerLease({ strict: false });
     this.child.close?.();
   }
 }
@@ -2325,7 +2588,12 @@ export async function runServer({ input = process.stdin, output = process.stdout
       serializedCalls = serializedCalls.then(() => handle(message), () => handle(message));
     }
   });
-  input.on("end", () => facade.close());
+  input.on("end", () => {
+    serializedCalls = serializedCalls.then(
+      () => facade.close(),
+      () => facade.close(),
+    );
+  });
   return facade;
 }
 

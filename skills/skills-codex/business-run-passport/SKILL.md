@@ -62,6 +62,8 @@ Record gate status:
 - source-claim audit
 - writing/style profile
 
+Apply the shared run-state contract separately from stage gates. A stage can have an honest blocker while the project remains `waiting_external_gate` or `blocked_source` and the Goal stays active.
+
 ## Output
 
 Create or update:
@@ -77,3 +79,5 @@ When writing is not allowed, return a proposed passport patch.
 - Prefer `verified_only` materials for writing and audit skills.
 - Keep unresolved issues visible in `Audit Status`.
 - Treat `repro_lock` as a configuration record, not byte-identical replay.
+- Never convert a missing browser turn, pending user checkpoint, or unattempted source into `terminal_stop` or project completion.
+- When a design kill test fails, record `design_killed` for that design and evaluate viable pivots before changing the overall project state.

@@ -27,13 +27,15 @@ For a login-dependent site, invoke `browser-session-bridge` and follow its share
 ## Channel Ladder
 
 1. Existing local PDF or Zotero attachment
-2. Legal open-access PDF
-3. Institutional-IP access
-4. Existing signed-in Chrome session
+2. Model-native web search/fetch, when available, for an identity-matched lawful open copy, repository manuscript, or working-paper version
+3. Bounded OA metadata/API or direct-download helper
+4. Institutional-IP or existing signed-in Chrome session when protected access remains necessary
 5. Human login/challenge handoff in that same session
 6. Documented gap
 
 Stop at the first verified copy **for each required artifact role**. Do not fetch a duplicate main paper merely because a later channel is available. A verified `main_paper` does not satisfy a separately hosted required appendix, questionnaire, codebook, or supplement.
+
+Do not acquire a browser turn merely to discover a title, DOI, repository copy, working-paper version, or public landing page that model-native web search/fetch can find. Public search does not establish the user's current entitlement or a protected download. Before invoking `browser-session-bridge`, record `browser_required_reason: authenticated_session | entitled_download | active_challenge` for the unresolved artifact role.
 
 ## Workflow
 
@@ -41,9 +43,11 @@ Stop at the first verified copy **for each required artifact role**. Do not fetc
 
 Search project `papers/`, `literature/`, `pdfs/`, prior manifests, and available Zotero attachments. For Zotero, preserve the bibliographic parent item and attachment child as distinct identities and follow `references/zotero.md`. Verify the resolved file; do not trust its extension.
 
-### 2. Open-access search
+### 2. Public-web and open-access search
 
-For a likely OA target:
+When the runtime exposes it, use model-native web search/fetch first to locate and identity-check lawful public candidates. Prefer official repositories, author manuscripts, working-paper services, and publisher OA pages. If the model-native fetch lands the actual PDF, run the same local verifier and stop; a search result or HTML landing page alone is discovery evidence, not an artifact.
+
+When discovery still needs a reproducible OA query or bounded direct download:
 
 ```bash
 python3 "$FULLTEXT_SKILL_DIR/scripts/openalex_search_oa.py" "title or DOI" --oa-only --per-page 10
@@ -55,14 +59,15 @@ Confirm that the returned work matches the requested title/DOI before download. 
 
 ### 3. Protected publisher or CNKI
 
-1. Load the site recipe.
-2. Invoke `browser-session-bridge`.
-3. Search or navigate to the exact article detail page.
-4. Confirm title and publication metadata before download.
-5. Check the same article record for explicitly linked required companion artifacts; do not broaden into bulk supplementary-material crawling.
-6. Snapshot the landing directory, arm download handling, then activate the PDF control.
-7. Land each required role under the channel directory without overwriting another role.
-8. Run the bridge verifier and then confirm the paper identity **and artifact role** from the local content.
+1. Confirm that local, model-native public web, and bounded OA/direct routes did not satisfy this artifact role; freeze its `browser_required_reason`.
+2. Load the site recipe.
+3. Invoke `browser-session-bridge`.
+4. Search or navigate to the exact article detail page.
+5. Confirm title and publication metadata before download.
+6. Check the same article record for explicitly linked required companion artifacts; do not broaden into bulk supplementary-material crawling.
+7. Snapshot the landing directory, arm download handling, then activate the PDF control.
+8. Land each required role under the channel directory without overwriting another role.
+9. Run the bridge verifier and then confirm the paper identity **and artifact role** from the local content.
 
 CNKI defaults to PDF only. A CAJ file does not satisfy this skill unless the user explicitly requests CAJ, and it still cannot feed PDF-only method extraction.
 
@@ -74,7 +79,7 @@ Append one row per acquired/gap artifact role to `literature/FULLTEXT_MANIFEST.m
 
 | Requirement | Evidence |
 |---|---|
-| Discovery | Local hit, OpenAlex result, or protected-site search/detail evidence |
+| Discovery | Local hit, model-native public-web/OA result, or protected-site search/detail evidence |
 | Identity | Requested title/DOI matches the detail page and local PDF |
 | Artifact completeness | Every required role is verified or has an explicit role-specific gap; a main PDF never silently substitutes for a separate appendix/codebook |
 | File integrity | `%PDF`, EOF marker, at least 10 KiB, SHA-256 |
