@@ -64,7 +64,16 @@ bash ~/aris_repo/tools/install_aris_codex.sh ~/your-project --uninstall
 应安装整个 `business-research` 分组，而不是只复制总 Pipeline；该分组是精确的
 24 个便携 Skill 加共享契约。
 
-macOS 或 Linux：
+四种运行环境需要分别处理：
+
+| 运行环境 | 安装器 | 仓库和项目应放在 | 受管链接 | 受保护浏览器路径 |
+| --- | --- | --- | --- | --- |
+| macOS | Bash | macOS 文件系统 | symlink | macOS 原生 Chrome |
+| 原生 Linux | Bash | Linux 文件系统 | symlink | Linux 原生 Chrome |
+| 原生 Windows | PowerShell | NTFS Windows 路径 | junction | Windows 原生 Chrome |
+| WSL 2 | WSL 内的 Bash | WSL Linux 文件系统，优先 `~/...` | symlink | WSLg 内的 Linux Chrome |
+
+macOS 或原生 Linux：
 
 ```bash
 git clone --branch <release-tag> <repository-url> ~/aris_repo
@@ -85,10 +94,26 @@ powershell.exe -NoProfile -ExecutionPolicy Bypass `
   -Quiet
 ```
 
-Windows 安装器创建 junction，macOS/Linux 安装器创建 symlink；两者最终都把
-同一份包暴露到 `.agents/skills`，供 Codex 与 Grok Build 发现。不要把已经安装
-好的 `.agents/skills` 直接复制到另一台机器，因为链接仍指向原机器路径。应把
-release 克隆或解压到稳定目录，再运行对应安装器。
+WSL 2（所有命令都必须在同一个 WSL distribution 内运行）：
+
+```bash
+git clone --branch <release-tag> <repository-url> ~/aris_repo
+bash ~/aris_repo/tools/install_aris_codex.sh ~/your-project \
+  --groups business-research --quiet
+```
+
+WSL 应使用 Linux 版 Node.js 和 Codex/Grok，并在该 distribution 内安装
+Linux Chrome，通过 WSLg 显示。它的专用 Profile 和 `~/Downloads` 与 Windows
+Chrome 完全分开。不建议把仓库放到 `/mnt/c`，因为链接、权限和文件监听语义
+不同。本版本不把“WSL 内的 facade 驱动 Windows 宿主 Chrome”列为验收通过的
+路径；如果必须复用 Windows Chrome/登录态，应改用原生 Windows PowerShell
+安装方式运行。
+
+原生 Windows 安装器创建 junction；macOS、原生 Linux 和 WSL 安装器创建
+symlink。所有受支持布局最终都把同一份包暴露到 `.agents/skills`，供 Codex 与
+Grok Build 发现。不要把已经安装好的 `.agents/skills` 直接复制到另一台机器，
+因为链接仍指向原机器路径。应把 release 克隆或解压到稳定目录，再运行对应
+安装器。
 
 浏览器 Profile、cookie、保存的账号密码、WRDS 凭证、授权论文和商业数据库
 数据都不进入发行包。每个使用者必须在自己的机器上建立授权 Profile 并登录。

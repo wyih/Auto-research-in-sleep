@@ -67,7 +67,16 @@ machine. Install the `business-research` group rather than copying only the
 pipeline entry point; the group is the exact 24-skill portable suite plus its
 shared references.
 
-macOS or Linux:
+The supported runtime/install combinations are distinct:
+
+| Runtime | Installer | Keep the checkout and project in | Managed links | Protected-browser mode |
+| --- | --- | --- | --- | --- |
+| macOS | Bash | the macOS filesystem | symlinks | native macOS Chrome |
+| native Linux | Bash | the Linux filesystem | symlinks | native Linux Chrome |
+| native Windows | PowerShell | an NTFS Windows path | junctions | native Windows Chrome |
+| WSL 2 | Bash inside WSL | the WSL Linux filesystem, preferably `~/...` | symlinks | Linux Chrome under WSLg |
+
+macOS or native Linux:
 
 ```bash
 git clone --branch <release-tag> <repository-url> ~/aris_repo
@@ -88,11 +97,28 @@ powershell.exe -NoProfile -ExecutionPolicy Bypass `
   -Quiet
 ```
 
-The Windows installer creates junctions; the macOS/Linux installer creates
-symlinks. Both expose the same package under `.agents/skills`, which Codex and
-Grok Build can discover. Do not copy an installed `.agents/skills` directory to
-another machine because its links retain source-machine paths. Clone/extract the
-release into a stable location and run the appropriate installer instead.
+WSL 2 (run every command inside the same WSL distribution):
+
+```bash
+git clone --branch <release-tag> <repository-url> ~/aris_repo
+bash ~/aris_repo/tools/install_aris_codex.sh ~/your-project \
+  --groups business-research --quiet
+```
+
+For WSL, use the Linux builds of Node.js and Codex/Grok together with a Linux
+Chrome installed in that distribution and displayed through WSLg. Its dedicated
+profile and `~/Downloads` are separate from Windows Chrome. Keeping the checkout
+under `/mnt/c` is discouraged because link, permission, and file-watching
+semantics differ. Driving Windows-host Chrome from a WSL facade is not an
+accepted path in this release; if Windows Chrome/login state is required, run
+the native Windows PowerShell installation instead.
+
+The native Windows installer creates junctions; the macOS, native-Linux, and WSL
+installer creates symlinks. Every supported layout exposes the same package
+under `.agents/skills`, which Codex and Grok Build can discover. Do not copy an
+installed `.agents/skills` directory to another machine because its links retain
+source-machine paths. Clone/extract the release into a stable location and run
+the appropriate installer instead.
 
 Browser profiles, cookies, saved credentials, WRDS credentials, licensed PDFs,
 and commercial database extracts are deliberately outside the package. Each

@@ -47,7 +47,7 @@ def test_business_research_catalog_group_is_exact_portable_set() -> None:
     assert catalog_names == set(PORTABLE_SKILLS)
 
 
-def test_portable_package_documents_unix_and_windows_team_install() -> None:
+def test_portable_package_documents_native_windows_and_wsl_separately() -> None:
     for readme_name in ("README.md", "README_CN.md"):
         text = (PACKAGE_ROOT / readme_name).read_text(encoding="utf-8")
         assert "--groups business-research --quiet" in text
@@ -56,6 +56,10 @@ def test_portable_package_documents_unix_and_windows_team_install() -> None:
         assert "-Groups business-research" in text
         assert ".agents/skills" in text
         assert "release tag" in text
+        assert "WSL 2" in text
+        assert "WSLg" in text
+        assert "/mnt/c" in text
+        assert "Linux Chrome" in text
 
 
 
