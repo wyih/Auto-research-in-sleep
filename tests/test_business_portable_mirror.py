@@ -55,6 +55,8 @@ def test_portable_package_documents_native_windows_and_wsl_separately() -> None:
         assert "install_aris.ps1" in text
         assert "-Platform codex" in text
         assert "-Groups business-research" in text
+        assert "--office-author" in text
+        assert "-OfficeAuthor" in text
         assert ".agents/skills" in text
         assert "release tag" in text
         assert "WSL 2" in text
@@ -95,6 +97,8 @@ def test_business_group_install_is_exact_and_does_not_write_global_pointer(
             "--groups",
             "business-research",
             "--quiet",
+            "--office-author",
+            "Portable Test Author",
             "--no-doc",
             "--no-global-pointer",
         ],
@@ -115,6 +119,9 @@ def test_business_group_install_is_exact_and_does_not_write_global_pointer(
     assert manifest_names == set(PORTABLE_SKILLS)
     assert not (project / "AGENTS.md").exists()
     assert not (fake_home / ".aris" / "repo").exists()
+    assert (fake_home / ".aris" / "office-author").read_text(
+        encoding="utf-8"
+    ) == "Portable Test Author\n"
 
     installed_root = project / ".agents" / "skills"
     assert (installed_root / "shared-references").resolve() == PACKAGE_ROOT / "shared-references"

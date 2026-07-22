@@ -9,6 +9,7 @@ from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any
 
+from author_identity import OfficeAuthorError, validate_office_author
 from normalize_docx_author import audit_docx, normalize_docx
 
 from .document import compose_document, embedded_figures
@@ -16,10 +17,14 @@ from .inputs import load_document_spec, source_file
 from .model import BuildRequest, BuildResult, DocumentSpec, NarrativeClaim, ResultsDocxError, SourceFile
 
 
-BUILDER_VERSION = "1.2.0"
+BUILDER_VERSION = "1.3.0"
 
 
 def build_results_pack(request: BuildRequest) -> BuildResult:
+    try:
+        author = validate_office_author(request.author)
+    except OfficeAuthorError as error:
+        raise ResultsDocxError(str(error)) from error
     output = request.output_path.expanduser().resolve()
     _validate_output_target(output)
     manifest = (request.manifest_path or output.parent / "RESULTS_DOCX_MANIFEST.md").expanduser().resolve()
@@ -40,22 +45,22 @@ def build_results_pack(request: BuildRequest) -> BuildResult:
     collisions = input_paths & {output, manifest, receipt}
     if collisions:
         raise ResultsDocxError("Refusing to overwrite an input artifact: " + ", ".join(map(str, sorted(collisions))))
-    document, claims = compose_document(spec, author=request.author)
+    document, claims = compose_document(spec, author=author)
 
     fd, temp_name = tempfile.mkstemp(prefix=f".{output.stem}.", suffix=".docx", dir=output.parent)
     os.close(fd)
     temp_path = Path(temp_name)
     try:
         document.save(temp_path)
-        normalize_docx(temp_path, request.author)
-        temp_audit = audit_docx(temp_path, request.author)
+        normalize_docx(temp_path, author)
+        temp_audit = audit_docx(temp_path, author)
         if not temp_audit["passed"]:
             raise ResultsDocxError(f"Office identity normalization failed: {temp_audit}")
         os.replace(temp_path, output)
     finally:
         temp_path.unlink(missing_ok=True)
 
-    final_audit = audit_docx(output, request.author)
+    final_audit = audit_docx(output, author)
     if not final_audit["passed"]:
         raise ResultsDocxError(f"Final Office identity audit failed: {final_audit}")
 

@@ -107,9 +107,9 @@ class DocumentSpec:
 class BuildRequest:
     spec_path: Path
     output_path: Path
+    author: str
     manifest_path: Path | None = None
     receipt_path: Path | None = None
-    author: str = "Yihong Wang"
     force: bool = False
 
 

@@ -33,6 +33,7 @@
 #
 # Options:
 #   --aris-repo PATH       override aris-repo discovery
+#   --office-author NAME   required when results-to-docx is selected
 #   --dry-run              show plan, no writes
 #   --quiet                no prompts; abort on any condition that would prompt
 #   --no-doc               skip CLAUDE.md update
@@ -77,6 +78,7 @@ MANIFEST_PREV_NAME="installed-skills.txt.prev"
 DECLINED_NAME="skills-declined.txt"
 CATALOG_REL="tools/skill-groups.tsv"
 GLOBAL_POINTER="$HOME/.aris/repo"
+OFFICE_AUTHOR_FILE="${ARIS_OFFICE_AUTHOR_FILE:-$HOME/.aris/office-author}"
 ARIS_DIR_NAME=".aris"
 LOCK_DIR_NAME=".install.lock.d"
 SKILLS_REL=".claude/skills"
@@ -90,6 +92,8 @@ EXCLUDE_TOP_NAMES=("skills-codex" "skills-codex.bak")  # not skills, not symlink
 # ─── Argument parsing ─────────────────────────────────────────────────────────
 PROJECT_PATH=""
 ARIS_REPO_OVERRIDE=""
+OFFICE_AUTHOR=""
+OFFICE_AUTHOR_REQUIRED=false
 ACTION="auto"        # auto | reconcile | uninstall
 DRY_RUN=false
 QUIET=false
@@ -106,7 +110,7 @@ SELECT_ALL=false
 NEW_POLICY=""        # "" (prompt) | add | skip
 LIST_GROUPS=false
 
-usage() { sed -n '2,69p' "$0" | sed 's/^# \?//'; }
+usage() { sed -n '2,70p' "$0" | sed 's/^# *//'; }
 
 FORWARDED_ARGS=()
 PLATFORM_OVERRIDE=""
@@ -150,6 +154,7 @@ while [[ $# -gt 0 ]]; do
         --reconcile)         FORWARDED_ARGS+=("$1"); ACTION="reconcile"; shift ;;
         --uninstall)         FORWARDED_ARGS+=("$1"); ACTION="uninstall"; shift ;;
         --aris-repo)         FORWARDED_ARGS+=("$1" "${2:?--aris-repo requires path}"); ARIS_REPO_OVERRIDE="$2"; shift 2 ;;
+        --office-author)     FORWARDED_ARGS+=("$1" "${2:?--office-author requires NAME}"); OFFICE_AUTHOR="$2"; shift 2 ;;
         --dry-run)           FORWARDED_ARGS+=("$1"); DRY_RUN=true; shift ;;
         --quiet)             FORWARDED_ARGS+=("$1"); QUIET=true; shift ;;
         --no-doc)            FORWARDED_ARGS+=("$1"); NO_DOC=true; shift ;;
@@ -203,6 +208,33 @@ prompt()   { $QUIET && return 1; printf "%s " "$1" >&2; read -r REPLY; [[ "$REPL
 abs_path() { ( cd "$1" 2>/dev/null && pwd ) || return 1; }
 
 is_safe_name() { [[ "$1" =~ $SAFE_NAME_REGEX ]]; }
+
+require_office_author_for_selection() {
+    local selected_file="$1"
+    in_file "results-to-docx" "$selected_file" || return 0
+    OFFICE_AUTHOR_REQUIRED=true
+    [[ -n "${OFFICE_AUTHOR//[[:space:]]/}" ]] \
+        || die "--office-author NAME is required when results-to-docx is selected"
+    if LC_ALL=C printf '%s' "$OFFICE_AUTHOR" | grep -q '[[:cntrl:]]'; then
+        die "--office-author must not contain control characters"
+    fi
+    OFFICE_AUTHOR="$(printf '%s' "$OFFICE_AUTHOR" | sed 's/^[[:space:]]*//; s/[[:space:]]*$//')"
+    [[ ${#OFFICE_AUTHOR} -le 200 ]] \
+        || die "--office-author must be 200 characters or fewer"
+    log "Office author: explicitly supplied (value not printed)"
+}
+
+write_office_author_config() {
+    $OFFICE_AUTHOR_REQUIRED || return 0
+    local config_dir tmp
+    config_dir="$(dirname "$OFFICE_AUTHOR_FILE")"
+    mkdir -p "$config_dir"
+    tmp="$OFFICE_AUTHOR_FILE.tmp.$$"
+    (umask 077; printf '%s\n' "$OFFICE_AUTHOR" > "$tmp")
+    chmod 600 "$tmp" 2>/dev/null || true
+    mv -f "$tmp" "$OFFICE_AUTHOR_FILE"
+    log "  ✓ configured user-local Office author"
+}
 
 # Read symlink target without following further (one hop)
 read_link_target() {
@@ -1145,6 +1177,7 @@ load_manifest "$MANIFEST_PATH" "$MANIFEST_DATA"
 SELECTED_FILE="$(mktemp -t aris-selected.XXXX)"
 DECLINED_CANDIDATES="$(mktemp -t aris-declined.XXXX)"
 build_selection "$UPSTREAM_FILE" "$DECLINED_CANDIDATES" "$SELECTED_FILE"
+require_office_author_for_selection "$SELECTED_FILE"
 SELECTED_UPSTREAM="$(mktemp -t aris-upstream-sel.XXXX)"
 filter_upstream_by_selection "$UPSTREAM_FILE" "$SELECTED_FILE" "$SELECTED_UPSTREAM"
 N_SELECTED=$(grep -c '^skill|' "$SELECTED_UPSTREAM" || true)
@@ -1208,6 +1241,7 @@ log ""
 log "Applying:"
 apply_plan "$PLAN_FILE" "$MANIFEST_TMP"
 commit_manifest "$MANIFEST_TMP"
+write_office_author_config
 
 # #174 Phase 0: ensure project-local .aris/tools symlink (purely additive).
 # Runs after manifest commit so a failure here doesn't roll back skill links.

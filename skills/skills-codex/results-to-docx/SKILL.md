@@ -26,7 +26,7 @@ Use this skill when:
 - main regressions, robustness, mechanism, or event-study outputs exist
 - the user wants a Word results pack with academic three-line tables
 - `r-analysis-bridge` (or another analysis bridge) has exported tidy coef / descriptives CSVs
-- metadata on generated docx must be normalized to author `Yihong Wang`
+- metadata on generated docx must be normalized to the author identity explicitly chosen for the current user or project
 
 Do **not** use this skill to draft Introduction/literature or to rewrite the full paper—route that to `business-paper-writing`.
 
@@ -113,6 +113,10 @@ python3 "$RESULTS_DOCX_SKILL_DIR/scripts/build_results_docx.py" \
   --out analysis/output/results_docx/results_main.docx
 ```
 
+The normal install path has already required the user to supply an Office
+author and stored it outside the project. Add `--author "<intended author>"`
+only when this artifact should override that installed user default.
+
 The CLI is the reusable acceptance path. It validates tidy input types and
 within-model metadata, rejects duplicate coefficients and unsafe manuscript
 targets, derives significance stars from raw p-values, applies explicit 9360
@@ -184,10 +188,19 @@ record interpretation elsewhere, outside the transport acceptance artifact.
 
 ### Step 5: Normalize Author Metadata
 
+Resolve the intended Office author before building. Precedence is an author
+explicitly named for this artifact, the user-local `ARIS_OFFICE_AUTHOR`
+environment override, then the installer-created `~/.aris/office-author` file.
+If none exists, ask once and stop rather than guessing. Never inherit the Skill
+maintainer's identity, the person who packaged the Skill, the OS account name,
+Git configuration, or template metadata.
+
 The production CLI runs the bundled normalizer after final save. It sets Author
-/ Last Modified By to `Yihong Wang`; clears Company / Manager; removes custom,
-comment, people, and revision-session identity residue; and fails if tracked
-changes or author-bearing parts remain.
+/ Last Modified By to the resolved identity; clears Company / Manager; removes
+custom, comment, people, and revision-session identity residue; and fails if
+tracked changes or author-bearing parts remain. `--author` takes precedence over
+`ARIS_OFFICE_AUTHOR`, which takes precedence over the installer-created user
+file; the command fails safely when all three are absent.
 
 For a DOCX produced by another assembler, run the helper manually:
 
@@ -203,7 +216,10 @@ python3 "$RESULTS_DOCX_SKILL_DIR/scripts/normalize_docx_author.py" \
   --check analysis/output/results_docx/results_main.docx
 ```
 
-Default author is `Yihong Wang`. Override only if the user explicitly requests another author string.
+Do not write the chosen identity into the distributed Skill source. It belongs
+only in the explicit command, a user-local environment or installer setting,
+and the generated document/manifest/receipt where authorship is an intended
+output.
 
 ### Step 6: Write Manifest
 

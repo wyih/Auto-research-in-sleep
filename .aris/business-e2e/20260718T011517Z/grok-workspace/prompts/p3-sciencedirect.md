@@ -52,16 +52,16 @@ These facts identify the target. Do not read or copy the Codex PDF. A matching h
 
 ## Required browser flow
 
-1. Record the start time and a narrow baseline inventory of `/Users/wyih/Downloads` with names, sizes, and modification times only.
+1. Record the start time and a narrow baseline inventory of `${HOME}/Downloads` with names, sizes, and modification times only.
 2. Reacquire the unique foreground ScienceDirect tab, inspect `schema chrome_navigate`, navigate that same leased tab to the stable PII entry with `newWindow: false`, then reacquire and perform a compact `chrome_read_page` identity read.
 3. First allow a bounded passive wait and reinspection if Cloudflare is still resolving.
 4. If an ordinary visible Cloudflare checkbox still blocks the article, stop with `captcha_required` unless the current Grok launch includes a separate action-time rule recording that the user confirmed this already-observed challenge. Earlier general authorization is not that launch-time rule. With that explicit rule only, reacquire and compact-read the foreground tab, require a current CSS selector for the visible checkbox, and issue one native `chrome_click_element` click with `selectorType: "css"`; then wait, reacquire, and reread. If no fresh CSS selector is exposed, stop rather than using a screenshot, coordinates, refs, XPath, or JavaScript.
 5. Do not automate sliders, press-and-hold, image puzzles, hard CAPTCHAs, MFA, or credential entry. Stop with `captcha_required` or `login_required` if one blocks the action. Hidden/offscreen challenge markup is not blocking evidence.
 6. Confirm the exact article title, all three authors, DOI, and PII on the article page. Confirm that a PDF/View PDF control is actually available; an institutional logo or article HTML is not download proof.
-7. Immediately before the final article or viewer download click, refresh the narrow `/Users/wyih/Downloads` inventory and record the click time. Do **not** arm `chrome_handle_download`: the legacy implementation is a post-click `~/Downloads` increment detector, not an event waiter.
+7. Immediately before the final article or viewer download click, refresh the narrow `${HOME}/Downloads` inventory and record the click time. Do **not** arm `chrome_handle_download`: the legacy implementation is a post-click `~/Downloads` increment detector, not an event waiter.
 8. Reacquire and compact-read the foreground article tab, then click its current visible PDF control exactly once through `chrome_click_element` with a freshly confirmed CSS selector. A shape such as `a[href*="pdfft"]` is only a hint and must be confirmed in current state. Never construct, print, or persist the `pdfft` delivery URL or hash.
-9. If an inline viewer or new tab opens, reacquire its already observed query-free domain and require it to be the unique foreground match. Compact-read target identity. If a separate viewer download control is required, refresh the narrow `/Users/wyih/Downloads` baseline and click time again, then click it only with a fresh CSS selector through one native `chrome_click_element` call. If the control exists only as browser UI/canvas or the helper refuses a signed/query-bearing viewer under legacy compatibility, stop with `viewer_failed`; do not use screenshots, coordinates, refs, XPath, JavaScript, or background switching.
-10. After the final click, reacquire and inspect post-state before any retry. Then inspect `schema chrome_handle_download`. If it accepts `filenameContains`, call it **after** the click with a narrow query-free target-derived filename token, `directory: "/Users/wyih/Downloads"`, bounded `lookbackMs`, and `waitForComplete: true`. Under legacy compatibility, record success only as `fallback_directory_increment`, never a native event. If unavailable, unsuitable, or timed out, independently diff only `/Users/wyih/Downloads` against the most recent pre-click baseline. Require a post-click plausible PDF, stable size, and no partial suffix. Set `handler_called_after_click` in the receipt to the observed boolean; it is `false` when the handler was skipped.
+9. If an inline viewer or new tab opens, reacquire its already observed query-free domain and require it to be the unique foreground match. Compact-read target identity. If a separate viewer download control is required, refresh the narrow `${HOME}/Downloads` baseline and click time again, then click it only with a fresh CSS selector through one native `chrome_click_element` call. If the control exists only as browser UI/canvas or the helper refuses a signed/query-bearing viewer under legacy compatibility, stop with `viewer_failed`; do not use screenshots, coordinates, refs, XPath, JavaScript, or background switching.
+10. After the final click, reacquire and inspect post-state before any retry. Then inspect `schema chrome_handle_download`. If it accepts `filenameContains`, call it **after** the click with a narrow query-free target-derived filename token, `directory: "${HOME}/Downloads"`, bounded `lookbackMs`, and `waitForComplete: true`. Under legacy compatibility, record success only as `fallback_directory_increment`, never a native event. If unavailable, unsuitable, or timed out, independently diff only `${HOME}/Downloads` against the most recent pre-click baseline. Require a post-click plausible PDF, stable size, and no partial suffix. Set `handler_called_after_click` in the receipt to the observed boolean; it is `false` when the handler was skipped.
 11. The accepted source must be that new landing delta. Never copy from `.aris/business-e2e/20260718T011517Z/artifacts/fulltext/`, a previous acceptance artifact, cache, or another runtime's output.
 
 ## Independent artifact gate
@@ -69,7 +69,7 @@ These facts identify the target. Do not read or copy the Codex PDF. A matching h
 Preferred destination:
 
 ```text
-/Users/wyih/Projects/Auto-research-in-sleep/.aris/business-e2e/20260718T011517Z/grok-workspace/artifacts/fulltext/sciencedirect/grok-S1755309118300030-corporate-culture-firm-performance-china.pdf
+${ARIS_REPO_ROOT}/.aris/business-e2e/20260718T011517Z/grok-workspace/artifacts/fulltext/sciencedirect/grok-S1755309118300030-corporate-culture-firm-performance-china.pdf
 ```
 
 Do not overwrite an existing accepted file; report `destination_collision` if the preferred path already exists.
@@ -85,7 +85,7 @@ Do not overwrite an existing accepted file; report `destination_collision` if th
 On success write:
 
 ```text
-/Users/wyih/Projects/Auto-research-in-sleep/.aris/business-e2e/20260718T011517Z/grok-workspace/receipts/p3-sciencedirect-grok.json
+${ARIS_REPO_ROOT}/.aris/business-e2e/20260718T011517Z/grok-workspace/receipts/p3-sciencedirect-grok.json
 ```
 
 Required receipt facts:
@@ -161,7 +161,7 @@ Append exactly one new Grok success row to `.aris/business-e2e/20260718T011517Z/
 Run the deterministic verifier and inspect only this gate:
 
 ```bash
-python3 /Users/wyih/Projects/Auto-research-in-sleep/scripts/verify_business_e2e.py --run-id 20260718T011517Z --json
+python3 ${ARIS_REPO_ROOT}/scripts/verify_business_e2e.py --run-id 20260718T011517Z --json
 ```
 
 `runtimes.grok.browser.P3_SCIENCEDIRECT.status` must be `PASS`. Overall incompleteness from unrelated Grok gates is allowed.

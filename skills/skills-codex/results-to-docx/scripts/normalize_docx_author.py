@@ -6,7 +6,8 @@ comment/people/custom-property parts and revision-session IDs that can retain
 template or editor identity.
 Document body text and table formatting are left unchanged.
 
-Default author: Yihong Wang
+The author is resolved from an explicit option, ``ARIS_OFFICE_AUTHOR``, or the
+installer-created user configuration.
 """
 
 from __future__ import annotations
@@ -21,7 +22,12 @@ import zipfile
 from pathlib import Path
 from xml.etree import ElementTree as ET
 
-AUTHOR = "Yihong Wang"
+from author_identity import (
+    OFFICE_AUTHOR_ENV,
+    OfficeAuthorError,
+    resolve_office_author,
+    validate_office_author,
+)
 
 NS_CP = "http://schemas.openxmlformats.org/package/2006/metadata/core-properties"
 NS_DC = "http://purl.org/dc/elements/1.1/"
@@ -131,7 +137,8 @@ def _clean_content_types(data: bytes, removed: set[str]) -> bytes:
     return _xml_bytes(root, NS_CT) if changed else data
 
 
-def normalize_docx(path: Path, author: str = AUTHOR) -> None:
+def normalize_docx(path: Path, author: str) -> None:
+    author = validate_office_author(author)
     path = path.resolve()
     if not path.is_file():
         raise FileNotFoundError(path)
@@ -183,7 +190,8 @@ def normalize_docx(path: Path, author: str = AUTHOR) -> None:
         tmp_path.unlink(missing_ok=True)
 
 
-def audit_docx(path: Path, author: str = AUTHOR) -> dict[str, object]:
+def audit_docx(path: Path, author: str) -> dict[str, object]:
+    author = validate_office_author(author)
     with zipfile.ZipFile(path, "r") as zf:
         names = zf.namelist()
         core = ET.fromstring(zf.read("docProps/core.xml"))
@@ -246,7 +254,13 @@ def audit_docx(path: Path, author: str = AUTHOR) -> dict[str, object]:
 def main() -> int:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("paths", nargs="+", type=Path)
-    parser.add_argument("--author", default=AUTHOR)
+    parser.add_argument(
+        "--author",
+        help=(
+            "expected Office author identity (otherwise read "
+            f"{OFFICE_AUTHOR_ENV} or the installer-created user configuration)"
+        ),
+    )
     parser.add_argument(
         "--check",
         action="store_true",
@@ -254,11 +268,16 @@ def main() -> int:
     )
     args = parser.parse_args()
 
+    try:
+        author = resolve_office_author(args.author)
+    except OfficeAuthorError as error:
+        parser.error(str(error))
+
     reports = []
     for path in args.paths:
         if not args.check:
-            normalize_docx(path, args.author)
-        reports.append(audit_docx(path, args.author))
+            normalize_docx(path, author)
+        reports.append(audit_docx(path, author))
     print(json.dumps(reports, ensure_ascii=False, indent=2))
     return 0 if all(report["passed"] for report in reports) else 1
 

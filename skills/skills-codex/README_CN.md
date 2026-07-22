@@ -26,14 +26,15 @@ Codex 默认推荐项目级安装；Grok Build 也会从同一个 `.agents/skill
 git clone https://github.com/wanshuiyin/Auto-claude-code-research-in-sleep.git ~/aris_repo
 cd ~/your-project
 
-bash ~/aris_repo/tools/install_aris_codex.sh .
+bash ~/aris_repo/tools/install_aris_codex.sh . --office-author "你的姓名"
 ```
 
 如果是隔离的 Codex/Grok 烟测工作区，不希望更新可选的全局 helper 指针或 AGENTS 管理块：
 
 ```bash
 bash ~/aris_repo/tools/install_aris_codex.sh . \
-  --groups business-research --quiet --no-doc --no-global-pointer
+  --groups business-research --quiet --office-author "你的姓名" \
+  --no-doc --no-global-pointer
 grok inspect --json
 ```
 
@@ -49,7 +50,8 @@ AGENTS.md   # 自动写入 Codex 管理块
 
 ```bash
 cd ~/aris_repo && git pull
-bash ~/aris_repo/tools/install_aris_codex.sh ~/your-project --reconcile
+bash ~/aris_repo/tools/install_aris_codex.sh ~/your-project --reconcile \
+  --office-author "你的姓名"
 ```
 
 只卸载受管的 Codex skill：
@@ -78,7 +80,7 @@ macOS 或原生 Linux：
 ```bash
 git clone --branch <release-tag> <repository-url> ~/aris_repo
 bash ~/aris_repo/tools/install_aris_codex.sh /absolute/path/to/project \
-  --groups business-research --quiet
+  --groups business-research --quiet --office-author "你的姓名"
 ```
 
 Windows PowerShell 5.1 或 PowerShell 7：
@@ -91,6 +93,7 @@ powershell.exe -NoProfile -ExecutionPolicy Bypass `
   -Platform codex `
   -ArisRepo "$HOME\aris_repo" `
   -Groups business-research `
+  -OfficeAuthor "你的姓名" `
   -Quiet
 ```
 
@@ -99,7 +102,7 @@ WSL 2（所有命令都必须在同一个 WSL distribution 内运行）：
 ```bash
 git clone --branch <release-tag> <repository-url> ~/aris_repo
 bash ~/aris_repo/tools/install_aris_codex.sh ~/your-project \
-  --groups business-research --quiet
+  --groups business-research --quiet --office-author "你的姓名"
 ```
 
 WSL 应使用 Linux 版 Node.js 和 Codex/Grok，并在该 distribution 内安装
@@ -133,16 +136,43 @@ pdftotext -v
 
 Skill 安装器只管理项目链接，不会替用户安装需要系统权限的 OS 软件包。
 
+## Office 作者身份
+
+分发包不会把维护者姓名作为 Word 作者。安装选择中只要包含
+`results-to-docx`，就必须显式传入 `--office-author "你的姓名"`；PowerShell
+对应 `-OfficeAuthor "你的姓名"`。安装器把它写入用户本机的
+`~/.aris/office-author`（Windows 下位于用户 Profile），不会写进项目或 Git
+配置；POSIX 安装器会把文件权限设为 `0600`。
+
+单个产物可用 `--author "另一位作者"` 覆盖安装默认值。若只想临时覆盖当前
+shell，可设置：
+
+```bash
+# macOS、Linux 和 WSL
+export ARIS_OFFICE_AUTHOR="你的姓名"
+```
+
+```powershell
+# 原生 Windows PowerShell
+$env:ARIS_OFFICE_AUTHOR = "你的姓名"
+```
+
+解析顺序是产物级 `--author`、`ARIS_OFFICE_AUTHOR`、安装器生成的用户配置。
+三者都不存在时生成器会安全停止；它不会继承安装者、维护者、操作系统账号、
+Git 身份或模板作者。
+
 ## Overlay 安装
 
 先装基座，再选装 overlay：
 
 ```bash
-bash ~/aris_repo/tools/install_aris_codex.sh ~/your-project --reconcile --with-claude-review-overlay
+bash ~/aris_repo/tools/install_aris_codex.sh ~/your-project --reconcile \
+  --with-claude-review-overlay --office-author "你的姓名"
 ```
 
 ```bash
-bash ~/aris_repo/tools/install_aris_codex.sh ~/your-project --reconcile --with-gemini-review-overlay
+bash ~/aris_repo/tools/install_aris_codex.sh ~/your-project --reconcile \
+  --with-gemini-review-overlay --office-author "你的姓名"
 ```
 
 overlay 只替换 reviewer 路由，不替换基座 mirror，也不改变 executor 语义。

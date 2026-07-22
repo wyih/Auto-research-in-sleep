@@ -60,6 +60,10 @@
 .PARAMETER Quiet
     Suppress interactive prompts; every decision that would otherwise prompt
     falls back to its non-interactive default (see catalog notes above).
+
+.PARAMETER OfficeAuthor
+    Required whenever the selected skill set contains results-to-docx. The
+    value is stored in the user-local ARIS identity file, never in the project.
 #>
 
 [CmdletBinding()]
@@ -71,6 +75,7 @@ param(
     [string]$Platform = 'auto',
 
     [string]$ArisRepo = '',
+    [string]$OfficeAuthor = '',
 
     [switch]$DryRun,
     [switch]$NoDoc,
@@ -103,6 +108,39 @@ $ManifestVersion = '1'
 $SafeNameRegex = '^[A-Za-z0-9][A-Za-z0-9._-]*$'
 $SupportNames = @('shared-references')
 $CatalogRel = 'tools/skill-groups.tsv'
+$OfficeAuthorFile = $(
+    if ($env:ARIS_OFFICE_AUTHOR_FILE) { $env:ARIS_OFFICE_AUTHOR_FILE }
+    else { Join-Path $HOME '.aris\office-author' }
+)
+
+function Get-RequiredOfficeAuthor {
+    param([System.Collections.Generic.HashSet[string]]$Selected)
+    if (-not $Selected.Contains('results-to-docx')) { return $null }
+
+    if (@($OfficeAuthor.ToCharArray() | Where-Object { [char]::IsControl($_) }).Count -gt 0) {
+        Die '-OfficeAuthor must not contain control characters'
+    }
+    $candidate = $OfficeAuthor.Trim()
+    if ([string]::IsNullOrWhiteSpace($candidate)) {
+        Die '-OfficeAuthor NAME is required when results-to-docx is selected'
+    }
+    if ($candidate.Length -gt 200) {
+        Die '-OfficeAuthor must be 200 characters or fewer'
+    }
+    Write-Host 'Office author: explicitly supplied (value not printed)'
+    return $candidate
+}
+
+function Write-OfficeAuthorConfig {
+    param([AllowNull()][string]$Author)
+    if ($null -eq $Author) { return }
+    $configDir = Split-Path -Parent $OfficeAuthorFile
+    New-Item -ItemType Directory -Force -Path $configDir | Out-Null
+    $tempPath = "$OfficeAuthorFile.tmp.$PID"
+    [System.IO.File]::WriteAllText($tempPath, $Author + [Environment]::NewLine, $Utf8NoBom)
+    Move-Item -LiteralPath $tempPath -Destination $OfficeAuthorFile -Force
+    Write-Host '  configured user-local Office author'
+}
 $GlobalPointerDir = Join-Path $HOME '.aris'
 $GlobalPointerPath = Join-Path $GlobalPointerDir 'repo'
 $script:LockDir = $null
@@ -1317,6 +1355,7 @@ function Invoke-Main {
     $isFresh = -not (Test-Path -LiteralPath $manifestPath -PathType Leaf)
     $declinedPath = Join-Path $arisDir $config.DeclinedName
     $selection = Build-Selection $catalog $manifest $upstreamSkillNames $declinedPath $isFresh
+    $resolvedOfficeAuthor = Get-RequiredOfficeAuthor $selection.Selected
     $selectedInventory = @($inventory | Where-Object { $_.Kind -eq 'support' -or $selection.Selected.Contains($_.Name) })
     Write-Host ''
     Write-Host "Selection: $($selection.Selected.Count) of $($upstreamSkillNames.Count) upstream skills"
@@ -1346,6 +1385,7 @@ function Invoke-Main {
     Apply-Plan $plan $repoRoot
     $manifestContent = New-ManifestContent $plan $repoRoot $projectRoot $selectedPlatform
     Commit-Manifest $manifestPath $manifestPrevPath $manifestContent
+    Write-OfficeAuthorConfig $resolvedOfficeAuthor
     Ensure-ToolsJunction $arisDir $repoRoot
     Archive-LegacyCopy $legacy $arisDir
 

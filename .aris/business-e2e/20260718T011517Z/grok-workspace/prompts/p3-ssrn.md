@@ -51,14 +51,14 @@ The reference facts identify the target; they do not authorize copying the Codex
 
 ## Required browser flow
 
-1. Record the operation start time and a narrow baseline inventory of `/Users/wyih/Downloads` containing only names, sizes, and modification times. Do not search the rest of the home directory.
+1. Record the operation start time and a narrow baseline inventory of `${HOME}/Downloads` containing only names, sizes, and modification times. Do not search the rest of the home directory.
 2. Reacquire the unique foreground SSRN tab, inspect `schema chrome_navigate`, navigate that same leased tab to the stable abstract entry with `newWindow: false`, then reacquire it and perform a compact `chrome_read_page` identity read.
 3. SSRN's expected challenge is passive. If an interstitial appears, do not click it and do not reload repeatedly. Wait in bounded steps, reacquiring the unique foreground tab and rereading compact state each time. The Codex observation cleared automatically after about 12 seconds; use a bounded total wait and record the observed duration.
 4. If the passive challenge clears, verify the exact title, all four authors, and abstract ID before touching a download control.
 5. If a visible interactive or hard CAPTCHA remains and blocks the intended action, stop with `captcha_required`. Do not bypass it. Hidden or offscreen challenge markup is not a blocker.
-6. Immediately before the final click, refresh the narrow `/Users/wyih/Downloads` inventory and record the click time. Do **not** arm `chrome_handle_download`: the legacy implementation is a post-click `~/Downloads` increment detector, not an event waiter.
+6. Immediately before the final click, refresh the narrow `${HOME}/Downloads` inventory and record the click time. Do **not** arm `chrome_handle_download`: the legacy implementation is a post-click `~/Downloads` increment detector, not an event waiter.
 7. Reacquire and compact-read the unique foreground SSRN tab. Click the current visible `Download This Paper` / PDF control exactly once with a fresh CSS selector through `chrome_click_element`. Do not manufacture or persist a delivery URL, and do not fall back to refs, XPath, JavaScript, screenshots, or coordinates.
-8. After the click, reacquire and inspect post-state before any retry. Then inspect `schema chrome_handle_download`. If the helper schema accepts `filenameContains`, call it **after** the click with a narrow query-free filename token derived from the visible target, `directory: "/Users/wyih/Downloads"`, bounded `lookbackMs`, and `waitForComplete: true`. Under legacy compatibility, classify a success only as `fallback_directory_increment`, never as a native runtime event. If the tool is unavailable, unsuitable, or times out, independently diff only `/Users/wyih/Downloads` against the pre-click baseline. Require a post-click file, plausible PDF name, no partial suffix, and stable size across polls. Set `handler_called_after_click` in the receipt to the observed boolean; it is `false` when the handler was skipped.
+8. After the click, reacquire and inspect post-state before any retry. Then inspect `schema chrome_handle_download`. If the helper schema accepts `filenameContains`, call it **after** the click with a narrow query-free filename token derived from the visible target, `directory: "${HOME}/Downloads"`, bounded `lookbackMs`, and `waitForComplete: true`. Under legacy compatibility, classify a success only as `fallback_directory_increment`, never as a native runtime event. If the tool is unavailable, unsuitable, or times out, independently diff only `${HOME}/Downloads` against the pre-click baseline. Require a post-click file, plausible PDF name, no partial suffix, and stable size across polls. Set `handler_called_after_click` in the receipt to the observed boolean; it is `false` when the handler was skipped.
 9. The source of the accepted file must be that new directory delta. Never use or copy any file from `.aris/business-e2e/20260718T011517Z/artifacts/fulltext/` or another prior acceptance directory.
 
 ## Independent artifact gate
@@ -66,7 +66,7 @@ The reference facts identify the target; they do not authorize copying the Codex
 Preferred destination:
 
 ```text
-/Users/wyih/Projects/Auto-research-in-sleep/.aris/business-e2e/20260718T011517Z/grok-workspace/artifacts/fulltext/ssrn/grok-ssrn-2937525-corporate-culture-evidence-field.pdf
+${ARIS_REPO_ROOT}/.aris/business-e2e/20260718T011517Z/grok-workspace/artifacts/fulltext/ssrn/grok-ssrn-2937525-corporate-culture-evidence-field.pdf
 ```
 
 Create the destination directory only after a new landing candidate exists. Do not overwrite an existing accepted artifact; report `destination_collision` instead.
@@ -82,7 +82,7 @@ Create the destination directory only after a new landing candidate exists. Do n
 On success, write:
 
 ```text
-/Users/wyih/Projects/Auto-research-in-sleep/.aris/business-e2e/20260718T011517Z/grok-workspace/receipts/p3-ssrn-grok.json
+${ARIS_REPO_ROOT}/.aris/business-e2e/20260718T011517Z/grok-workspace/receipts/p3-ssrn-grok.json
 ```
 
 The JSON must include:
@@ -157,7 +157,7 @@ After the receipt exists, append exactly one success row for this Grok artifact 
 Finally run:
 
 ```bash
-python3 /Users/wyih/Projects/Auto-research-in-sleep/scripts/verify_business_e2e.py --run-id 20260718T011517Z --json
+python3 ${ARIS_REPO_ROOT}/scripts/verify_business_e2e.py --run-id 20260718T011517Z --json
 ```
 
 Confirm specifically that `runtimes.grok.browser.P3_SSRN.status` is `PASS`; the overall run may remain incomplete because other Grok gates are independent.

@@ -28,14 +28,15 @@ Project-local install is the default path for Codex and is also the shared disco
 git clone https://github.com/wanshuiyin/Auto-claude-code-research-in-sleep.git ~/aris_repo
 cd ~/your-project
 
-bash ~/aris_repo/tools/install_aris_codex.sh .
+bash ~/aris_repo/tools/install_aris_codex.sh . --office-author "Your Name"
 ```
 
 For an isolated Grok/Codex smoke workspace that should not update the optional global helper pointer or AGENTS block:
 
 ```bash
 bash ~/aris_repo/tools/install_aris_codex.sh . \
-  --groups business-research --quiet --no-doc --no-global-pointer
+  --groups business-research --quiet --office-author "Your Name" \
+  --no-doc --no-global-pointer
 grok inspect --json
 ```
 
@@ -51,7 +52,8 @@ Reconcile after upstream changes:
 
 ```bash
 cd ~/aris_repo && git pull
-bash ~/aris_repo/tools/install_aris_codex.sh ~/your-project --reconcile
+bash ~/aris_repo/tools/install_aris_codex.sh ~/your-project --reconcile \
+  --office-author "Your Name"
 ```
 
 Uninstall only managed Codex entries:
@@ -81,7 +83,7 @@ macOS or native Linux:
 ```bash
 git clone --branch <release-tag> <repository-url> ~/aris_repo
 bash ~/aris_repo/tools/install_aris_codex.sh /absolute/path/to/project \
-  --groups business-research --quiet
+  --groups business-research --quiet --office-author "Your Name"
 ```
 
 Windows PowerShell 5.1 or PowerShell 7:
@@ -94,6 +96,7 @@ powershell.exe -NoProfile -ExecutionPolicy Bypass `
   -Platform codex `
   -ArisRepo "$HOME\aris_repo" `
   -Groups business-research `
+  -OfficeAuthor "Your Name" `
   -Quiet
 ```
 
@@ -102,7 +105,7 @@ WSL 2 (run every command inside the same WSL distribution):
 ```bash
 git clone --branch <release-tag> <repository-url> ~/aris_repo
 bash ~/aris_repo/tools/install_aris_codex.sh ~/your-project \
-  --groups business-research --quiet
+  --groups business-research --quiet --office-author "Your Name"
 ```
 
 For WSL, use the Linux builds of Node.js and Codex/Grok together with a Linux
@@ -142,16 +145,45 @@ pdftotext -v
 The skill installer manages project links only; it deliberately does not install
 or elevate privileges for operating-system packages.
 
+## Office Author Identity
+
+The package never ships a maintainer name as the Word author. Any installer
+selection containing `results-to-docx` requires `--office-author "Your Name"`
+(PowerShell: `-OfficeAuthor "Your Name"`). The installer stores the value in the
+user-local `~/.aris/office-author` file (inside the Windows user profile on
+Windows); it is not written into the project or Git configuration. POSIX
+installers create the file with mode `0600`.
+
+For one artifact, `--author "Another Author"` overrides the installed default.
+For a temporary shell-wide override, set:
+
+```bash
+# macOS, Linux, and WSL
+export ARIS_OFFICE_AUTHOR="Your Name"
+```
+
+```powershell
+# Native Windows PowerShell
+$env:ARIS_OFFICE_AUTHOR = "Your Name"
+```
+
+Resolution order is artifact `--author`, `ARIS_OFFICE_AUTHOR`, then the
+installer-created user file. The builder stops if all three are absent and never
+inherits the installer, maintainer, operating-system account, Git identity, or
+template author.
+
 ## Optional Overlays
 
 Install the base first, then choose an overlay:
 
 ```bash
-bash ~/aris_repo/tools/install_aris_codex.sh ~/your-project --reconcile --with-claude-review-overlay
+bash ~/aris_repo/tools/install_aris_codex.sh ~/your-project --reconcile \
+  --with-claude-review-overlay --office-author "Your Name"
 ```
 
 ```bash
-bash ~/aris_repo/tools/install_aris_codex.sh ~/your-project --reconcile --with-gemini-review-overlay
+bash ~/aris_repo/tools/install_aris_codex.sh ~/your-project --reconcile \
+  --with-gemini-review-overlay --office-author "Your Name"
 ```
 
 Overlays only replace reviewer routing. They do not replace the base mirror or the executor model.

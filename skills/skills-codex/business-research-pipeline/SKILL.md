@@ -165,7 +165,7 @@ Output:
 
 When the project uses R, `.R`, `.Rmd`, `.qmd`, `.rds`, tidyverse, or `fixest`, route execution through `r-analysis-bridge`. When the project uses Stata, `.dta` files, or `.do` files, route execution through `stata-analysis-bridge`.
 
-When a standalone academic Word artifact is requested or required by the acceptance run, export tidy coefficient/descriptive inputs and run `results-to-docx`. Keep the Word output separate from the manuscript, normalize OOXML identity metadata to `Yihong Wang`, render it, and inspect the rendered pages.
+When a standalone academic Word artifact is requested or required by the acceptance run, export tidy coefficient/descriptive inputs and run `results-to-docx`. Keep the Word output separate from the manuscript, normalize OOXML identity metadata to the current user's explicitly configured Office author, render it, and inspect the rendered pages. Never inherit a maintainer identity from the distributed Skill.
 
 ### Stage 8: Evidence Gate
 

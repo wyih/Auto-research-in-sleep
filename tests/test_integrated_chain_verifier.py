@@ -136,8 +136,8 @@ class IntegratedChainVerifierUnitTest(unittest.TestCase):
                 json.dumps(
                     {
                         "metadata": {
-                            "creator": "Yihong Wang",
-                            "lastModifiedBy": "Yihong Wang",
+                            "creator": "Receipt Claimed Author",
+                            "lastModifiedBy": "Receipt Claimed Author",
                             "company": "",
                             "manager": "",
                             "passed": True,

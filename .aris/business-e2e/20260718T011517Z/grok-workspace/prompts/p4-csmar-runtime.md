@@ -5,16 +5,16 @@ Use `$cn-data-bridge` and `$browser-session-bridge`. Read their CSMAR recipe, sh
 ## Frozen target and paths
 
 - Run ID: `20260718T011517Z`
-- Spec: `/Users/wyih/Projects/Auto-research-in-sleep/.aris/business-e2e/20260718T011517Z/cn-data/downloads/DOWNLOAD_SPEC_csmar_fs_combas_grok_v1.md`
+- Spec: `${ARIS_REPO_ROOT}/.aris/business-e2e/20260718T011517Z/cn-data/downloads/DOWNLOAD_SPEC_csmar_fs_combas_grok_v1.md`
 - Source: CSMAR, `财务报表 → 资产负债表`, table `FS_Combas`
 - Direct entry: `https://data.csmar.com/csmar.html#/datacenter/singletable`
 - Filters: only `Stkcd=000001`; start and end both `2020-12-31`; `Typrep=A`
 - Fields, in order: `Stkcd,ShortName,Accper,Typrep,A001000000`
 - Expected preview: exactly one real row; matching code/date/type; total assets non-empty
-- New landing root: `/Users/wyih/Projects/Auto-research-in-sleep/.aris/business-e2e/20260718T011517Z/cn-data/raw/csmar/2026-07-18_grok_v1/`
-- Receipt: `/Users/wyih/Projects/Auto-research-in-sleep/.aris/business-e2e/20260718T011517Z/cn-data/receipts/p4-csmar-grok.json`
-- External semantic report: `/Users/wyih/Projects/Auto-research-in-sleep/.aris/business-e2e/20260718T011517Z/cn-data/receipts/semantic-extract-csmar.json`
-- Manifest: `/Users/wyih/Projects/Auto-research-in-sleep/.aris/business-e2e/20260718T011517Z/cn-data/DATA_MANIFEST.md`
+- New landing root: `${ARIS_REPO_ROOT}/.aris/business-e2e/20260718T011517Z/cn-data/raw/csmar/2026-07-18_grok_v1/`
+- Receipt: `${ARIS_REPO_ROOT}/.aris/business-e2e/20260718T011517Z/cn-data/receipts/p4-csmar-grok.json`
+- External semantic report: `${ARIS_REPO_ROOT}/.aris/business-e2e/20260718T011517Z/cn-data/receipts/semantic-extract-csmar.json`
+- Manifest: `${ARIS_REPO_ROOT}/.aris/business-e2e/20260718T011517Z/cn-data/DATA_MANIFEST.md`
 
 Never overwrite the landing root, receipt, external semantic report, or an existing Grok manifest row. If any exists before this run, stop with `destination_collision`; do not rename silently. Do not inspect, copy, or use the existing Codex CSMAR ZIP/CSV/receipt as evidence.
 
@@ -72,9 +72,9 @@ Only after a new landing file is proven:
 
    ```bash
    python3 "$PWD/.agents/skills/cn-data-bridge/scripts/verify_cn_extract.py" \
-     --receipt /Users/wyih/Projects/Auto-research-in-sleep/.aris/business-e2e/20260718T011517Z/cn-data/receipts/p4-csmar-grok.json \
-     --repo-root /Users/wyih/Projects/Auto-research-in-sleep \
-     --run-dir /Users/wyih/Projects/Auto-research-in-sleep/.aris/business-e2e/20260718T011517Z \
+     --receipt ${ARIS_REPO_ROOT}/.aris/business-e2e/20260718T011517Z/cn-data/receipts/p4-csmar-grok.json \
+     --repo-root ${ARIS_REPO_ROOT} \
+     --run-dir ${ARIS_REPO_ROOT}/.aris/business-e2e/20260718T011517Z \
      --runtime grok
    ```
 
@@ -205,7 +205,7 @@ Append exactly one Grok extract row to `DATA_MANIFEST.md` only after both semant
 Finally run:
 
 ```bash
-python3 /Users/wyih/Projects/Auto-research-in-sleep/scripts/verify_business_e2e.py --run-id 20260718T011517Z --json
+python3 ${ARIS_REPO_ROOT}/scripts/verify_business_e2e.py --run-id 20260718T011517Z --json
 ```
 
 Claim this gate only if `runtimes.grok.browser.P4_CSMAR.status` is `PASS`. Overall run incompleteness from other gates is allowed. On a failure before the finalization commit, restore/leave the pre-run manifest and `planned` spec, then write a redacted failed/blocked receipt with the exact last verified state and one concrete blocker. If the root verifier rejects after the immutable receipt/spec/report and manifest row were committed, preserve that evidence set unchanged, do not claim the gate, and report the exact failed check for external diagnosis.

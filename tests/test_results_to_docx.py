@@ -18,6 +18,7 @@ NS = {"w": "http://schemas.openxmlformats.org/wordprocessingml/2006/main"}
 PNG_1X1 = base64.b64decode(
     "iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNk+A8AAQUBAScY42YAAAAASUVORK5CYII="
 )
+TEST_AUTHOR = "ARIS Test Author"
 
 
 def _runtime_available() -> bool:
@@ -99,7 +100,16 @@ class ResultsToDocxIntegrationTest(unittest.TestCase):
         output_dir = self.root / "output" / "results_docx"
         output = output_dir / "results.docx"
         result = subprocess.run(
-            [sys.executable, str(BUILDER), "--spec", str(self.spec), "--out", str(output)],
+            [
+                sys.executable,
+                str(BUILDER),
+                "--spec",
+                str(self.spec),
+                "--out",
+                str(output),
+                "--author",
+                TEST_AUTHOR,
+            ],
             cwd=REPO_ROOT,
             text=True,
             capture_output=True,
@@ -115,8 +125,8 @@ class ResultsToDocxIntegrationTest(unittest.TestCase):
         receipt = json.loads((output_dir / "RESULTS_DOCX_RECEIPT.json").read_text(encoding="utf-8"))
         self.assertTrue(receipt["metadata"]["passed"])
         self.assertEqual(receipt["narrative_mode"], "standard")
-        self.assertEqual(receipt["metadata"]["creator"], "Yihong Wang")
-        self.assertEqual(receipt["metadata"]["lastModifiedBy"], "Yihong Wang")
+        self.assertEqual(receipt["metadata"]["creator"], TEST_AUTHOR)
+        self.assertEqual(receipt["metadata"]["lastModifiedBy"], TEST_AUTHOR)
         self.assertEqual(receipt["metadata"]["rsid_attributes"], [])
         self.assertEqual(len(receipt["narrative_claims"]), 2)
         coef_claim = receipt["narrative_claims"][0]
@@ -165,7 +175,16 @@ class ResultsToDocxIntegrationTest(unittest.TestCase):
         output_dir = self.root / "output" / "results_docx"
         output = output_dir / "transport_only.docx"
         result = subprocess.run(
-            [sys.executable, str(BUILDER), "--spec", str(self.spec), "--out", str(output)],
+            [
+                sys.executable,
+                str(BUILDER),
+                "--spec",
+                str(self.spec),
+                "--out",
+                str(output),
+                "--author",
+                TEST_AUTHOR,
+            ],
             cwd=REPO_ROOT,
             text=True,
             capture_output=True,
@@ -257,7 +276,16 @@ class ResultsToDocxIntegrationTest(unittest.TestCase):
         output_dir = self.root / "output" / "results_docx"
         output = output_dir / "malicious.docx"
         result = subprocess.run(
-            [sys.executable, str(BUILDER), "--spec", str(self.spec), "--out", str(output)],
+            [
+                sys.executable,
+                str(BUILDER),
+                "--spec",
+                str(self.spec),
+                "--out",
+                str(output),
+                "--author",
+                TEST_AUTHOR,
+            ],
             cwd=REPO_ROOT,
             text=True,
             capture_output=True,
@@ -371,7 +399,16 @@ class ResultsToDocxIntegrationTest(unittest.TestCase):
 
                 output = self.root / "output" / "results_docx" / f"invalid_{case_index}.docx"
                 result = subprocess.run(
-                    [sys.executable, str(BUILDER), "--spec", str(self.spec), "--out", str(output)],
+                    [
+                        sys.executable,
+                        str(BUILDER),
+                        "--spec",
+                        str(self.spec),
+                        "--out",
+                        str(output),
+                        "--author",
+                        TEST_AUTHOR,
+                    ],
                     cwd=REPO_ROOT,
                     text=True,
                     capture_output=True,
@@ -388,7 +425,16 @@ class ResultsToDocxIntegrationTest(unittest.TestCase):
 
         output = self.root / "output" / "results_docx" / "engineering_smoke.docx"
         result = subprocess.run(
-            [sys.executable, str(BUILDER), "--spec", str(self.spec), "--out", str(output)],
+            [
+                sys.executable,
+                str(BUILDER),
+                "--spec",
+                str(self.spec),
+                "--out",
+                str(output),
+                "--author",
+                TEST_AUTHOR,
+            ],
             cwd=REPO_ROOT,
             text=True,
             capture_output=True,
@@ -404,7 +450,16 @@ class ResultsToDocxIntegrationTest(unittest.TestCase):
 
         output = self.root / "output" / "results_docx" / "invalid.docx"
         result = subprocess.run(
-            [sys.executable, str(BUILDER), "--spec", str(self.spec), "--out", str(output)],
+            [
+                sys.executable,
+                str(BUILDER),
+                "--spec",
+                str(self.spec),
+                "--out",
+                str(output),
+                "--author",
+                TEST_AUTHOR,
+            ],
             cwd=REPO_ROOT,
             text=True,
             capture_output=True,
@@ -417,7 +472,16 @@ class ResultsToDocxIntegrationTest(unittest.TestCase):
     def test_refuses_manuscript_output_path(self) -> None:
         output = self.root / "paper" / "results_docx" / "results.docx"
         result = subprocess.run(
-            [sys.executable, str(BUILDER), "--spec", str(self.spec), "--out", str(output)],
+            [
+                sys.executable,
+                str(BUILDER),
+                "--spec",
+                str(self.spec),
+                "--out",
+                str(output),
+                "--author",
+                TEST_AUTHOR,
+            ],
             cwd=REPO_ROOT,
             text=True,
             capture_output=True,
@@ -425,6 +489,65 @@ class ResultsToDocxIntegrationTest(unittest.TestCase):
         )
         self.assertEqual(result.returncode, 2)
         self.assertIn("manuscript path", result.stderr)
+
+    def test_requires_explicit_or_user_local_author_identity(self) -> None:
+        output = self.root / "output" / "results_docx" / "missing_author.docx"
+        environment = os.environ.copy()
+        environment.pop("ARIS_OFFICE_AUTHOR", None)
+        environment["ARIS_OFFICE_AUTHOR_FILE"] = str(
+            self.root / "missing-user-config" / "office-author"
+        )
+        result = subprocess.run(
+            [sys.executable, str(BUILDER), "--spec", str(self.spec), "--out", str(output)],
+            cwd=REPO_ROOT,
+            env=environment,
+            text=True,
+            capture_output=True,
+            check=False,
+        )
+        self.assertEqual(result.returncode, 2)
+        self.assertIn("pass --author, set ARIS_OFFICE_AUTHOR", result.stderr)
+        self.assertFalse(output.exists())
+
+    def test_uses_user_local_author_environment_without_maintainer_default(self) -> None:
+        output_dir = self.root / "output" / "results_docx"
+        output = output_dir / "environment_author.docx"
+        environment = os.environ.copy()
+        environment["ARIS_OFFICE_AUTHOR"] = "Environment Test Author"
+        result = subprocess.run(
+            [sys.executable, str(BUILDER), "--spec", str(self.spec), "--out", str(output)],
+            cwd=REPO_ROOT,
+            env=environment,
+            text=True,
+            capture_output=True,
+            check=False,
+        )
+        self.assertEqual(result.returncode, 0, result.stderr)
+        receipt = json.loads((output_dir / "RESULTS_DOCX_RECEIPT.json").read_text(encoding="utf-8"))
+        self.assertEqual(receipt["metadata"]["creator"], "Environment Test Author")
+        self.assertEqual(receipt["metadata"]["lastModifiedBy"], "Environment Test Author")
+
+    def test_uses_installer_created_user_author_file(self) -> None:
+        output_dir = self.root / "output" / "results_docx"
+        output = output_dir / "installed_author.docx"
+        identity_file = self.root / "user-config" / "office-author"
+        identity_file.parent.mkdir()
+        identity_file.write_text("Installed Test Author\n", encoding="utf-8")
+        environment = os.environ.copy()
+        environment.pop("ARIS_OFFICE_AUTHOR", None)
+        environment["ARIS_OFFICE_AUTHOR_FILE"] = str(identity_file)
+        result = subprocess.run(
+            [sys.executable, str(BUILDER), "--spec", str(self.spec), "--out", str(output)],
+            cwd=REPO_ROOT,
+            env=environment,
+            text=True,
+            capture_output=True,
+            check=False,
+        )
+        self.assertEqual(result.returncode, 0, result.stderr)
+        receipt = json.loads((output_dir / "RESULTS_DOCX_RECEIPT.json").read_text(encoding="utf-8"))
+        self.assertEqual(receipt["metadata"]["creator"], "Installed Test Author")
+        self.assertEqual(receipt["metadata"]["lastModifiedBy"], "Installed Test Author")
 
 
 if __name__ == "__main__":

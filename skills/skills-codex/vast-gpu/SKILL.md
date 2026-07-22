@@ -36,8 +36,8 @@ All active vast.ai instances are tracked in `vast-instances.json` at the project
     "gpu_name": "RTX_3060",
     "num_gpus": 1,
     "dph": 0.0414,
-    "ssh_url": "ssh://root@1.208.108.242:58955",
-    "ssh_host": "1.208.108.242",
+    "ssh_url": "ssh://root@203.0.113.10:58955",
+    "ssh_host": "203.0.113.10",
     "ssh_port": 58955,
     "created_at": "2026-03-29T21:12:00Z",
     "status": "running",
@@ -197,8 +197,8 @@ vastai ssh-url <INSTANCE_ID>
 This returns a URL in the format: `ssh://root@<HOST>:<PORT>`
 
 Parse out host and port from this URL. Example:
-- Input: `ssh://root@1.208.108.242:58955`
-- Host: `1.208.108.242`, Port: `58955`
+- Input: `ssh://root@203.0.113.10:58955`
+- Host: `203.0.113.10`, Port: `58955`
 
 > **Important:** Always use `vastai ssh-url` to get connection details — do NOT rely on `ssh_host`/`ssh_port` from `vastai show instances`, as those may point to proxy servers that differ from the direct connection endpoint.
 

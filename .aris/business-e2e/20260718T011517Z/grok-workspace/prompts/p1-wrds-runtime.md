@@ -4,7 +4,7 @@ Use the installed project skills `$wrds-query-bridge` and `$wrds-sas-cloud`. Rea
 
 ## Scope and runtime boundary
 
-- Work from `/Users/wyih/Projects/Auto-research-in-sleep`.
+- Work from `${ARIS_REPO_ROOT}`.
 - Run both of these independently:
   1. the canonical R/Postgres universe-first smoke;
   2. the canonical WRDS SAS Cloud smoke, with escalation reason `user_required`.
@@ -16,7 +16,7 @@ Use the installed project skills `$wrds-query-bridge` and `$wrds-sas-cloud`. Rea
 Use a new UTC run tag and an empty, collision-free root beneath:
 
 ```text
-/Users/wyih/Projects/Auto-research-in-sleep/.aris/business-e2e/20260718T011517Z/grok-workspace/wrds/p1/<grok_run_tag>/
+${ARIS_REPO_ROOT}/.aris/business-e2e/20260718T011517Z/grok-workspace/wrds/p1/<grok_run_tag>/
 ```
 
 Keep `r/`, `sas/program/`, `sas/landed/`, `qa/`, and `receipts/` beneath that root. Never overwrite an existing run tag. Record the start time before the first connection attempt and require every accepted output's modification time to be later than that start.
@@ -173,7 +173,7 @@ Replace every placeholder and zero. Include the two new backend receipts, new ma
 Then run:
 
 ```bash
-python3 /Users/wyih/Projects/Auto-research-in-sleep/scripts/verify_business_e2e.py \
+python3 ${ARIS_REPO_ROOT}/scripts/verify_business_e2e.py \
   --run-id 20260718T011517Z --json
 ```
 

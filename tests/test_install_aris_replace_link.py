@@ -40,6 +40,10 @@ class ReplaceLinkTest(unittest.TestCase):
         self.project = self.tmp / "project"
         self.skills_dir = self.project / ".claude" / "skills"
         self.skills_dir.mkdir(parents=True)
+        self.environment = os.environ.copy()
+        self.environment["ARIS_OFFICE_AUTHOR_FILE"] = str(
+            self.tmp / "user-config" / "office-author"
+        )
 
     def tearDown(self):
         shutil.rmtree(self.tmp, ignore_errors=True)
@@ -56,12 +60,15 @@ class ReplaceLinkTest(unittest.TestCase):
                 str(self.project),
                 "--aris-repo",
                 str(REPO_ROOT),
+                "--office-author",
+                "Installer Test Author",
                 *args,
                 *extra_args,
             ],
             capture_output=True,
             text=True,
             stdin=subprocess.DEVNULL,
+            env=self.environment,
         )
 
     def _make_foreign_symlink(self):

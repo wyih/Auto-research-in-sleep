@@ -25,7 +25,7 @@ This matrix is the release gate for the business empirical-research suite. Prose
 | P1 WRDS SAS Cloud | Real SAS program submit, remote completion, transfer back | Grok can route/execute the same canonical skill | SAS log, output file, schema/rows/hash, handoff note |
 | P4 CSMAR | Minimal named table/field/date export from authorized session/network | Same recipe through the official DevTools facade | Valid vendor file, required fields, filters, hash, manifest |
 | P4 CNRDS | Minimal named dataset/indicator/date export from signed-in session; a user-authorized Chrome-autofilled login may be submitted once without reading fields | Same recipe through the official DevTools facade | Valid vendor file, required fields, filters, hash, manifest |
-| P2 analysis-to-Word | Generator produces a current results document | Grok invokes the same generator/contract | Tables/figures checked, rendered pages inspected, OOXML author metadata normalized to `Yihong Wang` |
+| P2 analysis-to-Word | Generator produces a current results document | Grok invokes the same generator/contract | Tables/figures checked, rendered pages inspected, OOXML author metadata normalized to the explicitly configured Office author |
 | P5 discovery/routing | Codex discovers and routes focused business skills | `grok inspect --json` discovers and routes the same suite | Catalog/mirror checks and selective install tests pass |
 | Full chain | Literature → method → data → analysis → claims → Word receipt | Same representative request completes in Grok | Passport and manifests link every accepted artifact |
 

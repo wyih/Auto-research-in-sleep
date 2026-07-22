@@ -697,7 +697,11 @@ def _p1_gate(context: Context) -> Gate:
     return Gate.from_checks("P1", checks)
 
 
-def _docx_structure_check(path: Path, document: Mapping[str, Any]) -> Check:
+def _docx_structure_check(
+    path: Path,
+    document: Mapping[str, Any],
+    metadata_receipt: Mapping[str, Any],
+) -> Check:
     issues: list[str] = []
     try:
         with zipfile.ZipFile(path) as package:
@@ -716,8 +720,15 @@ def _docx_structure_check(path: Path, document: Mapping[str, Any]) -> Check:
     modifier = core.findtext("{http://schemas.openxmlformats.org/package/2006/metadata/core-properties}lastModifiedBy")
     company = app.findtext("{http://schemas.openxmlformats.org/officeDocument/2006/extended-properties}Company") or ""
     manager = app.findtext("{http://schemas.openxmlformats.org/officeDocument/2006/extended-properties}Manager") or ""
-    if creator != "Yihong Wang" or modifier != "Yihong Wang":
-        issues.append("Author/Last Modified By is not Yihong Wang")
+    expected_author = metadata_receipt.get("creator")
+    if (
+        not isinstance(expected_author, str)
+        or not expected_author.strip()
+        or creator != expected_author
+        or modifier != expected_author
+        or metadata_receipt.get("lastModifiedBy") != expected_author
+    ):
+        issues.append("Author/Last Modified By does not match the configured receipt identity")
     if company or manager:
         issues.append("Company/Manager metadata is not empty")
     return Check(
@@ -766,9 +777,9 @@ def _p2_gate(context: Context) -> Gate:
         checks.append(_verify_artifact(doc_record, receipt.path, context))
         manifest_records.append(doc_record)
         doc_path = _resolve_path(doc_record.get("path"), receipt.path, context)
-        if doc_path and doc_path.is_file():
-            checks.append(_docx_structure_check(doc_path, document))
         metadata = _mapping(receipt.data.get("metadata"))
+        if doc_path and doc_path.is_file():
+            checks.append(_docx_structure_check(doc_path, document, metadata))
         checks.extend(
             [
                 _bool_check("P2 metadata audit", metadata.get("passed")),

@@ -43,6 +43,7 @@
 #
 # Options:
 #   --aris-repo PATH                 override repo discovery
+#   --office-author NAME             required when results-to-docx is selected
 #   --with-claude-review-overlay     install skills-codex-claude-review on top
 #   --with-gemini-review-overlay     install skills-codex-gemini-review on top
 #   --dry-run                        show plan, no writes
@@ -60,6 +61,7 @@ MANIFEST_PREV_NAME="installed-skills-codex.txt.prev"
 DECLINED_NAME="skills-declined-codex.txt"
 CATALOG_REL="tools/skill-groups.tsv"
 GLOBAL_POINTER="$HOME/.aris/repo"
+OFFICE_AUTHOR_FILE="${ARIS_OFFICE_AUTHOR_FILE:-$HOME/.aris/office-author}"
 ARIS_DIR_NAME=".aris"
 LOCK_DIR_NAME=".install-codex.lock.d"
 SKILLS_REL=".agents/skills"
@@ -71,6 +73,8 @@ BASE_PACKAGE="skills-codex"
 
 PROJECT_PATH=""
 ARIS_REPO_OVERRIDE=""
+OFFICE_AUTHOR=""
+OFFICE_AUTHOR_REQUIRED=false
 ACTION="auto"
 DRY_RUN=false
 QUIET=false
@@ -87,13 +91,14 @@ SELECT_ALL=false
 NEW_POLICY=""        # "" (prompt) | add | skip
 LIST_GROUPS=false
 
-usage() { sed -n '2,49p' "$0" | sed 's/^# \?//'; }
+usage() { sed -n '2,54p' "$0" | sed 's/^# *//'; }
 
 while [[ $# -gt 0 ]]; do
     case "$1" in
         --reconcile) ACTION="reconcile"; shift ;;
         --uninstall) ACTION="uninstall"; shift ;;
         --aris-repo) ARIS_REPO_OVERRIDE="${2:?--aris-repo requires path}"; shift 2 ;;
+        --office-author) OFFICE_AUTHOR="${2:?--office-author requires NAME}"; shift 2 ;;
         --with-claude-review-overlay) WITH_CLAUDE_OVERLAY=true; shift ;;
         --with-gemini-review-overlay) WITH_GEMINI_OVERLAY=true; shift ;;
         --dry-run) DRY_RUN=true; shift ;;
@@ -134,6 +139,33 @@ prompt() { $QUIET && return 0; printf "%s " "$1" >&2; read -r REPLY; [[ "$REPLY"
 abs_path() { ( cd "$1" 2>/dev/null && pwd ) || return 1; }
 is_safe_name() { [[ "$1" =~ $SAFE_NAME_REGEX ]]; }
 is_symlink() { [[ -L "$1" ]]; }
+
+require_office_author_for_selection() {
+    local selected_file="$1"
+    in_file "results-to-docx" "$selected_file" || return 0
+    OFFICE_AUTHOR_REQUIRED=true
+    [[ -n "${OFFICE_AUTHOR//[[:space:]]/}" ]] \
+        || die "--office-author NAME is required when results-to-docx is selected"
+    if LC_ALL=C printf '%s' "$OFFICE_AUTHOR" | grep -q '[[:cntrl:]]'; then
+        die "--office-author must not contain control characters"
+    fi
+    OFFICE_AUTHOR="$(printf '%s' "$OFFICE_AUTHOR" | sed 's/^[[:space:]]*//; s/[[:space:]]*$//')"
+    [[ ${#OFFICE_AUTHOR} -le 200 ]] \
+        || die "--office-author must be 200 characters or fewer"
+    log "Office author: explicitly supplied (value not printed)"
+}
+
+write_office_author_config() {
+    $OFFICE_AUTHOR_REQUIRED || return 0
+    local config_dir tmp
+    config_dir="$(dirname "$OFFICE_AUTHOR_FILE")"
+    mkdir -p "$config_dir"
+    tmp="$OFFICE_AUTHOR_FILE.tmp.$$"
+    (umask 077; printf '%s\n' "$OFFICE_AUTHOR" > "$tmp")
+    chmod 600 "$tmp" 2>/dev/null || true
+    mv -f "$tmp" "$OFFICE_AUTHOR_FILE"
+    log "  ✓ configured user-local Office author"
+}
 name_in_replace_allowlist() {
     local needle="$1"
     local item
@@ -956,6 +988,7 @@ load_manifest "$MANIFEST_PATH" "$MANIFEST_DATA"
 SELECTED_FILE="$(mktemp -t aris-codex-selected.XXXX)"
 DECLINED_CANDIDATES="$(mktemp -t aris-codex-declined.XXXX)"
 build_selection "$UPSTREAM_FILE" "$DECLINED_CANDIDATES" "$SELECTED_FILE"
+require_office_author_for_selection "$SELECTED_FILE"
 SELECTED_UPSTREAM="$(mktemp -t aris-codex-upstream-sel.XXXX)"
 filter_upstream_by_selection "$UPSTREAM_FILE" "$SELECTED_FILE" "$SELECTED_UPSTREAM"
 N_SELECTED=$(grep -c '^skill|' "$SELECTED_UPSTREAM" || true)
@@ -992,6 +1025,7 @@ log ""
 log "Applying:"
 apply_plan "$PLAN_FILE"
 commit_manifest "$MANIFEST_TMP"
+write_office_author_config
 
 # #366: persist declined skills + global repo pointer (best-effort, after
 # manifest commit for the same reason as install_aris.sh).

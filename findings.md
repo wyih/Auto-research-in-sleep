@@ -15,7 +15,7 @@
 - Codex browser acceptance is complete for CNKI, SSRN, ScienceDirect, Wiley, CNRDS, and CSMAR.
 - Grok P1, P5 discovery, and the independent Grok CNKI browser receipt pass. Grok's remaining evidence is P2/P3 invocation, SSRN/ScienceDirect/Wiley acquisition, and CNRDS/CSMAR export.
 - P1 is fully evidenced in the shared/Codex path: R/Postgres, inline universe, CCM/CRSP, IBES, CIK fallback, and a real SAS Cloud `qsas` job all pass.
-- P2 has an executable `results-to-docx` generator, rendered/a11y QA, normalized `Yihong Wang` OOXML identity, and separate real-WRDS engineering-chain outputs. Grok independently rebuilt the 10-row pack, passed 7/7 tests and three-page visual/a11y/metadata checks, and now has a root-verifier P2 `PASS`.
+- P2 has an executable `results-to-docx` generator, rendered/a11y QA, normalized configured-author OOXML identity, and separate real-WRDS engineering-chain outputs. Grok independently rebuilt the 10-row pack, passed 7/7 tests and three-page visual/a11y/metadata checks, and now has a root-verifier P2 `PASS`.
 - P3 v2 binds three verified PDFs to inspector-generated native render evidence, three enriched method cards, a matrix, a grounded review, visual checks, and an acceptance report. The manifest/processing/card/synthesis six-field artifact identity joins are exact and shared P3 passes 56 recomputed checks; audit values such as `unknown`, `needs_verification`, and `fail` are preserved rather than repaired.
 - Grok P1 independently produced a new R/Postgres 10-row inline-universe/CCM/CRSP run and a new SAS Cloud `qsas` job (`34899386`) with 10×6 data, matching schema, clean SAS error audit, and remote/local hash equality; the root Grok P1 gate passes.
 - A Grok P3 success can no longer be self-certified by a hashed wrapper: candidate generation occurs in an isolated snapshot without repository tests or prior outputs, the candidate is frozen, and only a post-generation external verifier plus real-bundle JUnit run can issue the runtime wrapper.
@@ -27,7 +27,7 @@
 
 ## Research Findings and Historical Resolution
 
-- At task start, the Grok session had implemented P1–P4 in `/Users/wyih/Projects/ARIS-business-skills`, but none of that work was committed; it remains preserved continuity context rather than the implementation target.
+- At task start, the Grok session had implemented P1–P4 in a separate legacy business-skills worktree, but none of that work was committed; it remains preserved continuity context rather than the implementation target.
 - That worktree branch is 296 commits behind current `main` and has 3 branch-only historical commits.
 - At task start, `main` was clean at `c5f3d5b`; implementation now uses the dirty working branch `codex/business-research-e2e` pending final review and commit.
 - Grok's `chrome-mcp` is healthy and advertises 27 tools through a bridge parented by the user's real Google Chrome process, so it can reuse the real profile/login state. The loaded legacy extension does not implement every advertised modern tool; the project helper supplies the verified compatibility layer.
@@ -100,9 +100,9 @@
 
 ## Resources
 
-- `/Users/wyih/Projects/ARIS-business-skills`
-- `/Users/wyih/.grok/sessions/%2FUsers%2Fwyih%2FProjects%2FAuto-research-in-sleep/019f6f96-ed9f-7f92-9682-92adba5f0058/`
-- `/Users/wyih/.codex/plugins/cache/openai-bundled/chrome/26.715.31251/skills/control-chrome/SKILL.md`
+- `<legacy-business-skills-worktree>`
+- `${HOME}/.grok/sessions/<project-key>/<session-id>/`
+- `${HOME}/.codex/plugins/cache/openai-bundled/chrome/26.715.31251/skills/control-chrome/SKILL.md`
 - `/opt/homebrew/lib/node_modules/mcp-chrome-bridge`
 
 ## Visual/Browser Findings

@@ -27,7 +27,12 @@ pytestmark = pytest.mark.skipif(
 )
 
 
-def run_ps(args: list[str], *, check: bool = True) -> subprocess.CompletedProcess[str]:
+def run_ps(
+    args: list[str],
+    *,
+    check: bool = True,
+    env: dict[str, str] | None = None,
+) -> subprocess.CompletedProcess[str]:
     return subprocess.run(
         [PS_EXE, "-NoProfile", "-ExecutionPolicy", "Bypass", "-File", str(INSTALL_PS1), *args],
         cwd=REPO_ROOT,
@@ -35,6 +40,7 @@ def run_ps(args: list[str], *, check: bool = True) -> subprocess.CompletedProces
         encoding="utf-8",
         capture_output=True,
         check=check,
+        env=env,
     )
 
 
@@ -153,6 +159,66 @@ def test_install_aris_ps1_codex_business_group_is_selective(tmp_path: Path) -> N
         if (fields := line.split("\t"))[0] == "skill"
     }
     assert manifest_names == {"alpha"}
+
+
+def test_install_aris_ps1_requires_and_stores_explicit_office_author(
+    tmp_path: Path,
+) -> None:
+    repo = make_minimal_repo(tmp_path)
+    make_skill(
+        repo / "skills" / "skills-codex" / "results-to-docx",
+        "# results docx\n",
+    )
+    identity_file = tmp_path / "user-config" / "office-author"
+    environment = os.environ.copy()
+    environment["ARIS_OFFICE_AUTHOR_FILE"] = str(identity_file)
+
+    missing_project = tmp_path / "missing-author-project"
+    missing_project.mkdir()
+    missing = run_ps(
+        [
+            str(missing_project),
+            "-Platform",
+            "codex",
+            "-ArisRepo",
+            str(repo),
+            "-Skills",
+            "results-to-docx",
+            "-Quiet",
+        ],
+        check=False,
+        env=environment,
+    )
+    assert missing.returncode != 0
+    assert "-OfficeAuthor NAME is required" in missing.stderr + missing.stdout
+    assert not identity_file.exists()
+    assert not path_item_exists(
+        missing_project / ".agents" / "skills" / "results-to-docx"
+    )
+
+    installed_project = tmp_path / "installed-author-project"
+    installed_project.mkdir()
+    applied = run_ps(
+        [
+            str(installed_project),
+            "-Platform",
+            "codex",
+            "-ArisRepo",
+            str(repo),
+            "-Skills",
+            "results-to-docx",
+            "-Quiet",
+            "-OfficeAuthor",
+            "  Installer Test Author  ",
+        ],
+        env=environment,
+    )
+    assert applied.returncode == 0
+    assert junction_target(
+        installed_project / ".agents" / "skills" / "results-to-docx"
+    ) == repo / "skills" / "skills-codex" / "results-to-docx"
+    assert identity_file.read_text(encoding="utf-8") == "Installer Test Author\n"
+    assert not (installed_project / ".aris" / "office-author").exists()
 
 
 def test_install_aris_ps1_codex_apply_reconcile_and_uninstall(tmp_path: Path) -> None:

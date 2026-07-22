@@ -397,7 +397,8 @@ Two outputs: `PASTE_READY.txt` (exact char count, paste to venue) + `REBUTTAL_DR
 ```bash
 # 1. Install skills — project-local symlinks (recommended)
 git clone https://github.com/wanshuiyin/Auto-claude-code-research-in-sleep.git
-bash Auto-claude-code-research-in-sleep/tools/install_aris.sh ~/your-project   # symlinks ARIS skills into <project>/.claude/skills/
+bash Auto-claude-code-research-in-sleep/tools/install_aris.sh ~/your-project \
+  --office-author "Your Name"   # symlinks ARIS skills into <project>/.claude/skills/
 # (prefer a global install instead? cp -r Auto-claude-code-research-in-sleep/skills/* ~/.claude/skills/)
 # (don't need all 104? --list-groups / --groups X,Y / --skills X — see "Selective install" below)
 
@@ -407,11 +408,12 @@ bash tools/smart_update.sh --apply   # updates safe skills, flags your personal 
 # (NEW upstream skills need confirmation — --add-new to accept all non-interactively)
 
 # Optional Codex mirror managed project install
-bash tools/install_aris_codex.sh ~/your-codex-project
+bash tools/install_aris_codex.sh ~/your-codex-project --office-author "Your Name"
 
 # Managed Codex project update
 cd Auto-claude-code-research-in-sleep && git pull
-bash tools/install_aris_codex.sh ~/your-codex-project --reconcile
+bash tools/install_aris_codex.sh ~/your-codex-project --reconcile \
+  --office-author "Your Name"
 
 # Copied Codex installs only (not for projects installed by install_aris_codex.sh)
 bash tools/smart_update_codex.sh --local ~/.codex/skills
@@ -1422,6 +1424,8 @@ Add `— reviewer: oracle-pro` to any reviewer-aware skill (`/proof-checker`, `/
 > 💡 **Recommended: project-local flat symlink install** (since 2026-04-20). Each ARIS skill is symlinked individually into `.claude/skills/<skill-name>`, so Claude Code's slash-command discovery picks them up. A manifest at `.aris/installed-skills.txt` tracks what ARIS installed — uninstall and reconcile only ever touch managed entries, never your own skills.
 >
 > 🤖 **Codex mirror route:** keep Claude on `install_aris.sh` / `smart_update.sh`. For Codex-native project installs, use `install_aris_codex.sh`; for copied Codex installs, use `smart_update_codex.sh`.
+>
+> 🪪 **Office identity:** any selection containing `results-to-docx` requires an explicit `--office-author "Your Name"` (PowerShell: `-OfficeAuthor "Your Name"`). It is stored only in the recipient's user-local ARIS configuration, never in the project or Git identity.
 
 ```bash
 # 1. Clone ARIS once to a stable location
@@ -1429,7 +1433,7 @@ git clone https://github.com/wanshuiyin/Auto-claude-code-research-in-sleep.git ~
 
 # 2. For each project that uses ARIS, attach via symlinks:
 cd ~/your-paper-project
-bash ~/aris_repo/tools/install_aris.sh
+bash ~/aris_repo/tools/install_aris.sh --office-author "Your Name"
 # → creates one symlink per skill: .claude/skills/<skill> → ~/aris_repo/skills/<skill>
 # → writes manifest .aris/installed-skills.txt (tracks every entry ARIS installed)
 # → updates managed CLAUDE.md ARIS block (best-effort, compare-and-swap)
@@ -1439,23 +1443,27 @@ bash ~/aris_repo/tools/install_aris.sh
 cd ~/aris_repo && git pull   # symlinks resolve to live upstream — content updates automatically
 
 # 3a. To pick up newly added or removed upstream skills, rerun the installer:
-bash ~/aris_repo/tools/install_aris.sh ~/your-paper-project   # adds new symlinks, removes broken ones
+bash ~/aris_repo/tools/install_aris.sh ~/your-paper-project \
+  --office-author "Your Name"   # adds new symlinks, removes broken ones
 
 # Install only what you need (#366 selective install; a bare TTY run opens a checkbox picker):
 bash ~/aris_repo/tools/install_aris.sh --list-groups                  # show the 10-group catalog
 bash ~/aris_repo/tools/install_aris.sh --groups paper-core,lit-search # install by group
 bash ~/aris_repo/tools/install_aris.sh --skills paper-writing         # by skill; hard pipeline deps auto-included
-bash ~/aris_repo/tools/install_aris.sh --exclude patent-pipeline      # opt out (declined; never re-asked on update)
+bash ~/aris_repo/tools/install_aris.sh --exclude patent-pipeline \
+  --office-author "Your Name"                                  # opt out (declined; never re-asked on update)
 # On update, NEW upstream skills need per-skill confirmation; --add-new accepts all / --skip-new skips all
 
 # Other useful flags:
-bash ~/aris_repo/tools/install_aris.sh --dry-run        # show plan, no changes
+bash ~/aris_repo/tools/install_aris.sh --dry-run \
+  --office-author "Your Name"                          # show plan, no changes
 bash ~/aris_repo/tools/install_aris.sh --uninstall      # remove only managed symlinks (per manifest)
-bash ~/aris_repo/tools/install_aris.sh --from-old       # migrate from old nested .claude/skills/aris/
+bash ~/aris_repo/tools/install_aris.sh --from-old \
+  --office-author "Your Name"                          # migrate from old nested .claude/skills/aris/
 
 # Windows (PowerShell, no WSL required; creates flat per-skill junctions):
-.\tools\install_aris.ps1 C:\path\to\your-paper-project -Platform claude
-.\tools\install_aris.ps1 C:\path\to\your-codex-project -Platform codex
+.\tools\install_aris.ps1 C:\path\to\your-paper-project -Platform claude -OfficeAuthor "Your Name"
+.\tools\install_aris.ps1 C:\path\to\your-codex-project -Platform codex -OfficeAuthor "Your Name"
 ```
 
 **Why "git pull" alone isn't enough for new/removed skills:** the flat layout uses one symlink per skill, so upstream additions/deletions don't propagate until the installer is re-run. The trade-off bought us Claude Code's automatic slash-command discovery (which only scans one directory level deep).
@@ -1467,12 +1475,15 @@ If you previously installed via `install_aris.sh` (which created `.claude/skills
 
 ```bash
 # Symlink-style legacy install:
-bash ~/aris_repo/tools/install_aris.sh ~/your-project --from-old
+bash ~/aris_repo/tools/install_aris.sh ~/your-project --from-old \
+  --office-author "Your Name"
 
 # Copy-style legacy install (with possible local edits — chose strategy explicitly):
-bash ~/aris_repo/tools/install_aris.sh ~/your-project --from-old --migrate-copy keep-user
+bash ~/aris_repo/tools/install_aris.sh ~/your-project --from-old \
+  --migrate-copy keep-user --office-author "Your Name"
 #   → keeps your nested .claude/skills/aris/ copy intact alongside the new flat install
-bash ~/aris_repo/tools/install_aris.sh ~/your-project --from-old --migrate-copy prefer-upstream
+bash ~/aris_repo/tools/install_aris.sh ~/your-project --from-old \
+  --migrate-copy prefer-upstream --office-author "Your Name"
 #   → archives nested copy to .aris/legacy-copy-backup-<timestamp>/, then flattens
 ```
 

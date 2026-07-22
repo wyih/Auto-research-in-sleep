@@ -26,6 +26,10 @@ class InstallTest(unittest.TestCase):
         self.tmp = Path(tempfile.mkdtemp(prefix="aris-174-"))
         self.project = self.tmp / "project"
         self.project.mkdir()
+        self.environment = os.environ.copy()
+        self.environment["ARIS_OFFICE_AUTHOR_FILE"] = str(
+            self.tmp / "user-config" / "office-author"
+        )
 
     def tearDown(self):
         shutil.rmtree(self.tmp, ignore_errors=True)
@@ -40,10 +44,13 @@ class InstallTest(unittest.TestCase):
                 str(REPO_ROOT),
                 "--quiet",
                 "--no-doc",
+                "--office-author",
+                "Installer Test Author",
                 *extra_args,
             ],
             capture_output=True,
             text=True,
+            env=self.environment,
         )
         return result
 
@@ -71,9 +78,12 @@ class InstallTest(unittest.TestCase):
                 str(REPO_ROOT),
                 "--no-doc",
                 "--dry-run",
+                "--office-author",
+                "Installer Test Author",
             ],
             capture_output=True,
             text=True,
+            env=self.environment,
         )
         self.assertEqual(result.returncode, 0, msg=result.stderr)
         link = self.project / ".aris" / "tools"

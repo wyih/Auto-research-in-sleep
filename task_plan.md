@@ -65,7 +65,7 @@ Phase 7 — Grok acceptance and final release validation. Root verifier for run 
 
 - [x] Port/refactor `results-to-docx` into an executable generator.
 - [x] Verify tidy coefficients, statistics, figures, and academic table rendering.
-- [x] Normalize and inspect OOXML identity metadata as `Yihong Wang`.
+- [x] Normalize and inspect OOXML identity metadata against an explicitly configured Office author.
 - [x] Render and visually inspect the Word output.
 - [x] Carry a real WRDS extract through a separate engineering analysis smoke into a verified DOCX without claiming causal or economic inference.
 - **Status:** completed — shared output and Codex invocation; independent Grok invocation is tracked only in Phase 7
@@ -129,6 +129,6 @@ Phase 7 — Grok acceptance and final release validation. Root verifier for run 
 ## Notes
 
 - Never expose credentials, cookies, proxy authentication, or API keys in logs or Markdown.
-- Existing worktree `/Users/wyih/Projects/ARIS-business-skills` remains read-only continuity evidence unless the user explicitly redirects implementation there.
+- The separate legacy business-skills worktree remains read-only continuity evidence unless the user explicitly redirects implementation there.
 - Existing-session ordinary login buttons and site challenges may be operated under the user's explicit authorization. New credential entry, MFA/QR/SMS, purchases, or irreversible actions require a focused handoff.
 - The only remaining work is the Phase 7 checklist above; do not reopen completed Codex gates unless a later change invalidates their hashes or tests.

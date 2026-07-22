@@ -7,7 +7,7 @@ Use the installed project skill `$results-to-docx`. Read its `SKILL.md`, `refere
 The only authorized handoff receipt is:
 
 ```text
-/Users/wyih/Projects/Auto-research-in-sleep/.aris/business-e2e/20260718T011517Z/integrated-chain/INTEGRATED_CHAIN_RECEIPT.json
+${ARIS_REPO_ROOT}/.aris/business-e2e/20260718T011517Z/integrated-chain/INTEGRATED_CHAIN_RECEIPT.json
 ```
 
 Require all of the following before creating any DOCX:
@@ -26,7 +26,7 @@ Read paths only from the root receipt's linked lineage descriptor, the lineage r
 
 ## Independence and write boundary
 
-- Work from `/Users/wyih/Projects/Auto-research-in-sleep`.
+- Work from `${ARIS_REPO_ROOT}`.
 - Use a new UTC tag and write all Grok P2 files beneath:
 
   ```text
@@ -64,6 +64,9 @@ Create a new JSON spec beneath the Grok P2 root. It must:
 - supply meaningful figure alt text and source data.
 
 Hash the new spec and record a machine-readable input audit before invoking the builder.
+Require a nonempty user-local `ARIS_OFFICE_AUTHOR` value for this run. Do not
+infer it from the Skill maintainer, installer, operating-system account, Git
+configuration, or a source template.
 
 ## Fresh production build
 
@@ -73,7 +76,7 @@ Invoke the current canonical CLI as a new Grok process:
 python3 skills/results-to-docx/scripts/build_results_docx.py \
   --spec "<new_grok_p2_root>/input/build_spec.json" \
   --out "<new_grok_p2_root>/output/results_docx/grok-wrds-10row-results.docx" \
-  --author "Yihong Wang"
+  --author "$ARIS_OFFICE_AUTHOR"
 ```
 
 Do not use `--force`. Require a zero exit, a newly created DOCX, `RESULTS_DOCX_MANIFEST.md`, and `RESULTS_DOCX_RECEIPT.json`. Verify from the builder receipt that:
@@ -100,13 +103,14 @@ The builder normalizes metadata, but audit the final file again after the last s
 
 ```bash
 python3 skills/results-to-docx/scripts/normalize_docx_author.py \
+  --author "$ARIS_OFFICE_AUTHOR" \
   --check "<new_docx_path>"
 ```
 
 Require:
 
-- Creator/Author exactly `Yihong Wang`;
-- Last Modified By exactly `Yihong Wang`;
+- Creator/Author exactly matches the configured `ARIS_OFFICE_AUTHOR`;
+- Last Modified By exactly matches the configured `ARIS_OFFICE_AUTHOR`;
 - Company and Manager empty;
 - no prior author/editor custom properties;
 - no comment/people author parts or comment markers;
@@ -193,7 +197,7 @@ Replace every placeholder and zero. Evidence must include only new files from th
 Run:
 
 ```bash
-python3 /Users/wyih/Projects/Auto-research-in-sleep/scripts/verify_business_e2e.py \
+python3 ${ARIS_REPO_ROOT}/scripts/verify_business_e2e.py \
   --run-id 20260718T011517Z --json
 ```
 

@@ -97,9 +97,9 @@
 - Actions taken:
   - Produced the reusable `results-to-docx` CLI and a verified P2 results pack with 3 tables, 1 figure, and 3 bounded narrative claims.
   - Rendered and visually checked the output; accessibility findings are zero.
-  - Verified OOXML Author/Creator and Last Modified By as `Yihong Wang`, with Company/Manager empty and no inherited author identity.
+  - Verified OOXML Author/Creator and Last Modified By against the explicitly configured Office author, with Company/Manager empty and no inherited author identity.
   - Produced a separate real-WRDS engineering-chain DOCX while keeping CNRDS/CSMAR as unmerged lineage evidence and making no causal/economic inference claim.
-  - Grok independently rebuilt the real-WRDS 10-row results pack under tag `20260718T070600Z-wrds-10row`: 7/7 unit tests, three rendered pages visually clear, zero accessibility findings, normalized `Yihong Wang` OOXML identity, and a root-verifier P2 `PASS`.
+  - Grok independently rebuilt the real-WRDS 10-row results pack under tag `20260718T070600Z-wrds-10row`: 7/7 unit tests, three rendered pages visually clear, zero accessibility findings, normalized configured-author OOXML identity, and a root-verifier P2 `PASS`.
 
 ### Phase 6: P5 Routing and Installation
 
@@ -139,7 +139,7 @@ The latest verifier snapshot and current rows below are authoritative. Earlier f
 | Grok business skill discovery | isolated `grok inspect --json` | Exact portable project skill set | 24/24 project-sourced, user-invocable business skills | pass |
 | Starting main cleanliness | `git status --short` before implementation | No unrelated modifications before start | Clean at `c5f3d5b` | pass |
 | Portable mirror/inventory | mirror check + inventory + shell syntax | Exact portable package with no drift | 24 skills, 9 shared references; all checks pass | pass |
-| Targeted Python tests | repository-compatible venv | Tests execute in the accepted environment | System-Python gap resolved by `/Users/wyih/Projects/xui-fleet/.venv/bin/python` | pass |
+| Targeted Python tests | repository-compatible venv | Tests execute in the accepted environment | System-Python gap resolved by `<compatible-venv>/bin/python` | pass |
 | Browser download verifier | `python3 tests/test_browser_download_verifier.py -v` | Valid PDF/XLSX/GB18030 CSV pass; HTML and invalid XLSX fail | 5 tests passed | pass |
 | Browser bridge skill validation | `uv run --with pyyaml .../quick_validate.py skills/browser-session-bridge` | Valid skill metadata/structure | `Skill is valid!` | pass |
 | Business browser portability | `python3 tests/test_business_browser_portability.py -v` | P3/P4 consumers contain no hard-coded runtime calls; adapters partitioned | 5 tests passed | pass |

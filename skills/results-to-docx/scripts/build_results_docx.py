@@ -8,6 +8,7 @@ import json
 import sys
 from pathlib import Path
 
+from author_identity import OFFICE_AUTHOR_ENV, OfficeAuthorError, resolve_office_author
 from results_docx import BuildRequest, ResultsDocxError, build_results_pack
 
 
@@ -17,7 +18,13 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--out", required=True, type=Path, help="Output .docx under a results_docx directory")
     parser.add_argument("--manifest", type=Path, help="Markdown manifest path (default: beside DOCX)")
     parser.add_argument("--receipt", type=Path, help="JSON audit receipt path (default: beside DOCX)")
-    parser.add_argument("--author", default="Yihong Wang", help="Office author identity")
+    parser.add_argument(
+        "--author",
+        help=(
+            "Office author identity (otherwise read "
+            f"{OFFICE_AUTHOR_ENV} or the installer-created user configuration)"
+        ),
+    )
     parser.add_argument("--force", action="store_true", help="Replace existing output/manifest/receipt")
     return parser.parse_args()
 
@@ -25,17 +32,18 @@ def parse_args() -> argparse.Namespace:
 def main() -> int:
     args = parse_args()
     try:
+        author = resolve_office_author(args.author)
         result = build_results_pack(
             BuildRequest(
                 spec_path=args.spec,
                 output_path=args.out,
                 manifest_path=args.manifest,
                 receipt_path=args.receipt,
-                author=args.author,
+                author=author,
                 force=args.force,
             )
         )
-    except ResultsDocxError as exc:
+    except (OfficeAuthorError, ResultsDocxError) as exc:
         print(f"ERROR: {exc}", file=sys.stderr)
         return 2
     print(

@@ -364,16 +364,19 @@ ARIS 读论文 → 找弱点 → 克隆代码 → 针对*那些*弱点用*那套
 ```bash
 # 1. 安装 skills —— 项目级 symlink（推荐）
 git clone https://github.com/wanshuiyin/Auto-claude-code-research-in-sleep.git
-bash Auto-claude-code-research-in-sleep/tools/install_aris.sh ~/your-project   # 把 ARIS skill symlink 进 <project>/.claude/skills/
+bash Auto-claude-code-research-in-sleep/tools/install_aris.sh ~/your-project \
+  --office-author "你的姓名"   # 把 ARIS skill symlink 进 <project>/.claude/skills/
 # （想全局安装？cp -r Auto-claude-code-research-in-sleep/skills/* ~/.claude/skills/）
 # （不需要全部 104 个？--list-groups / --groups X,Y / --skills X —— 见下方"选择性安装"）
 
 # 可选：Codex mirror 项目级受管安装
-bash Auto-claude-code-research-in-sleep/tools/install_aris_codex.sh ~/your-codex-project
+bash Auto-claude-code-research-in-sleep/tools/install_aris_codex.sh \
+  ~/your-codex-project --office-author "你的姓名"
 
 # Codex 受管项目更新
 cd Auto-claude-code-research-in-sleep && git pull
-bash Auto-claude-code-research-in-sleep/tools/install_aris_codex.sh ~/your-codex-project --reconcile
+bash Auto-claude-code-research-in-sleep/tools/install_aris_codex.sh \
+  ~/your-codex-project --reconcile --office-author "你的姓名"
 
 # 仅用于 Codex copy install（不要用于 install_aris_codex.sh 管理的项目）
 bash Auto-claude-code-research-in-sleep/tools/smart_update_codex.sh --local ~/.codex/skills
@@ -1246,6 +1249,8 @@ claude   # hooks 立即生效
 > 💡 **推荐：项目级扁平 symlink 安装**（2026-04-20 起）。每个 ARIS skill 独立 symlink 到 `.claude/skills/<skill-name>`，让 Claude Code 的 slash command 自动补全能直接发现。manifest 在 `.aris/installed-skills.txt` 跟踪 ARIS 装了什么——uninstall 和 reconcile 只动 manifest 里的条目，绝不碰你自己的 skill。
 >
 > 🤖 **Codex mirror 路线：** Claude 主线继续使用 `install_aris.sh` / `smart_update.sh`。Codex 原生项目安装请用 `install_aris_codex.sh`，Codex copy 安装更新请用 `smart_update_codex.sh`。
+>
+> 🪪 **Office 身份：**只要安装选择包含 `results-to-docx`，就必须显式传入 `--office-author "你的姓名"`（PowerShell：`-OfficeAuthor "你的姓名"`）。该值只保存在接收者的用户级 ARIS 配置中，不写入项目或 Git 身份。
 
 ```bash
 # 1. 克隆 ARIS 一次到稳定位置
@@ -1253,7 +1258,7 @@ git clone https://github.com/wanshuiyin/Auto-claude-code-research-in-sleep.git ~
 
 # 2. 在每个使用 ARIS 的项目里 attach：
 cd ~/your-paper-project
-bash ~/aris_repo/tools/install_aris.sh
+bash ~/aris_repo/tools/install_aris.sh --office-author "你的姓名"
 # → 每个 skill 一个 symlink: .claude/skills/<skill> → ~/aris_repo/skills/<skill>
 # → 写 manifest .aris/installed-skills.txt（追踪 ARIS 装的每条）
 # → 更新 CLAUDE.md ARIS 管理块（best-effort + compare-and-swap，不会覆盖用户改动）
@@ -1263,22 +1268,26 @@ bash ~/aris_repo/tools/install_aris.sh
 cd ~/aris_repo && git pull
 
 # 3a. 上游新增 / 删除 skill 时，重跑安装器（一次的事）：
-bash ~/aris_repo/tools/install_aris.sh ~/your-paper-project
+bash ~/aris_repo/tools/install_aris.sh ~/your-paper-project \
+  --office-author "你的姓名"
 
 # 只装需要的 skill（#366 选择性安装；不带参数在 TTY 上进全屏勾选菜单）：
 bash ~/aris_repo/tools/install_aris.sh --list-groups                  # 看 10 个分组
 bash ~/aris_repo/tools/install_aris.sh --groups paper-core,lit-search # 按组装
 bash ~/aris_repo/tools/install_aris.sh --skills paper-writing         # 指定 skill，pipeline 依赖自动带上
-bash ~/aris_repo/tools/install_aris.sh --exclude patent-pipeline      # 反选（记入 declined，更新时不再问）
+bash ~/aris_repo/tools/install_aris.sh --exclude patent-pipeline \
+  --office-author "你的姓名"                                 # 反选（记入 declined，更新时不再问）
 # 更新时上游新增的 skill 会逐个二次确认；--add-new 全收 / --skip-new 全跳过
 
 # 其他常用：
-bash ~/aris_repo/tools/install_aris.sh --dry-run        # 看计划，不写盘
+bash ~/aris_repo/tools/install_aris.sh --dry-run \
+  --office-author "你的姓名"                          # 看计划，不写盘
 bash ~/aris_repo/tools/install_aris.sh --uninstall      # 按 manifest 卸载（不动你自己的 skill）
-bash ~/aris_repo/tools/install_aris.sh --from-old       # 从老的 .claude/skills/aris/ 嵌套布局迁移
+bash ~/aris_repo/tools/install_aris.sh --from-old \
+  --office-author "你的姓名"                          # 从老的 .claude/skills/aris/ 嵌套布局迁移
 
 # Windows（PowerShell，需要管理员权限或开发者模式以创建 junction）：
-.\tools\install_aris.ps1 C:\path\to\your-paper-project
+.\tools\install_aris.ps1 C:\path\to\your-paper-project -OfficeAuthor "你的姓名"
 ```
 
 **为什么 git pull 不能完全代替重跑安装器：** 扁平布局是每个 skill 一个 symlink，所以上游**新增/删除** skill 时，project 里要新增/移除对应的 symlink——这一步只能由安装器做。这个代价换来了 Claude Code 的自动 slash command 发现（CC 只扫一层目录）。
@@ -1290,12 +1299,15 @@ bash ~/aris_repo/tools/install_aris.sh --from-old       # 从老的 .claude/skil
 
 ```bash
 # Symlink 老安装：
-bash ~/aris_repo/tools/install_aris.sh ~/your-project --from-old
+bash ~/aris_repo/tools/install_aris.sh ~/your-project --from-old \
+  --office-author "你的姓名"
 
 # Copy 老安装（可能有本地编辑——需要显式选策略）：
-bash ~/aris_repo/tools/install_aris.sh ~/your-project --from-old --migrate-copy keep-user
+bash ~/aris_repo/tools/install_aris.sh ~/your-project --from-old \
+  --migrate-copy keep-user --office-author "你的姓名"
 #   → 保留嵌套 .claude/skills/aris/ 不动，扁平 symlink 装在旁边
-bash ~/aris_repo/tools/install_aris.sh ~/your-project --from-old --migrate-copy prefer-upstream
+bash ~/aris_repo/tools/install_aris.sh ~/your-project --from-old \
+  --migrate-copy prefer-upstream --office-author "你的姓名"
 #   → 把嵌套副本归档到 .aris/legacy-copy-backup-<timestamp>/，再扁平化
 ```
 

@@ -35,7 +35,7 @@ PROHIBITED_DOCX_TEXT = (
     "causal",
     "substantive",
 )
-EXPECTED_AUTHOR = "Yihong Wang"
+EXPECTED_AUTHOR = os.environ.get("ARIS_OFFICE_AUTHOR")
 NS_CP = "http://schemas.openxmlformats.org/package/2006/metadata/core-properties"
 NS_DC = "http://purl.org/dc/elements/1.1/"
 NS_EP = "http://schemas.openxmlformats.org/officeDocument/2006/extended-properties"
@@ -247,7 +247,10 @@ def _relationship_target(part_name: str, target: str) -> str:
     return posixpath.normpath(posixpath.join(source_dir, target))
 
 
-def audit_docx_identity(path: Path, expected_author: str = EXPECTED_AUTHOR) -> dict[str, object]:
+def audit_docx_identity(
+    path: Path,
+    expected_author: str | None = EXPECTED_AUTHOR,
+) -> dict[str, object]:
     """Independently inspect the DOCX package; no builder receipt fields are trusted."""
     with zipfile.ZipFile(path) as archive:
         names = archive.namelist()
@@ -311,8 +314,9 @@ def audit_docx_identity(path: Path, expected_author: str = EXPECTED_AUTHOR) -> d
                         )
 
     passed = (
-        creator == expected_author
-        and modified_by == expected_author
+        bool(creator)
+        and creator == modified_by
+        and (expected_author is None or creator == expected_author)
         and not company
         and not manager
         and not identity_parts
@@ -688,9 +692,10 @@ def main(argv: list[str] | None = None) -> int:
     )
 
     metadata = audit_docx_identity(docx_path)
+    expected_author = EXPECTED_AUTHOR or metadata["creator"]
     for field, expected in (
-        ("creator", EXPECTED_AUTHOR),
-        ("lastModifiedBy", EXPECTED_AUTHOR),
+        ("creator", expected_author),
+        ("lastModifiedBy", expected_author),
         ("company", ""),
         ("manager", ""),
     ):
