@@ -60,6 +60,7 @@ invalidation. Use only:
 | bounded sanitized accessibility state | `aris_inspect` |
 | one fresh-UID click | `aris_click` |
 | one non-credential field fill plus non-echoing boolean value match | `aris_fill` |
+| one workspace-scoped verified file upload through a fresh upload control | `aris_upload_file` |
 | one bounded key action plus prior-fill continuity booleans | `aris_key` |
 | bounded passive state wait | `aris_wait` |
 | rendered challenge classification | `aris_challenge_state` |
@@ -72,9 +73,12 @@ invalidation. Use only:
 
 Never call raw `chrome-devtools-mcp` tools. In particular, never expose or call
 raw/arbitrary `evaluate_script` or `initScript`, network/console/heap inspection,
-emulation, drag, bulk form fill, upload, cookies, storage, history, or raw page
-output. The loaded-PDF/wrapper tool is a facade-owned fixed function: the caller
-cannot supply JavaScript, a URL, a filename, or page content.
+emulation, drag, bulk form fill, raw `upload_file`, cookies, storage, history,
+or raw page output. Upload is available only through facade-owned
+`aris_upload_file`, which requires a fresh upload-control reference and a
+verified regular file inside the active workspace. The loaded-PDF/wrapper tool
+is also a facade-owned fixed function: the caller cannot supply JavaScript, a
+URL, a filename, or page content.
 
 ## Page Lease and Action Order
 
@@ -224,6 +228,20 @@ Wiley HTML PDF wrapper instead of downloading:
 Do not replace this bounded loaded-PDF/wrapper action with raw JavaScript, a
 constructed delivery URL, network-response capture, direct HTTP, or a click on
 Chrome's PDF viewer toolbar.
+
+## Uploads
+
+Use `aris_upload_file` only after selecting the page and taking one final
+targeted inspection of the intended upload control. Supply one
+workspace-relative path to an existing non-empty regular file. The facade
+rejects absolute paths, parent traversal, symlinks, unsupported or executable
+extensions, and files larger than 100 MiB. It verifies size, modification time
+and SHA-256 across the upload attempt and consumes the fresh snapshot. The
+facade negotiates the same canonical workspace with the official child through
+the MCP `roots` capability; do not use `--allowUnrestrictedPaths`.
+Re-inspect the page afterward to verify that the intended attachment appears.
+Never automate the native file chooser, call raw `upload_file`, or upload
+credentials or unrelated data.
 
 ## Fallback Boundary
 

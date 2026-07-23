@@ -103,7 +103,10 @@ Never include cookies, tokens, account identifiers, raw IP addresses, or auth he
 ## Rules
 
 - Keep site selectors and business filters in the calling site's recipe, not in runtime adapters.
-- Never expose Grok directly to raw `evaluate_script`, `initScript`, network, console, heap, emulation, drag, bulk-form, upload, cookie, storage, or history tools. The official MCP path must go through the project safety facade.
+- Never expose Grok directly to raw `evaluate_script`, `initScript`, network,
+  console, heap, emulation, drag, bulk-form, raw upload, cookie, storage, or
+  history tools. The official MCP path must go through the project safety
+  facade; file upload is permitted only through bounded `aris_upload_file`.
 - Treat a dedicated persistent profile as reusable, not permanent: site expiry, IP/institution changes, MFA, and fresh challenges may require another handoff.
 - Do not infer logout or missing institutional access from a dismissible inactivity overlay alone. Run the caller-approved close → single reload → fresh inspection recovery before login or access-gap classification.
 - Re-read page state after navigation, login, challenge completion, or modal changes; do not reuse stale element identifiers.
