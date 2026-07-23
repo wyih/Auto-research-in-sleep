@@ -36,6 +36,7 @@ PUBLIC_TOOL_NAMES = {
     "aris_inspect",
     "aris_click",
     "aris_fill",
+    "aris_upload_file",
     "aris_key",
     "aris_wait",
     "aris_challenge_state",
@@ -725,6 +726,121 @@ class DevtoolsMcpFacadeTests(unittest.TestCase):
         self.assertTrue(pressed["state_check_required"])
         self.assertEqual(pressed["key"], "Enter")
 
+    def test_upload_is_single_file_workspace_scoped_and_uses_one_fresh_upload_control(
+        self,
+    ) -> None:
+        source = self.client.workspace / "handoff.zip"
+        source.write_bytes(b"PK\x03\x04safe handoff")
+        lease = self.client.select_example()
+        inspected = self.client.call(
+            "aris_inspect", {"lease_id": lease, "text_query": "Add files"}
+        )
+        uploaded = self.client.call(
+            "aris_upload_file",
+            {
+                "lease_id": lease,
+                "snapshot_id": inspected["snapshot_id"],
+                "element_ref": inspected["elements"][0]["element_ref"],
+                "source": "handoff.zip",
+            },
+        )
+        self.assertEqual(uploaded["source"], "handoff.zip")
+        self.assertEqual(uploaded["format"], "zip")
+        self.assertEqual(uploaded["size_bytes"], str(source.stat().st_size))
+        self.assertEqual(
+            uploaded["sha256"], hashlib.sha256(source.read_bytes()).hexdigest()
+        )
+        self.assertEqual(uploaded["upload_budget_consumed"], 1)
+        upload_calls = [
+            call
+            for call in self.client.child_calls()
+            if call.get("name") == "upload_file"
+        ]
+        self.assertEqual(len(upload_calls), 1)
+        self.assertEqual(
+            upload_calls[0]["arguments"],
+            {
+                "uid": "5_10",
+                "filePath": str(source.resolve()),
+                "includeSnapshot": False,
+            },
+        )
+
+        stale = self.client.call_raw(
+            "aris_upload_file",
+            {
+                "lease_id": lease,
+                "snapshot_id": inspected["snapshot_id"],
+                "element_ref": inspected["elements"][0]["element_ref"],
+                "source": "handoff.zip",
+            },
+        )
+        self.assertTrue(stale["isError"])
+        self.assertEqual(
+            json.loads(stale["content"][0]["text"])["error"], "snapshot_stale"
+        )
+        self.assertEqual(
+            len([
+                call
+                for call in self.client.child_calls()
+                if call.get("name") == "upload_file"
+            ]),
+            1,
+        )
+
+    def test_upload_rejects_absolute_traversal_symlink_format_and_wrong_control(
+        self,
+    ) -> None:
+        valid = self.client.workspace / "valid.txt"
+        valid.write_text("safe", encoding="utf-8")
+        executable = self.client.workspace / "payload.sh"
+        executable.write_text("#!/bin/sh\n", encoding="utf-8")
+        outside = self.client.root / "outside.txt"
+        outside.write_text("outside", encoding="utf-8")
+        symlink = self.client.workspace / "linked.txt"
+        symlink.symlink_to(outside)
+        lease = self.client.select_example()
+
+        for source in [str(valid), "../outside.txt", "linked.txt", "payload.sh"]:
+            with self.subTest(source=source):
+                inspected = self.client.call(
+                    "aris_inspect", {"lease_id": lease, "text_query": "Add files"}
+                )
+                rejected = self.client.call_raw(
+                    "aris_upload_file",
+                    {
+                        "lease_id": lease,
+                        "snapshot_id": inspected["snapshot_id"],
+                        "element_ref": inspected["elements"][0]["element_ref"],
+                        "source": source,
+                    },
+                )
+                self.assertTrue(rejected["isError"])
+
+        inspected = self.client.call(
+            "aris_inspect", {"lease_id": lease, "text_query": "View PDF"}
+        )
+        wrong_control = self.client.call_raw(
+            "aris_upload_file",
+            {
+                "lease_id": lease,
+                "snapshot_id": inspected["snapshot_id"],
+                "element_ref": inspected["elements"][0]["element_ref"],
+                "source": "valid.txt",
+            },
+        )
+        self.assertTrue(wrong_control["isError"])
+        self.assertEqual(
+            json.loads(wrong_control["content"][0]["text"])["error"],
+            "upload_target_rejected",
+        )
+        self.assertFalse(
+            any(
+                call.get("name") == "upload_file"
+                for call in self.client.child_calls()
+            )
+        )
+
     def test_challenge_requires_observation_action_time_confirmation_and_one_checkbox_click(self) -> None:
         lease = self.client.select_example()
         self.client.call(
@@ -796,6 +912,59 @@ class DevtoolsMcpFacadeTests(unittest.TestCase):
         self.assertFalse(
             any(call.get("name") in {"drag", "evaluate_script"} for call in self.client.child_calls())
         )
+
+    def test_ordinary_preview_slider_does_not_block_download_or_upload(self) -> None:
+        source = self.client.workspace / "preview.txt"
+        source.write_text("safe", encoding="utf-8")
+        lease = self.client.select_example()
+        self.client.call(
+            "aris_navigate",
+            {"lease_id": lease, "url": "https://example.test/ordinary-slider"},
+        )
+        state = self.client.call("aris_challenge_state", {"lease_id": lease})
+        self.assertFalse(state["observed"])
+        self.assertEqual(state["kind"], "none")
+
+        inspected = self.client.call(
+            "aris_inspect", {"lease_id": lease, "text_query": "Download"}
+        )
+        triggered = self.client.call(
+            "aris_trigger_element_download",
+            {
+                "lease_id": lease,
+                "snapshot_id": inspected["snapshot_id"],
+                "element_ref": inspected["elements"][0]["element_ref"],
+            },
+        )
+        self.assertTrue(triggered["baseline_id"].startswith("baseline_"))
+
+        inspected = self.client.call(
+            "aris_inspect", {"lease_id": lease, "text_query": "Add files"}
+        )
+        uploaded = self.client.call(
+            "aris_upload_file",
+            {
+                "lease_id": lease,
+                "snapshot_id": inspected["snapshot_id"],
+                "element_ref": inspected["elements"][0]["element_ref"],
+                "source": "preview.txt",
+            },
+        )
+        self.assertEqual(uploaded["format"], "txt")
+
+        inspected = self.client.call(
+            "aris_inspect", {"lease_id": lease, "text_query": "Add photos & files"}
+        )
+        uploaded_from_proxy_text = self.client.call(
+            "aris_upload_file",
+            {
+                "lease_id": lease,
+                "snapshot_id": inspected["snapshot_id"],
+                "element_ref": inspected["elements"][0]["element_ref"],
+                "source": "preview.txt",
+            },
+        )
+        self.assertEqual(uploaded_from_proxy_text["format"], "txt")
 
     def test_cnki_challenge_requires_fixed_rendered_blocking_geometry(self) -> None:
         lease = self.client.select_example()
@@ -1437,7 +1606,13 @@ class DevtoolsMcpFacadeTests(unittest.TestCase):
         self.assertIn('callTool("evaluate_script", { function: script })', source)
         self.assertNotIn('callTool("fill_form"', source)
         self.assertNotIn('callTool("drag"', source)
-        self.assertNotIn('callTool("upload_file"', source)
+        self.assertEqual(source.count('callTool("upload_file"'), 1)
+        self.assertIn("await this.#assertSafeUploadSource(args.source)", source)
+        self.assertIn("if (!isUploadTarget(target))", source)
+        self.assertIn('capabilities: { roots: { listChanged: false } }', source)
+        self.assertIn('message.method === "roots/list"', source)
+        self.assertIn("pathToFileURL(this.workspaceRoot).href", source)
+        self.assertNotIn("--allowUnrestrictedPaths", source)
         self.assertNotIn('callTool("list_network_requests"', source)
         self.assertNotIn('callTool("take_memory_snapshot"', source)
         self.assertIn('await this.child.callTool("click"', source)

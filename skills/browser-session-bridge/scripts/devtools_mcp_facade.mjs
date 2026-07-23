@@ -37,16 +37,31 @@ import {
   sep,
 } from "node:path";
 import { execFile, spawn } from "node:child_process";
-import { fileURLToPath } from "node:url";
+import { fileURLToPath, pathToFileURL } from "node:url";
 
 const SERVER_NAME = "aris-devtools-safe-facade";
-const SERVER_VERSION = "0.1.0";
+const SERVER_VERSION = "0.2.0";
 const DEFAULT_PROTOCOL_VERSION = "2025-06-18";
 const CHILD_TIMEOUT_MS = 70_000;
 const MAX_PUBLIC_STRING = 500;
 const MAX_INSPECT_ELEMENTS = 240;
 const MAX_INSPECT_PUBLIC_CHARS = 24_000;
 const MAX_TAB_RESULTS = 50;
+const MAX_UPLOAD_BYTES = 100 * 1024 * 1024;
+const ALLOWED_UPLOAD_EXTENSIONS = new Set([
+  ".csv",
+  ".docx",
+  ".json",
+  ".jsonl",
+  ".md",
+  ".pdf",
+  ".pptx",
+  ".tsv",
+  ".txt",
+  ".xls",
+  ".xlsx",
+  ".zip",
+]);
 const PARTIAL_SUFFIXES = [".crdownload", ".part", ".partial", ".download", ".tmp"];
 const PROFILE_LOCK_NAME = "aris-external-profile.lock.json";
 const CONTROLLER_LOCK_NAME = "aris-browser-controller.lock";
@@ -314,6 +329,7 @@ const REQUIRED_CHILD_TOOLS = new Set([
   "fill",
   "press_key",
   "wait_for",
+  "upload_file",
   "evaluate_script",
 ]);
 const REQUIRED_CHILD_PROPERTIES = new Map([
@@ -325,6 +341,7 @@ const REQUIRED_CHILD_PROPERTIES = new Map([
   ["fill", ["uid", "value", "includeSnapshot"]],
   ["press_key", ["key", "includeSnapshot"]],
   ["wait_for", ["text", "timeout"]],
+  ["upload_file", ["uid", "filePath", "includeSnapshot"]],
   ["evaluate_script", ["function", "args", "filePath", "dialogAction"]],
 ]);
 
@@ -443,6 +460,14 @@ function isDownloadTriggerTarget(target) {
   // CNRDS/CSMAR queue rows expose download actions as icon-font StaticText, not buttons.
   if ((role === "statictext" || role === "text") && isIconFontLabel(target.name)) return true;
   return false;
+}
+
+function isUploadTarget(target) {
+  if (!target || target.credentialTarget) return false;
+  const role = String(target.role || "").toLowerCase();
+  if (!["button", "input", "link", "textbox", "statictext", "text"].includes(role)) return false;
+  return /(?:attach|upload|add (?:a )?(?:files?|photos?)|file upload|choose file|browse files|附件|上传|添加文件|选择文件)/i
+    .test(String(target.rawName ?? target.name ?? ""));
 }
 
 export function urlHasSensitiveParameters(parsed) {
@@ -1098,7 +1123,10 @@ function classifyChallenge(elements) {
   const checkboxElements = elements.filter((element) => element.role.toLowerCase() === "checkbox");
   const sliders = elements.filter((element) => element.role.toLowerCase() === "slider");
   const hasGeneralSignal = CHALLENGE_SIGNAL.test(combined);
-  const hasSlider = sliders.length > 0 || SLIDER_SIGNAL.test(combined);
+  // A normal media/preview resize control also has role=slider. A slider role
+  // alone is not a human-verification challenge; require challenge semantics
+  // unless the element text itself explicitly describes sliding to verify.
+  const hasSlider = SLIDER_SIGNAL.test(combined) || (hasGeneralSignal && sliders.length > 0);
   const hasImage = IMAGE_SIGNAL.test(combined);
   const hasPressHold = PRESS_HOLD_SIGNAL.test(combined);
 
@@ -1169,6 +1197,7 @@ class ChildMcpClient {
     this.initialized = null;
     this.serverInfo = null;
     this.tools = null;
+    this.workspaceRoot = null;
   }
 
   async start() {
@@ -1179,6 +1208,14 @@ class ChildMcpClient {
 
   async #start() {
     const spec = childCommand(this.env);
+    const workspaceRoot = await realpath(this.env.ARIS_WORKSPACE_ROOT || process.cwd())
+      .catch(() => null);
+    if (!workspaceRoot || workspaceRoot === resolve("/") || workspaceRoot === resolve(homedir())) {
+      throw new FacadeError("workspace_unavailable");
+    }
+    const workspaceInfo = await stat(workspaceRoot).catch(() => null);
+    if (!workspaceInfo?.isDirectory()) throw new FacadeError("workspace_unavailable");
+    this.workspaceRoot = workspaceRoot;
     this.child = spawn(spec.command, spec.args, {
       cwd: process.cwd(),
       env: { ...this.env },
@@ -1193,7 +1230,7 @@ class ChildMcpClient {
 
     const initialized = await this.request("initialize", {
       protocolVersion: DEFAULT_PROTOCOL_VERSION,
-      capabilities: {},
+      capabilities: { roots: { listChanged: false } },
       clientInfo: { name: SERVER_NAME, version: SERVER_VERSION },
     });
     this.serverInfo = initialized?.serverInfo ?? {};
@@ -1233,11 +1270,24 @@ class ChildMcpClient {
         if (message.error) pending.reject(new FacadeError("browser_child_protocol_error"));
         else pending.resolve(message.result);
       } else if (message.id !== undefined && message.method) {
-        this.child?.stdin.write(`${JSON.stringify({
-          jsonrpc: "2.0",
-          id: message.id,
-          error: { code: -32601, message: "Method not supported" },
-        })}\n`);
+        if (message.method === "roots/list" && this.workspaceRoot) {
+          this.child?.stdin.write(`${JSON.stringify({
+            jsonrpc: "2.0",
+            id: message.id,
+            result: {
+              roots: [{
+                uri: pathToFileURL(this.workspaceRoot).href,
+                name: "ARIS workspace",
+              }],
+            },
+          })}\n`);
+        } else {
+          this.child?.stdin.write(`${JSON.stringify({
+            jsonrpc: "2.0",
+            id: message.id,
+            error: { code: -32601, message: "Method not supported" },
+          })}\n`);
+        }
       }
     }
   }
@@ -1331,6 +1381,15 @@ const PUBLIC_TOOLS = Object.freeze([
       text: { type: "string", minLength: 1, maxLength: 10000 },
     },
     required: ["lease_id", "snapshot_id", "element_ref", "text"],
+  }),
+  tool("aris_upload_file", "Upload one verified regular file from this workspace through one fresh upload control. Absolute paths, symlinks, executable formats and files over 100 MiB are rejected.", {
+    properties: {
+      lease_id: { type: "string" },
+      snapshot_id: { type: "string" },
+      element_ref: { type: "string" },
+      source: { type: "string", minLength: 1, maxLength: 500 },
+    },
+    required: ["lease_id", "snapshot_id", "element_ref", "source"],
   }),
   tool("aris_key", "Press one allowlisted key after a fresh inspection, with boolean continuity evidence for a preceding verified fill; arbitrary typing and press-hold are unavailable.", {
     properties: { lease_id: { type: "string" }, key: { type: "string" } },
@@ -1881,6 +1940,61 @@ export class SafeDevtoolsFacade {
     return { target, destination: normalizedParts.join("/") };
   }
 
+  async #assertSafeUploadSource(source) {
+    boundedString(source, { min: 1, max: 500 });
+    if (isAbsolute(source) || source.includes("\0") || source.includes("\\")
+      || /[?#]/.test(source) || textHasSensitiveAssignment(source)) {
+      throw new FacadeError("upload_source_rejected");
+    }
+    const normalizedParts = source.split("/");
+    if (normalizedParts.some((part) => !part || part === "." || part === ".."
+      || textHasSensitiveAssignment(part))) {
+      throw new FacadeError("upload_source_rejected");
+    }
+
+    const workspace = await realpath(this.env.ARIS_WORKSPACE_ROOT || this.cwd).catch(() => null);
+    if (!workspace) throw new FacadeError("workspace_unavailable");
+    const requested = resolve(workspace, source);
+    const requestedRelative = relative(workspace, requested);
+    if (!requestedRelative || requestedRelative === ".."
+      || requestedRelative.startsWith(`..${sep}`) || isAbsolute(requestedRelative)) {
+      throw new FacadeError("upload_source_rejected");
+    }
+
+    let info;
+    try {
+      info = await lstat(requested);
+    } catch {
+      throw new FacadeError("upload_source_unavailable");
+    }
+    if (!info.isFile() || info.isSymbolicLink() || info.size <= 0 || info.size > MAX_UPLOAD_BYTES) {
+      throw new FacadeError("upload_source_rejected");
+    }
+    const extension = extname(requested).toLowerCase();
+    if (!ALLOWED_UPLOAD_EXTENSIONS.has(extension)) {
+      throw new FacadeError("upload_source_format_rejected");
+    }
+
+    const canonical = await realpath(requested);
+    const canonicalRelative = relative(workspace, canonical);
+    if (!canonicalRelative || canonicalRelative === ".."
+      || canonicalRelative.startsWith(`..${sep}`) || isAbsolute(canonicalRelative)) {
+      throw new FacadeError("upload_source_rejected");
+    }
+    const canonicalInfo = await stat(canonical, { bigint: true });
+    if (!canonicalInfo.isFile() || canonicalInfo.size <= 0n
+      || canonicalInfo.size > BigInt(MAX_UPLOAD_BYTES)) {
+      throw new FacadeError("upload_source_rejected");
+    }
+    return {
+      canonical,
+      source: normalizedParts.join("/"),
+      size: canonicalInfo.size,
+      mtimeNs: canonicalInfo.mtimeNs,
+      extension,
+    };
+  }
+
   async call(name, args = {}) {
     switch (name) {
       case "aris_health": {
@@ -2157,6 +2271,58 @@ export class SafeDevtoolsFacade {
           characters_supplied: text.length,
           value_confirmation_available: observed !== null,
           value_matches_supplied: valueMatchesSupplied,
+        };
+      }
+      case "aris_upload_file": {
+        assertExactKeys(
+          args,
+          ["lease_id", "snapshot_id", "element_ref", "source"],
+          ["lease_id", "snapshot_id", "element_ref", "source"],
+        );
+        await this.#verifiedLease(args.lease_id);
+        const { snapshot, target } = this.#requireSnapshot(args);
+        if (snapshot.challenge?.observed) throw new FacadeError("challenge_blocks_upload");
+        if (!isUploadTarget(target)) throw new FacadeError("upload_target_rejected");
+        const source = await this.#assertSafeUploadSource(args.source);
+        const sha256Before = await sha256File(source.canonical);
+        const before = await stat(source.canonical, { bigint: true });
+        if (!before.isFile() || before.size !== source.size || before.mtimeNs !== source.mtimeNs) {
+          throw new FacadeError("upload_source_changed");
+        }
+        this.#invalidateSnapshot();
+        this.#clearFillProof();
+        assertChildSuccess(
+          await this.child.callTool("upload_file", {
+            uid: target.rawUid,
+            filePath: source.canonical,
+            includeSnapshot: false,
+          }),
+          "upload_file",
+          { mutation: true },
+        );
+        const after = await stat(source.canonical, { bigint: true }).catch(() => null);
+        if (!after || !after.isFile() || after.size !== source.size || after.mtimeNs !== source.mtimeNs) {
+          throw new FacadeError("upload_source_changed", {
+            effect_state: "unknown",
+            state_check_required: true,
+          });
+        }
+        const sha256After = await sha256File(source.canonical);
+        if (sha256After !== sha256Before) {
+          throw new FacadeError("upload_source_changed", {
+            effect_state: "unknown",
+            state_check_required: true,
+          });
+        }
+        return {
+          ok: true,
+          effect_state: "attempted",
+          state_check_required: true,
+          source: source.source,
+          format: source.extension.slice(1),
+          size_bytes: source.size.toString(),
+          sha256: sha256After,
+          upload_budget_consumed: 1,
         };
       }
       case "aris_key": {

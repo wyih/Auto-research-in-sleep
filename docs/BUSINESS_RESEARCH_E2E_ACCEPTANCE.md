@@ -46,7 +46,9 @@ This matrix is the release gate for the business empirical-research suite. Prose
 - `profile_mode = dedicated_persistent`
 - `grok mcp doctor` exposes only the project facade's bounded `aris_*` surface
 - trace contains successful facade navigation/inspection/action/download-evidence calls
-- raw official JavaScript, network, console, heap, emulation, drag, bulk-form, upload, cookie, storage, and history tools were not exposed
+- raw official JavaScript, network, console, heap, emulation, drag, bulk-form,
+  raw upload, cookie, storage, and history tools were not exposed; any file
+  upload used only workspace-scoped `aris_upload_file`
 
 ### Grok legacy fallback
 

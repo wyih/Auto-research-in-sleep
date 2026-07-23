@@ -20,6 +20,7 @@ const requiredToolProperties = {
   fill: ["uid", "value", "includeSnapshot"],
   press_key: ["key", "includeSnapshot"],
   wait_for: ["text", "timeout"],
+  upload_file: ["uid", "filePath", "includeSnapshot"],
   evaluate_script: ["function", "args", "filePath", "dialogAction"],
 };
 
@@ -28,7 +29,6 @@ const tools = [
   // Deliberately advertised by the fake child: the facade must never expose these raw tools.
   "fill_form",
   "drag",
-  "upload_file",
   "list_network_requests",
   "take_memory_snapshot",
 ].map((name) => ({
@@ -151,6 +151,13 @@ uid=12_0 RootWebArea "CNKI search"
   uid=12_1 StaticText "拖动下方拼图完成验证"
   uid=12_2 slider "滑块" focusable
   uid=12_3 textbox "中文文献、外文文献" focusable`;
+  } else if (mode === "ordinary-slider") {
+    snapshot = `## Latest page snapshot
+uid=13_0 RootWebArea "Attachment preview"
+  uid=13_1 slider "Resize preview" focusable
+  uid=13_2 button "Download"
+  uid=13_3 button "Add files"
+  uid=13_4 StaticText "Add photos & files"`;
   } else {
     snapshot = `## Latest page snapshot
 uid=5_0 RootWebArea "Paper"
@@ -162,7 +169,8 @@ uid=5_0 RootWebArea "Paper"
   uid=5_6 textbox "Start date" focusable value="2026-06-30"
   uid=5_7 StaticText "\uE618"
   uid=5_8 StaticText "未下载"
-  uid=5_9 StaticText " 压缩完成"`;
+  uid=5_9 StaticText " 压缩完成"
+  uid=5_10 button "Add files"`;
   }
   return { content: [{ type: "text", text: snapshot }] };
 }
@@ -209,6 +217,7 @@ function handle(message) {
     else if (String(args.url).includes("kns.cnki.net") && String(args.url).includes("hidden")) mode = "cnki-hidden";
     else if (String(args.url).includes("kns.cnki.net") && String(args.url).includes("nonblocking")) mode = "cnki-nonblocking";
     else if (String(args.url).includes("kns.cnki.net") && String(args.url).includes("visible")) mode = "cnki-visible";
+    else if (String(args.url).includes("ordinary-slider")) mode = "ordinary-slider";
     else if (String(args.url).includes("onlinelibrary.wiley.com/doi/pdf/")) mode = "wiley-wrapper";
     else if (String(args.url).includes(".pdf")) mode = "pdf";
     else mode = "ordinary";
@@ -311,7 +320,7 @@ function handle(message) {
         }],
       },
     });
-  } else if (["click", "fill", "press_key", "wait_for"].includes(name)) {
+  } else if (["click", "fill", "press_key", "wait_for", "upload_file"].includes(name)) {
     if (name === "fill") activeValue = String(args.value ?? "");
     if (name === "press_key" && args.key === "Enter") activeValue = "";
     send({
