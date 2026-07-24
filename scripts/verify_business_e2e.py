@@ -89,10 +89,16 @@ P3_FULLTEXT_MANIFEST_HEADER = (
 P3_BROWSER_SITES = ("cnki", "ssrn", "sciencedirect", "wiley")
 P4_BROWSER_SITES = ("cnrds", "csmar")
 GROK_CHROME_DEVTOOLS_ADAPTER = "grok_chrome_devtools_mcp"
+EGO_LITE_ADAPTER = "ego_lite_task_space"
 GROK_CHROME_DEVTOOLS_BINDINGS: Mapping[str, str] = {
     "mcp_server": "browser",
     "implementation": "chrome-devtools-mcp",
     "profile_mode": "dedicated_persistent",
+}
+EGO_LITE_BINDINGS: Mapping[str, str] = {
+    "mcp_server": "none",
+    "implementation": "ego-browser",
+    "profile_mode": "shared_login_isolated_task_space",
 }
 P4_EXTRACT_VERIFIER_SCHEMA = "aris.cn-data-bridge.extract-verification.v1"
 GROK_BROWSER_SCHEMA_NAMESPACE = "aris.grok-browser-"
@@ -2157,7 +2163,12 @@ def _browser_adapter_checks(
     allowed = (
         {"codex_native_chrome"}
         if runtime == "codex"
-        else {"chrome-mcp", "grok_chrome_mcp", GROK_CHROME_DEVTOOLS_ADAPTER}
+        else {
+            "chrome-mcp",
+            "grok_chrome_mcp",
+            GROK_CHROME_DEVTOOLS_ADAPTER,
+            EGO_LITE_ADAPTER,
+        }
     )
     accepted = adapter in allowed
     checks = [
@@ -2177,6 +2188,24 @@ def _browser_adapter_checks(
                     f"{field}={observed!r}, expected={expected!r}",
                 )
             )
+    if adapter == EGO_LITE_ADAPTER:
+        for field, expected in EGO_LITE_BINDINGS.items():
+            observed = data.get(field)
+            checks.append(
+                Check(
+                    f"{gate_name} adapter binding:{field}",
+                    "PASS" if observed == expected else "FAIL",
+                    f"{field}={observed!r}, expected={expected!r}",
+                )
+            )
+        isolated = data.get("task_space_isolated") is True
+        checks.append(
+            Check(
+                f"{gate_name} ego lite isolated task space",
+                "PASS" if isolated else "FAIL",
+                f"task_space_isolated={data.get('task_space_isolated')!r}",
+            )
+        )
     return checks
 
 

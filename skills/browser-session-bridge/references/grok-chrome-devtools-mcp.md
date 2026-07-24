@@ -1,53 +1,64 @@
-# Grok Official Chrome DevTools MCP Adapter
+# Grok and OpenCode Safe Chrome DevTools MCP Adapter
 
-Use this adapter as Grok's primary browser path when the configured `browser`
-server is the project safety facade backed by official `chrome-devtools-mcp`.
+Use this adapter as Grok's or OpenCode/OpenScience's primary browser path when
+the configured `browser` server is the project safety facade backed by official
+`chrome-devtools-mcp`.
 The facade connects to an externally managed visible dedicated persistent Chrome
 profile, or launches that same dedicated profile in managed mode. It is not the
 user's ordinary Chrome profile and it is not the legacy extension bridge.
 
 ## Preflight
 
-1. Require `grok mcp doctor browser` to report a healthy handshake and only the
-   bounded `aris_*` tool surface documented below. If raw official tools such as
+1. Identify the host client before looking at the model provider. A Grok model
+   hosted by OpenCode/OpenScience is `client_runtime: opencode`; do not run
+   `grok mcp`, read Grok configuration, or select a Grok-only fallback in that
+   session. For Grok Build, require `grok mcp doctor browser`. For OpenCode,
+   require the current session's MCP tool catalog to expose the `browser`
+   server's bounded `aris_*` surface; `opencode mcp list` is only diagnostic
+   when it is run with the same XDG configuration as the host application.
+   If the safe tools are absent, stop with `adapter_unavailable` rather than
+   spawning an ad hoc DevTools/CDP client.
+2. Require a healthy handshake and only the bounded `aris_*` tool surface
+   documented below. If raw official tools such as
    `evaluate_script`, `list_network_requests`, or `take_heapsnapshot` are visible,
    stop with `adapter_unsafe`; the safety facade is not active.
    Then require `aris_health` to return `safe_facade: true`, adapter
-   `grok_chrome_devtools_mcp`, server `browser`, implementation
+   family `safe_chrome_devtools_mcp`, server `browser`, implementation
    `chrome-devtools-mcp`, profile mode `dedicated_persistent`, and a verified
    external browser transport when direct mode is configured.
-2. Require the configured profile to be visible and persistent. Never copy or
+3. Require the configured profile to be visible and persistent. Never copy or
    mount the user's ordinary Chrome profile.
-3. Prefer an externally managed dedicated-profile Chrome listening only on a
+4. Prefer an externally managed dedicated-profile Chrome listening only on a
    loopback CDP port, with the facade in direct `browserUrl` mode. This keeps the
-   browser alive across Grok invocations and lets Grok retain its workspace
-   sandbox. Verify the exact profile/port/PID through the bundled lifecycle
+   browser alive across client invocations and lets the client retain its
+   workspace sandbox. Verify the exact profile/port/PID through the bundled lifecycle
    command before connecting; never attach to an arbitrary debugging port.
    Configure the MCP process with an explicit `ARIS_WORKSPACE_ROOT` so copies
-   remain under the repository run even when Grok's working directory is an
-   isolated `grok-workspace`.
-4. If a platform cannot use the external profile service, a browser-only Grok
+   remain under the repository run even when the client's working directory is
+   an isolated workspace.
+5. If a platform cannot use the external profile service, a browser-only
    invocation may launch the visible profile without the workspace sandbox only
    when the model is restricted to the facade MCP and no Bash, raw browser,
    filesystem, web-search, or other MCP tools are exposed. Do not use that mode
    for a combined browser-and-filesystem run.
-5. Freeze these receipt fields before the first browser action:
+6. Freeze these receipt fields before the first browser action:
 
    ```yaml
-   adapter: grok_chrome_devtools_mcp
+   client_runtime: grok | opencode
+   adapter: grok_chrome_devtools_mcp | opencode_chrome_devtools_mcp
    mcp_server: browser
    implementation: chrome-devtools-mcp
    profile_mode: dedicated_persistent
    ```
 
-Grok may invoke the public facade tools directly or use a checked-in bounded
+Grok or OpenCode may invoke the public facade tools directly or use a checked-in bounded
 helper as an MCP client. The helper does not create a new adapter: it must expose
 no raw child tools, preserve the same page leases and opaque download handles,
 and produce the same redacted receipt. Shell orchestration alone is not a failure.
 
 ## Safe Tool Surface
 
-The facade, not the Grok prompt, enforces URL redaction, page leases, fresh
+The facade, not the client prompt, enforces URL redaction, page leases, fresh
 snapshot identifiers, UID freshness, download-directory bounds, and action
 invalidation. Use only:
 
@@ -55,6 +66,7 @@ invalidation. Use only:
 |---|---|
 | health/capability check | `aris_health` |
 | sanitized page list | `aris_tabs` |
+| bounded same-profile blank-tab bootstrap | `aris_open_blank` |
 | unique page selection and bring-to-front | `aris_select` |
 | credential-free stable navigation or same-stable-page reload | `aris_navigate` |
 | bounded sanitized accessibility state | `aris_inspect` |
@@ -94,13 +106,19 @@ or post-action read:
    identity and verify its visible export summary before downloading. Outside
    that exception, the facade must withhold a page
    reference when zero or multiple selected matches remain. If no site tab
-   exists, an exact unique `about:blank` tab is the only permitted bootstrap
-   exception.
-2. Call `aris_select` for that page and require the returned page lease. Bringing
+   exists, call `aris_tabs` once for exact `about:blank`. Select a unique blank
+   match normally. If no blank match exists, or `aris_tabs` returns
+   `no_http_pages_visible`, call `aris_open_blank` with no arguments. It may
+   claim one unambiguous existing blank tab or privately invoke official
+   `new_page` with the fixed URL `about:blank`; it returns the selected page
+   lease directly. Never call raw `new_page`, `curl /json/new`, a CDP endpoint,
+   AppleScript, or the legacy bridge to bootstrap a page.
+2. Call `aris_select` for a page returned by `aris_tabs` and require the page
+   lease, or use the lease returned directly by `aris_open_blank`. Bringing
    a DevTools page forward is not proof that the macOS Chrome window has OS focus;
    record only `page_selected_and_brought_to_front`. `aris_select` also claims an
    atomic controller lease shared by every facade process using this dedicated
-   profile. If another Grok run owns it, stop browser actions with
+   profile. If another run owns it, stop browser actions with
    `waiting_browser_turn`; do not retry page mutations in parallel. A prose grant
    file or a selected tab is not a controller lease.
 3. Call `aris_inspect` and use only the returned bounded state plus its fresh
@@ -119,6 +137,10 @@ or post-action read:
 6. After the protected action and any download copy/verification complete, call
    `aris_release` with the current page lease. Release before public web search,
    local analysis, or report writing so another project can claim the profile.
+
+`aris_health` proves the transport and facade contract; it does not prove that a
+target or blank tab already exists. A zero-tab result is therefore a bootstrap
+branch, not a reason to abandon the selected adapter or the protected task.
 
 The facade fails closed if a mutating or download-helper call lacks ownership of
 the shared controller lease. It reclaims an abandoned owner only after bounded
@@ -142,11 +164,11 @@ continuity proof.
 
 The first visit to each protected site may require one manual login in the
 dedicated visible profile. Let the user enter credentials, MFA, account choice,
-or other sensitive values. Grok must not inspect or type those values. A normal
+or other sensitive values. The client must not inspect or type those values. A normal
 login/continue button already populated by Chrome may be submitted once only
 when the caller authorized `auth.submit_saved`; re-inspect after the action.
 
-The profile persists cookies and site storage across independent Grok launches,
+The profile persists cookies and site storage across independent client launches,
 but the receipt must not promise permanent login. Site expiry, IP or institution
 changes, MFA, and renewed bot checks can require another handoff.
 
@@ -243,10 +265,35 @@ Re-inspect the page afterward to verify that the intended attachment appears.
 Never automate the native file chooser, call raw `upload_file`, or upload
 credentials or unrelated data.
 
+For ChatGPT's current attachment menu, use this exact bounded sequence:
+
+1. Inspect for `Add files and more`, then click that fresh button reference.
+2. Call `aris_wait` for `Add photos & files`. Because waiting invalidates the
+   prior inspection, immediately take one new targeted `aris_inspect` for that
+   exact text.
+3. Pass the returned `Add photos & files` element directly to
+   `aris_upload_file`. A `StaticText` role is an accepted proxy: the facade
+   resolves the owning menu row or hidden file input. Do not insert
+   `aris_tabs`, `aris_select`, another inspection, or any other browser call
+   between this final targeted inspection and the upload.
+4. Re-inspect for the exact `Remove file N: <filename>` control. Only that
+   post-state proves that the intended attachment is present.
+5. If the upload reports `browser_operation_failed` or an unknown effect, first
+   inspect for the exact `Remove file N: <filename>` control. If it is absent,
+   reopen the menu from fresh page state and repeat steps 2–4 once. After that
+   single retry, release the lease and report `upload_failed`; do not explore
+   broad snapshots, automate the native chooser, or keep clicking menu text.
+6. If the exact `Remove file N: <filename>` control is already present, do not
+   upload that file again. Remove an unintended attachment before proceeding;
+   never submit duplicate or ambiguous attachments.
+
 ## Fallback Boundary
 
-If this adapter records a blocking challenge/session gap and the caller chooses
-the user's existing real-Chrome state, end this receipt as blocked. Start a new
-run using `grok-chrome-mcp.md` and `adapter: grok_chrome_mcp`. Never splice actions
-from both backends into one success receipt or relabel legacy evidence as official
+If a Grok Build run records a blocking challenge/session gap and the caller
+chooses the user's existing real-Chrome state, end this receipt as blocked.
+Start a new run using `grok-chrome-mcp.md` and
+`adapter: grok_chrome_mcp`. OpenCode/OpenScience has no implicit legacy
+fallback: report `adapter_unavailable` unless the caller explicitly configures
+and authorizes a separate supported adapter. Never splice actions from both
+backends into one success receipt or relabel legacy evidence as official
 DevTools evidence.

@@ -40,7 +40,7 @@ import { execFile, spawn } from "node:child_process";
 import { fileURLToPath, pathToFileURL } from "node:url";
 
 const SERVER_NAME = "aris-devtools-safe-facade";
-const SERVER_VERSION = "0.2.0";
+const SERVER_VERSION = "0.2.1";
 const DEFAULT_PROTOCOL_VERSION = "2025-06-18";
 const CHILD_TIMEOUT_MS = 70_000;
 const MAX_PUBLIC_STRING = 500;
@@ -322,6 +322,7 @@ const FIXED_PINNED_EDITABLE_VALUE_SCRIPT = `() => {
 }`;
 const REQUIRED_CHILD_TOOLS = new Set([
   "list_pages",
+  "new_page",
   "select_page",
   "navigate_page",
   "take_snapshot",
@@ -334,6 +335,7 @@ const REQUIRED_CHILD_TOOLS = new Set([
 ]);
 const REQUIRED_CHILD_PROPERTIES = new Map([
   ["list_pages", []],
+  ["new_page", ["url", "background", "isolatedContext", "timeout"]],
   ["select_page", ["pageId", "bringToFront"]],
   ["navigate_page", ["type", "url", "timeout"]],
   ["take_snapshot", ["verbose"]],
@@ -1347,6 +1349,9 @@ const PUBLIC_TOOLS = Object.freeze([
     properties: { url_contains: { type: "string", minLength: 3, maxLength: 300 } },
     required: ["url_contains"],
   }),
+  tool("aris_open_blank", "Open or claim one ordinary foreground about:blank tab in the dedicated persistent profile and return a page lease. No caller-supplied URL or isolated context is accepted.", {
+    properties: {},
+  }),
   tool("aris_select", "Select the single tab represented by a fresh opaque page reference and create one page lease.", {
     properties: { page_ref: { type: "string" } },
     required: ["page_ref"],
@@ -1691,13 +1696,35 @@ export class SafeDevtoolsFacade {
     return payload;
   }
 
-  async #listPages() {
+  async #listPages({ allowEmpty = false } = {}) {
     const result = assertChildSuccess(await this.child.callTool("list_pages", {}), "list_pages");
     const pages = projectPages(result).filter(
       (page) => /^https?:\/\//i.test(page.rawUrl) || page.rawUrl === "about:blank",
     );
-    if (pages.length === 0) throw new FacadeError("no_http_pages_visible");
+    if (pages.length === 0 && !allowEmpty) throw new FacadeError("no_http_pages_visible");
     return pages;
+  }
+
+  async #selectPageAndCreateLease(page) {
+    assertChildSuccess(
+      await this.child.callTool("select_page", { pageId: page.id, bringToFront: true }),
+      "select_page",
+      { mutation: true },
+    );
+    const after = await this.#listPages();
+    const selected = after.filter((candidate) => candidate.id === page.id && candidate.selected);
+    if (selected.length !== 1) throw new FacadeError("page_selection_unverified");
+    const leaseId = opaque("lease");
+    this.lease = {
+      id: leaseId,
+      pageId: selected[0].id,
+      rawUrl: selected[0].rawUrl,
+      challengeClickConsumed: false,
+    };
+    if (!this.#fillProofMatchesPage(selected[0])) this.#clearFillProof();
+    this.discovery = null;
+    this.#invalidateSnapshot();
+    return { leaseId, page: selected[0] };
   }
 
   async #verifiedLease(leaseId) {
@@ -2017,6 +2044,7 @@ export class SafeDevtoolsFacade {
           ok: true,
           safe_facade: true,
           adapter: "grok_chrome_devtools_mcp",
+          adapter_family: "safe_chrome_devtools_mcp",
           facade: SERVER_NAME,
           mcp_server: "browser",
           implementation: "chrome-devtools-mcp",
@@ -2032,6 +2060,8 @@ export class SafeDevtoolsFacade {
           browser_transport_verified: browserTransportVerified,
           controller_lease_enforced: true,
           controller_lease_state: controllerLeaseState,
+          blank_page_bootstrap_supported: true,
+          compatible_clients: ["grok", "opencode"],
           external_browser_lifecycle: connection.mode === "external_browser_url"
             ? "not_owned_not_stopped"
             : "managed_by_launcher",
@@ -2108,6 +2138,63 @@ export class SafeDevtoolsFacade {
           ...(!claim ? { next_action: "narrow_url_contains_or_focus_one_match" } : {}),
         };
       }
+      case "aris_open_blank": {
+        assertExactKeys(args, []);
+        if (this.lease) throw new FacadeError("page_lease_already_active");
+        await this.#acquireControllerLease();
+        try {
+          this.discovery = null;
+          this.#invalidateSnapshot();
+          this.#clearFillProof();
+          const before = await this.#listPages({ allowEmpty: true });
+          const existing = before.filter((page) => page.rawUrl === "about:blank");
+          const selectedExisting = existing.filter((page) => page.selected);
+          let target = existing.length === 1
+            ? existing[0]
+            : selectedExisting.length === 1
+              ? selectedExisting[0]
+              : null;
+          let created = false;
+          if (!target && existing.length > 1) {
+            throw new FacadeError("blank_page_ambiguous");
+          }
+          if (!target) {
+            const beforeIds = new Set(before.map((page) => page.id));
+            assertChildSuccess(
+              await this.child.callTool("new_page", {
+                url: "about:blank",
+                background: false,
+                timeout: 60_000,
+              }),
+              "new_page",
+              { mutation: true },
+            );
+            const after = await this.#listPages();
+            const createdBlankPages = after.filter(
+              (page) => page.rawUrl === "about:blank" && !beforeIds.has(page.id),
+            );
+            if (createdBlankPages.length !== 1) {
+              throw new FacadeError("blank_page_creation_unverified");
+            }
+            [target] = createdBlankPages;
+            created = true;
+          }
+          const selected = await this.#selectPageAndCreateLease(target);
+          return {
+            ok: true,
+            lease_id: selected.leaseId,
+            selected: true,
+            created,
+            url: "about:blank",
+          };
+        } catch (error) {
+          this.#invalidateBrowserState();
+          this.baselines.clear();
+          this.downloads.clear();
+          await this.#releaseControllerLease({ strict: false });
+          throw error;
+        }
+      }
       case "aris_select": {
         assertExactKeys(args, ["page_ref"], ["page_ref"]);
         assertOpaque(args.page_ref, "page");
@@ -2131,26 +2218,14 @@ export class SafeDevtoolsFacade {
             || verifiedMatches[0].rawUrl !== discovery.page.rawUrl) {
             throw new FacadeError("page_reference_no_longer_unique");
           }
-          assertChildSuccess(
-            await this.child.callTool("select_page", { pageId: verifiedMatches[0].id, bringToFront: true }),
-            "select_page",
-            { mutation: true },
-          );
-          const after = await this.#listPages();
-          const selected = after.filter((page) => page.id === verifiedMatches[0].id && page.selected);
+          const selected = await this.#selectPageAndCreateLease(verifiedMatches[0]);
           // Lease identity is page id; same-URL sibling tabs (CSMAR sdownload) are allowed.
-          if (selected.length !== 1) throw new FacadeError("page_selection_unverified");
-          const leaseId = opaque("lease");
-          this.lease = {
-            id: leaseId,
-            pageId: selected[0].id,
-            rawUrl: selected[0].rawUrl,
-            challengeClickConsumed: false,
+          return {
+            ok: true,
+            lease_id: selected.leaseId,
+            selected: true,
+            url: stripUrlDetails(selected.page.rawUrl),
           };
-          if (!this.#fillProofMatchesPage(selected[0])) this.#clearFillProof();
-          this.discovery = null;
-          this.#invalidateSnapshot();
-          return { ok: true, lease_id: leaseId, selected: true, url: stripUrlDetails(selected[0].rawUrl) };
         } catch (error) {
           this.#invalidateBrowserState();
           this.baselines.clear();

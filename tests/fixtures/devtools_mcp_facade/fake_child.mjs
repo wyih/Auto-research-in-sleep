@@ -10,9 +10,11 @@ let selectedPage = Number(process.env.ARIS_FAKE_SELECTED_PAGE ?? "1");
 let mode = "ordinary";
 let activeValue = "";
 let pinnedValue = "";
+let blankPresent = process.env.ARIS_FAKE_NO_BLANK !== "1";
 
 const requiredToolProperties = {
   list_pages: [],
+  new_page: ["url", "background", "isolatedContext", "timeout"],
   select_page: ["pageId", "bringToFront"],
   navigate_page: ["type", "url", "timeout"],
   take_snapshot: ["verbose"],
@@ -110,6 +112,12 @@ function pagesResult() {
       },
     ];
   }
+  if (process.env.ARIS_FAKE_NO_HTTP_PAGES === "1") {
+    pages = pages.filter((page) => page.url === "about:blank");
+  }
+  if (!blankPresent) {
+    pages = pages.filter((page) => page.url !== "about:blank");
+  }
   return {
     content: [{
       type: "text",
@@ -203,6 +211,19 @@ function handle(message) {
   const name = message.params?.name;
   const args = message.params?.arguments ?? {};
   if (name === "list_pages") {
+    send({ jsonrpc: "2.0", id: message.id, result: pagesResult() });
+  } else if (name === "new_page") {
+    if (args.url !== "about:blank" || args.background !== false
+      || args.timeout !== 60_000 || Object.hasOwn(args, "isolatedContext")) {
+      send({
+        jsonrpc: "2.0",
+        id: message.id,
+        result: { isError: true, content: [{ type: "text", text: "unsafe new_page arguments" }] },
+      });
+      return;
+    }
+    blankPresent = true;
+    selectedPage = 3;
     send({ jsonrpc: "2.0", id: message.id, result: pagesResult() });
   } else if (name === "select_page") {
     selectedPage = args.pageId;

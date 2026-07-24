@@ -18,7 +18,7 @@ Maintain `literature/FULLTEXT_MANIFEST.md` when project writes are allowed.
 - Record concrete `identity_evidence` for the work, version, and artifact role. Include DOI/source ID when available.
 - Record paths relative to the project when practical.
 - Record the actual acquisition timestamp and SHA-256.
-- For protected sites, use `codex_native_chrome`, `grok_chrome_devtools_mcp`, or the explicitly selected legacy `grok_chrome_mcp` from the bridge receipt.
+- For protected sites, use `ego_lite_task_space` only for an accepted non-Codex Task-Space run on macOS; never select it on Windows, WSL, or native Linux. Use `codex_native_chrome` for Codex, `grok_chrome_devtools_mcp`, `opencode_chrome_devtools_mcp`, or the explicitly selected legacy `grok_chrome_mcp` from the bridge receipt.
 - For protected sites, `browser_receipt` is required and must point to the runtime-specific acquisition receipt; use `not_applicable` for non-browser channels.
 - Never include account names, cookies, tokens, auth headers, session identifiers, or raw IP addresses.
 - Keep licensed binaries out of public git by default.

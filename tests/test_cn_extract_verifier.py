@@ -203,6 +203,62 @@ class CNExtractVerifierTests(unittest.TestCase):
                     report = fixture.verify()
                     self.assertTrue(report.ok, [check for check in report.checks if not check.ok])
 
+    def test_accepts_ego_lite_task_space_for_grok(self) -> None:
+        with tempfile.TemporaryDirectory() as folder:
+            fixture = ExtractFixture(Path(folder), "cnrds", "grok")
+            payload = fixture.payload()
+            payload.update(
+                {
+                    "adapter": verifier.EGO_LITE_ADAPTER,
+                    **verifier.EGO_LITE_BINDINGS,
+                    "task_space_isolated": True,
+                }
+            )
+            fixture.write_payload(payload)
+            report = fixture.verify()
+
+        self.assertTrue(report.ok, [check for check in report.checks if not check.ok])
+
+    def test_rejects_ego_lite_receipt_without_isolated_task_space(self) -> None:
+        with tempfile.TemporaryDirectory() as folder:
+            fixture = ExtractFixture(Path(folder), "cnrds", "grok")
+            payload = fixture.payload()
+            payload.update(
+                {
+                    "adapter": verifier.EGO_LITE_ADAPTER,
+                    **verifier.EGO_LITE_BINDINGS,
+                    "task_space_isolated": False,
+                }
+            )
+            fixture.write_payload(payload)
+            report = fixture.verify()
+
+        self.assertFalse(report.ok)
+        self.assertIn(
+            "ego lite isolated task space",
+            {check.name for check in report.checks if not check.ok},
+        )
+
+    def test_codex_does_not_accept_ego_lite_adapter(self) -> None:
+        with tempfile.TemporaryDirectory() as folder:
+            fixture = ExtractFixture(Path(folder), "cnrds", "codex")
+            payload = fixture.payload()
+            payload.update(
+                {
+                    "adapter": verifier.EGO_LITE_ADAPTER,
+                    **verifier.EGO_LITE_BINDINGS,
+                    "task_space_isolated": True,
+                }
+            )
+            fixture.write_payload(payload)
+            report = fixture.verify()
+
+        self.assertFalse(report.ok)
+        self.assertIn(
+            "runtime adapter",
+            {check.name for check in report.checks if not check.ok},
+        )
+
     def test_rejects_wrong_header_even_when_hashes_and_receipt_counters_are_refreshed(self) -> None:
         with tempfile.TemporaryDirectory() as folder:
             fixture = ExtractFixture(Path(folder), "csmar")

@@ -11,7 +11,7 @@ Companion to `cn-data-bridge`. Describes how to obtain **on-demand** extracts us
 5. **Provenance** — every landed file gets a MANIFEST row with hash and filters.
 6. **Platform-agnostic** — do not hard-code one university VPN product, lab host, or portal skin as required.
 7. **Out of scope** — CNKI fulltext/PDF harvest; WRDS (use `wrds-query-bridge`).
-8. **Runtime separation** — Codex uses native Chrome. Grok prefers the official DevTools safety facade with its dedicated persistent profile and may use the legacy real-Chrome bridge only as an explicitly frozen fallback, selected only by `browser-session-bridge`.
+8. **Runtime separation** — Codex uses native Chrome. On macOS only, parallel Grok, OpenClaw, and OpenCode runs may use uniquely named ego lite Task Spaces. Windows, WSL, and native Linux never select or default to ego lite. The official DevTools safety facade remains a compatible path, and Grok may use the legacy real-Chrome bridge only as an explicitly frozen fallback selected by `browser-session-bridge`.
 9. **Orchestration is neutral** — browser state and portal mutations still go through the selected bridge, but a checked-in helper may act as its MCP client and may wait, copy, hash, inspect archives, and verify rows. Acceptance depends on the fresh artifact and receipt, not on one-by-one interactive tool calls.
 10. **Soft timeout is recoverable state, not proven logout** — when the recipe below identifies a dismissible inactivity overlay, close it, refresh once, and inspect before login or `data_access_gap`.
 

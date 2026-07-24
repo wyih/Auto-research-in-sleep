@@ -31,11 +31,19 @@ Site = Literal["cnrds", "csmar"]
 
 SCHEMA_VERSION = "aris.cn-data-bridge.extract-verification.v1"
 GROK_CHROME_DEVTOOLS_ADAPTER = "grok_chrome_devtools_mcp"
-GROK_ADAPTERS = frozenset({"grok_chrome_mcp", GROK_CHROME_DEVTOOLS_ADAPTER})
+EGO_LITE_ADAPTER = "ego_lite_task_space"
+GROK_ADAPTERS = frozenset(
+    {"grok_chrome_mcp", GROK_CHROME_DEVTOOLS_ADAPTER, EGO_LITE_ADAPTER}
+)
 GROK_CHROME_DEVTOOLS_BINDINGS: Mapping[str, str] = {
     "mcp_server": "browser",
     "implementation": "chrome-devtools-mcp",
     "profile_mode": "dedicated_persistent",
+}
+EGO_LITE_BINDINGS: Mapping[str, str] = {
+    "mcp_server": "none",
+    "implementation": "ego-browser",
+    "profile_mode": "shared_login_isolated_task_space",
 }
 MAX_ARCHIVE_MEMBERS = 100
 MAX_ARCHIVE_BYTES = 64 * 1024 * 1024
@@ -196,6 +204,20 @@ def _verify_runtime_adapter(
                 observed == expected,
                 f"{field}={observed!r}, expected={expected!r}",
             )
+    if adapter == EGO_LITE_ADAPTER:
+        for field, expected in EGO_LITE_BINDINGS.items():
+            observed = data.get(field)
+            audit.check(
+                f"runtime adapter binding:{field}",
+                observed == expected,
+                f"{field}={observed!r}, expected={expected!r}",
+            )
+        task_space_isolated = data.get("task_space_isolated")
+        audit.check(
+            "ego lite isolated task space",
+            task_space_isolated is True,
+            f"task_space_isolated={task_space_isolated!r}",
+        )
 
 
 def _resolve_artifact_path(

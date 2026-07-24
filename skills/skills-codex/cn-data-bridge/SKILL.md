@@ -1,6 +1,6 @@
 ---
 name: cn-data-bridge
-description: Resolve and export minimal Chinese firm or market datasets from CNRDS and CSMAR through the user's authorized network and persistent Chrome session. Use for table/field resolution, DOWNLOAD_SPEC execution, verified raw extracts, browser-session receipts, and DATA_MANIFEST provenance; Codex uses native Chrome and Grok uses the official DevTools safety facade or an explicitly selected legacy real-Chrome fallback through browser-session-bridge. Not for CNKI fulltext.
+description: Resolve and export minimal Chinese firm or market datasets from CNRDS and CSMAR through the user's authorized network and browser session. Use for table/field resolution, DOWNLOAD_SPEC execution, verified raw extracts, browser-session receipts, and DATA_MANIFEST provenance; parallel non-Codex clients on macOS may use isolated ego lite Task Spaces, while Codex native Chrome and the official DevTools safety facade remain compatible browser-session-bridge paths. Not for CNKI fulltext.
 ---
 
 # CN Data Bridge
@@ -236,7 +236,7 @@ For each landed file:
 1. Run `skills/browser-session-bridge/scripts/verify_download.py` for csv/xlsx/zip (or `any` for a vendor format not yet supported); reject HTML, empty, corrupt, or partial files.
 2. Record path, size, detected format, SHA-256, and approximate n_rows/n_cols when cheap to inspect.
 3. Spot-check identity fields, requested variable fields, row grain, and date span against the `DOWNLOAD_SPEC`.
-4. Save the redacted browser receipt; it must say `codex_native_chrome`, `grok_chrome_devtools_mcp`, or the explicitly selected legacy `grok_chrome_mcp` for protected-session acceptance.
+4. Save the redacted browser receipt; it must say `ego_lite_task_space` for an accepted non-Codex Task-Space run, `codex_native_chrome` for Codex, `grok_chrome_devtools_mcp`, `opencode_chrome_devtools_mcp`, or the explicitly selected legacy `grok_chrome_mcp` for protected-session acceptance.
 5. Update `Data/DATA_MANIFEST.md` (create if missing); optionally mirror a short entry under `Data/raw/<source>/MANIFEST.md`.
 6. Update `BUSINESS_RUN_PASSPORT.md` through `business-run-passport` when writing is allowed (materials, data access level, artifact index, decision log for definition choices).
 

@@ -38,6 +38,12 @@ DEVTOOLS_BINDINGS = {
     "implementation": "chrome-devtools-mcp",
     "profile_mode": "dedicated_persistent",
 }
+EGO_LITE_BINDINGS = {
+    "mcp_server": "none",
+    "implementation": "ego-browser",
+    "profile_mode": "shared_login_isolated_task_space",
+    "task_space_isolated": True,
+}
 
 
 class RootBrowserAdapterVerifierTests(unittest.TestCase):
@@ -107,6 +113,29 @@ class RootBrowserAdapterVerifierTests(unittest.TestCase):
                     stage, "grok_chrome_devtools_mcp", DEVTOOLS_BINDINGS
                 )
                 self.assertEqual(gate.status, "PASS", [check.summary for check in gate.checks])
+
+    def test_ego_lite_adapter_passes_grok_p3_and_p4_with_isolated_space(self) -> None:
+        for stage in ("P3", "P4"):
+            with self.subTest(stage=stage):
+                gate = self._browser_gate(
+                    stage, "ego_lite_task_space", EGO_LITE_BINDINGS
+                )
+                self.assertEqual(gate.status, "PASS", [check.summary for check in gate.checks])
+
+    def test_ego_lite_adapter_fails_without_isolated_space(self) -> None:
+        for stage in ("P3", "P4"):
+            with self.subTest(stage=stage):
+                bindings = dict(EGO_LITE_BINDINGS)
+                bindings["task_space_isolated"] = False
+                gate = self._browser_gate(stage, "ego_lite_task_space", bindings)
+                self.assertEqual(gate.status, "FAIL")
+                self.assertTrue(
+                    any(
+                        "ego lite isolated task space" in check.name
+                        and check.status == "FAIL"
+                        for check in gate.checks
+                    )
+                )
 
     def test_devtools_adapter_fails_p3_and_p4_for_each_missing_or_wrong_binding(self) -> None:
         for stage in ("P3", "P4"):

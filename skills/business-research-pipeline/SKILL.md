@@ -141,7 +141,7 @@ Resolve every required source in `empirical-design/DATA_PLAN.md` before estimati
 
 - Run `wrds-query-bridge` for WRDS. Use its R/Postgres path by default.
 - Run `wrds-sas-cloud` only when the R path has a recorded timeout, OOM, hard failure, authentication blocker after retries, or the user explicitly requires SAS.
-- Run `cn-data-bridge` for minimal CSMAR/CNRDS exports. It must route protected portal actions through `browser-session-bridge`, which selects Codex native Chrome or Grok's official DevTools safety facade at runtime; the legacy Grok bridge is an explicitly recorded fallback.
+- Run `cn-data-bridge` for minimal CSMAR/CNRDS exports. It must route protected portal actions through `browser-session-bridge`, which keeps Codex on native Chrome and, on macOS only, may allocate an isolated ego lite Task Space per parallel Grok/OpenClaw/OpenCode run. Windows, WSL, and native Linux must use a supported non-ego path. The compatible official-DevTools path remains available, and the legacy Grok bridge is an explicitly recorded fallback.
 
 Output:
 

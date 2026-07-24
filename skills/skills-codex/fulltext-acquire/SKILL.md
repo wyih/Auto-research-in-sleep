@@ -84,7 +84,7 @@ Append one row per acquired/gap artifact role to `literature/FULLTEXT_MANIFEST.m
 | Artifact completeness | Every required role is verified or has an explicit role-specific gap; a main PDF never silently substitutes for a separate appendix/codebook |
 | File integrity | `%PDF`, EOF marker, at least 10 KiB, SHA-256 |
 | Provenance | Manifest row and browser receipt when a protected session was used |
-| Runtime | Codex native Chrome receipt, Grok official DevTools-facade receipt, or explicitly selected Grok legacy receipt; never inferred from prose |
+| Runtime | Codex native Chrome receipt, Grok or OpenCode official DevTools-facade receipt, or explicitly selected Grok legacy receipt; identify the client host rather than the model provider |
 
 A homepage, HTTP 200, visible PDF viewer, click notification, CAJ file, HTML login page, or unverified extension is a failure. An unauthenticated HTTP 403 is a channel result, not proof that the user's browser session lacks access.
 

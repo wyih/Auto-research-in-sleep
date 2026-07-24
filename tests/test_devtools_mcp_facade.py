@@ -31,6 +31,7 @@ FAKE_CHILD = (
 PUBLIC_TOOL_NAMES = {
     "aris_health",
     "aris_tabs",
+    "aris_open_blank",
     "aris_select",
     "aris_navigate",
     "aris_inspect",
@@ -52,6 +53,7 @@ FORBIDDEN_CHILD_TOOLS = {
     "evaluate_script",
     "fill_form",
     "drag",
+    "new_page",
     "upload_file",
     "list_network_requests",
     "take_memory_snapshot",
@@ -252,12 +254,15 @@ class DevtoolsMcpFacadeTests(unittest.TestCase):
         self.assertEqual(health["child"]["version"], "1.6.0-test")
         self.assertTrue(health["safe_facade"])
         self.assertEqual(health["adapter"], "grok_chrome_devtools_mcp")
+        self.assertEqual(health["adapter_family"], "safe_chrome_devtools_mcp")
         self.assertEqual(health["mcp_server"], "browser")
         self.assertEqual(health["implementation"], "chrome-devtools-mcp")
         self.assertEqual(health["profile_mode"], "dedicated_persistent")
         self.assertFalse(health["legacy_http_dependency"])
         self.assertEqual(health["connection_mode"], "managed_launch")
         self.assertFalse(health["browser_transport_verified"])
+        self.assertTrue(health["blank_page_bootstrap_supported"])
+        self.assertEqual(health["compatible_clients"], ["grok", "opencode"])
 
     def test_external_browser_url_health_probes_transport_and_fails_closed(self) -> None:
         class DevtoolsVersionHandler(BaseHTTPRequestHandler):
@@ -422,6 +427,81 @@ class DevtoolsMcpFacadeTests(unittest.TestCase):
         )
         self.assertTrue(selected["selected"])
         self.assertEqual(selected["url"], "about:blank")
+
+    def test_open_blank_bootstraps_a_missing_tab_without_caller_url_or_raw_page_id(
+        self,
+    ) -> None:
+        root = Path(self.temp.name) / "missing-blank"
+        client = FacadeProcess(root, extra_env={"ARIS_FAKE_NO_BLANK": "1"})
+        try:
+            tabs = client.call("aris_tabs", {"url_contains": "about:blank"})
+            self.assertEqual(tabs["match_count"], 0)
+            self.assertFalse(tabs["unique"])
+
+            opened = client.call("aris_open_blank")
+            self.assertTrue(opened["ok"])
+            self.assertTrue(opened["created"])
+            self.assertTrue(opened["selected"])
+            self.assertEqual(opened["url"], "about:blank")
+            self.assertIn("lease_id", opened)
+            self.assertNotIn("page_id", opened)
+
+            calls = client.child_calls()
+            new_page = [call for call in calls if call.get("name") == "new_page"]
+            self.assertEqual(
+                new_page,
+                [
+                    {
+                        "name": "new_page",
+                        "arguments": {
+                            "url": "about:blank",
+                            "background": False,
+                            "timeout": 60_000,
+                        },
+                    }
+                ],
+            )
+            navigated = client.call(
+                "aris_navigate",
+                {
+                    "lease_id": opened["lease_id"],
+                    "url": "https://example.test/paper",
+                },
+            )
+            self.assertTrue(navigated["ok"])
+
+            rejected = client.call_raw(
+                "aris_open_blank", {"url": "https://untrusted.test/"}
+            )
+            self.assertTrue(rejected["isError"])
+            payload = json.loads(rejected["content"][0]["text"])
+            self.assertEqual(payload["error"], "unsupported_argument")
+        finally:
+            client.close()
+
+    def test_open_blank_recovers_when_no_http_or_blank_page_is_visible(self) -> None:
+        root = Path(self.temp.name) / "no-visible-pages"
+        client = FacadeProcess(
+            root,
+            extra_env={
+                "ARIS_FAKE_NO_BLANK": "1",
+                "ARIS_FAKE_NO_HTTP_PAGES": "1",
+            },
+        )
+        try:
+            missing = client.call_raw(
+                "aris_tabs", {"url_contains": "sciencedirect.com"}
+            )
+            self.assertTrue(missing["isError"])
+            payload = json.loads(missing["content"][0]["text"])
+            self.assertEqual(payload["error"], "no_http_pages_visible")
+
+            opened = client.call("aris_open_blank")
+            self.assertTrue(opened["created"])
+            self.assertEqual(opened["url"], "about:blank")
+            self.assertIn("lease_id", opened)
+        finally:
+            client.close()
 
     def test_official_unstructured_page_listing_fallback_is_parsed_without_queries(self) -> None:
         javascript = f"""

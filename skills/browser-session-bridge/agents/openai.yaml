@@ -1,4 +1,4 @@
 interface:
   display_name: "Browser Session Bridge"
-  short_description: "Use signed-in Chrome across Codex and Grok"
+  short_description: "Use signed-in Chrome across Codex, Grok, and OpenCode"
   default_prompt: "Use $browser-session-bridge to complete this authenticated browser download with the current runtime and verify the landed artifact."
