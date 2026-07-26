@@ -6,7 +6,7 @@ Codex-native mirror and adaptation layer for the main ARIS `skills/` package.
 
 - Base mirror coverage: all `104` mainline skills under `skills/`
 - Support directory: `shared-references/`, with all `39/39` mainline reference names mirrored
-- The 24 business empirical-research skills are runtime-neutral canonical copies synchronized by `tools/sync_business_portable_mirror.py`; Codex and Grok consume them through `.agents/skills`, while the browser bridge selects the runtime adapter.
+- The 24 business empirical-research skills are Codex-native canonical copies synchronized by `tools/sync_business_portable_mirror.py`. Every model selected inside Codex consumes the same package through `.agents/skills` and the same native plugin surface.
 - Default reviewer contract for reviewer-heavy skills:
   - round 1: `spawn_agent`
   - follow-up: `send_input`
@@ -22,22 +22,13 @@ This package is still an appendage to the Claude mainline, not a separate Codex-
 
 ## Recommended Install
 
-Project-local install is the default path for Codex and is also the shared discovery path for Grok Build:
+Project-local install is the default path for Codex:
 
 ```bash
 git clone https://github.com/wanshuiyin/Auto-claude-code-research-in-sleep.git ~/aris_repo
 cd ~/your-project
 
 bash ~/aris_repo/tools/install_aris_codex.sh . --office-author "Your Name"
-```
-
-For an isolated Grok/Codex smoke workspace that should not update the optional global helper pointer or AGENTS block:
-
-```bash
-bash ~/aris_repo/tools/install_aris_codex.sh . \
-  --groups business-research --quiet --office-author "Your Name" \
-  --no-doc --no-global-pointer
-grok inspect --json
 ```
 
 This creates a flat managed layout:
@@ -108,8 +99,8 @@ bash ~/aris_repo/tools/install_aris_codex.sh ~/your-project \
   --groups business-research --quiet --office-author "Your Name"
 ```
 
-For WSL, use the Linux builds of Node.js and Codex/Grok together with a Linux
-Chrome installed in that distribution and displayed through WSLg. Its dedicated
+For WSL, use the Linux builds of Node.js and Codex together with a Linux
+Chrome installed in that distribution and displayed through WSLg. Its Chrome
 profile and `~/Downloads` are separate from Windows Chrome. Keeping the checkout
 under `/mnt/c` is discouraged because link, permission, and file-watching
 semantics differ. Driving Windows-host Chrome from a WSL facade is not an
@@ -118,7 +109,7 @@ the native Windows PowerShell installation instead.
 
 The native Windows installer creates junctions; the macOS, native-Linux, and WSL
 installer creates symlinks. Every supported layout exposes the same package
-under `.agents/skills`, which Codex and Grok Build can discover. Do not copy an
+under `.agents/skills`, which Codex discovers. Do not copy an
 installed `.agents/skills` directory to another machine because its links retain
 source-machine paths. Clone/extract the release into a stable location and run
 the appropriate installer instead.
@@ -126,9 +117,9 @@ the appropriate installer instead.
 Browser profiles, cookies, saved credentials, WRDS credentials, licensed PDFs,
 and commercial database extracts are deliberately outside the package. Each
 recipient must create and sign in to a local authorized browser profile. Without
-a compatible browser runtime, local files, model-native web search, open sources,
-design, analysis, and writing remain usable; protected acquisition reports an
-explicit adapter/access gap.
+a compatible Codex Chrome capability, local files, model-native web search,
+open sources, design, analysis, and writing remain usable; protected
+acquisition reports an explicit browser/access gap.
 
 Full-text verification and `method-harvest` also require Poppler's `pdfinfo` and
 `pdftotext` executables on `PATH`. Install `poppler` with Homebrew on macOS, or

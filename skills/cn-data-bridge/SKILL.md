@@ -1,6 +1,6 @@
 ---
 name: cn-data-bridge
-description: Resolve and export minimal Chinese firm or market datasets from CNRDS and CSMAR through the user's authorized network and browser session. Use for table/field resolution, DOWNLOAD_SPEC execution, verified raw extracts, browser-session receipts, and DATA_MANIFEST provenance; parallel non-Codex clients on macOS may use isolated ego lite Task Spaces, while Codex native Chrome and the official DevTools safety facade remain compatible browser-session-bridge paths. Not for CNKI fulltext.
+description: Resolve and export minimal Chinese firm or market datasets from CNRDS and CSMAR through Codex and the user's authorized Chrome session. Use for table/field resolution, DOWNLOAD_SPEC execution, verified raw extracts, browser-session receipts, and DATA_MANIFEST provenance, regardless of which model is selected inside Codex. Not for CNKI fulltext.
 ---
 
 # CN Data Bridge
@@ -52,7 +52,7 @@ Read:
 
 - `references/variable-resolution.md` for gap inventory, multi-definition policy, and confidence gates
 - `references/cnrds-csmar-adapters.md` for access modes, download steps, and landing rules
-- `browser-session-bridge` plus `../shared-references/browser-session-contract.md` before any portal interaction
+- `browser-session-bridge` before any portal interaction; it owns the Codex Chrome contract
 
 ## Project Layout
 
@@ -196,7 +196,7 @@ Do not execute a download without a written spec when the pull will land project
 
 ### Step 4: Execute Download (User Network)
 
-Follow `references/cnrds-csmar-adapters.md` as the site recipe and invoke `browser-session-bridge` for the current runtime. The site recipe owns portal/module/filter intent; the bridge owns Codex-native versus Grok-MCP execution, authenticated-session reuse, download completion, and its redacted receipt.
+Follow `references/cnrds-csmar-adapters.md` as the site recipe and invoke `browser-session-bridge`. The site recipe owns portal/module/filter intent; the bridge owns Codex-native Chrome execution, authenticated-session reuse, download completion, and its redacted receipt.
 
 Principles:
 
@@ -236,7 +236,7 @@ For each landed file:
 1. Run `skills/browser-session-bridge/scripts/verify_download.py` for csv/xlsx/zip (or `any` for a vendor format not yet supported); reject HTML, empty, corrupt, or partial files.
 2. Record path, size, detected format, SHA-256, and approximate n_rows/n_cols when cheap to inspect.
 3. Spot-check identity fields, requested variable fields, row grain, and date span against the `DOWNLOAD_SPEC`.
-4. Save the redacted browser receipt; it must say `ego_lite_task_space` for an accepted non-Codex Task-Space run, `codex_native_chrome` for Codex, `grok_chrome_devtools_mcp`, `opencode_chrome_devtools_mcp`, or the explicitly selected legacy `grok_chrome_mcp` for protected-session acceptance.
+4. Save the redacted browser receipt; it must say `client_runtime: codex` and `adapter: codex_native_chrome` for protected-session acceptance.
 5. Update `Data/DATA_MANIFEST.md` (create if missing); optionally mirror a short entry under `Data/raw/<source>/MANIFEST.md`.
 6. Update `BUSINESS_RUN_PASSPORT.md` through `business-run-passport` when writing is allowed (materials, data access level, artifact index, decision log for definition choices).
 
@@ -271,7 +271,7 @@ Use this shape in `Data/DATA_MANIFEST.md` (extend columns if needed; keep requir
 ## Extracts
 | extract_id | source | module_or_db | table_or_dataset | fields_or_query | local_path | format | n_rows | n_cols | content_hash | pulled_at | filters | gap_ids | adapter | receipt_path | status | notes |
 |---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|
-| | cnrds \| csmar | | | | Data/raw/... | | | | sha256:... | | | | codex_native_chrome \| grok_chrome_devtools_mcp \| grok_chrome_mcp | | complete \| partial \| failed \| blocked | |
+| | cnrds \| csmar | | | | Data/raw/... | | | | sha256:... | | | | codex_native_chrome | | complete \| partial \| failed \| blocked | |
 
 ## Definition Decisions
 | gap_id | research_name | chosen_definition | decided_by | decided_at |
@@ -294,7 +294,7 @@ Also append project root `MANIFEST.md` rows when the project uses the shared out
 | Semantic integrity | Requested identity/domain fields, row grain, filters, and date span verified |
 | Provenance | DOWNLOAD_SPEC item and DATA_MANIFEST row link to the same landed artifact |
 
-Codex and Grok require separate portal receipts. A CSMAR pass does not prove CNRDS, and a CNRDS pass does not prove CSMAR.
+Each portal requires its own Codex receipt. A CSMAR pass does not prove CNRDS, and a CNRDS pass does not prove CSMAR.
 
 ## Output Contract
 

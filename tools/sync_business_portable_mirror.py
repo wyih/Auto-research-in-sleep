@@ -1,11 +1,12 @@
 #!/usr/bin/env python3
-"""Synchronize runtime-neutral business skills into the Codex/Grok package.
+"""Synchronize canonical business skills into the Codex package.
 
 The canonical authoring source remains ``skills/<name>``.  The existing ARIS
 installer consumes ``skills/skills-codex`` and installs that package into the
-shared ``.agents/skills`` discovery surface used by Codex and Grok.  These
-business skills contain no reviewer-backend rewrite, so their packaged copies
-must stay byte-for-byte identical instead of being maintained by hand.
+``.agents/skills`` discovery surface used by Codex.  The selected model inside
+Codex does not create another package variant.  These business skills contain
+no reviewer-backend rewrite, so their packaged copies must stay byte-for-byte
+identical instead of being maintained by hand.
 """
 
 from __future__ import annotations
@@ -48,7 +49,6 @@ PORTABLE_SKILLS = (
 )
 
 PORTABLE_REFERENCES = (
-    "browser-session-contract.md",
     "business-claim-source-audit.md",
     "business-handoff-schemas.md",
     "business-helper-resolution.md",

@@ -26,24 +26,15 @@ from pathlib import Path, PurePosixPath
 from typing import Any, Literal, Mapping, Sequence
 
 
-Runtime = Literal["codex", "grok"]
+Runtime = Literal["codex"]
 Site = Literal["cnrds", "csmar"]
 
 SCHEMA_VERSION = "aris.cn-data-bridge.extract-verification.v1"
-GROK_CHROME_DEVTOOLS_ADAPTER = "grok_chrome_devtools_mcp"
-EGO_LITE_ADAPTER = "ego_lite_task_space"
-GROK_ADAPTERS = frozenset(
-    {"grok_chrome_mcp", GROK_CHROME_DEVTOOLS_ADAPTER, EGO_LITE_ADAPTER}
-)
-GROK_CHROME_DEVTOOLS_BINDINGS: Mapping[str, str] = {
-    "mcp_server": "browser",
-    "implementation": "chrome-devtools-mcp",
-    "profile_mode": "dedicated_persistent",
-}
-EGO_LITE_BINDINGS: Mapping[str, str] = {
-    "mcp_server": "none",
-    "implementation": "ego-browser",
-    "profile_mode": "shared_login_isolated_task_space",
+CODEX_ADAPTER = "codex_native_chrome"
+CODEX_BINDINGS: Mapping[str, str] = {
+    "mcp_server": "native",
+    "implementation": "codex_chrome",
+    "profile_mode": "user_chrome",
 }
 MAX_ARCHIVE_MEMBERS = 100
 MAX_ARCHIVE_BYTES = 64 * 1024 * 1024
@@ -183,40 +174,20 @@ def _normalize_site(data: Mapping[str, Any]) -> Site | None:
 def _verify_runtime_adapter(
     data: Mapping[str, Any], expected_runtime: Runtime, audit: Audit
 ) -> None:
-    """Verify an exact adapter identity and any identity-specific bindings."""
+    """Verify the single Codex-native adapter identity and bindings."""
 
     adapter = str(data.get("adapter") or "")
-    allowed = (
-        frozenset({"codex_native_chrome"})
-        if expected_runtime == "codex"
-        else GROK_ADAPTERS
-    )
     audit.check(
         "runtime adapter",
-        adapter in allowed,
-        f"adapter={adapter!r}, expected_one_of={sorted(allowed)!r}",
+        expected_runtime == "codex" and adapter == CODEX_ADAPTER,
+        f"adapter={adapter!r}, expected={CODEX_ADAPTER!r}",
     )
-    if adapter == GROK_CHROME_DEVTOOLS_ADAPTER:
-        for field, expected in GROK_CHROME_DEVTOOLS_BINDINGS.items():
-            observed = data.get(field)
-            audit.check(
-                f"runtime adapter binding:{field}",
-                observed == expected,
-                f"{field}={observed!r}, expected={expected!r}",
-            )
-    if adapter == EGO_LITE_ADAPTER:
-        for field, expected in EGO_LITE_BINDINGS.items():
-            observed = data.get(field)
-            audit.check(
-                f"runtime adapter binding:{field}",
-                observed == expected,
-                f"{field}={observed!r}, expected={expected!r}",
-            )
-        task_space_isolated = data.get("task_space_isolated")
+    for field, expected in CODEX_BINDINGS.items():
+        observed = data.get(field)
         audit.check(
-            "ego lite isolated task space",
-            task_space_isolated is True,
-            f"task_space_isolated={task_space_isolated!r}",
+            f"runtime adapter binding:{field}",
+            observed == expected,
+            f"{field}={observed!r}, expected={expected!r}",
         )
 
 
@@ -675,13 +646,11 @@ def _verify_csmar(
         and export_rows == 1
         and "csv" in export_format.lower()
     )
-    requires_structured_summary = str(data.get("adapter") or "") in GROK_ADAPTERS or bool(
-        result_page
-    )
+    requires_structured_summary = bool(result_page)
     audit.check(
         "CSMAR structured result-page reconciliation",
         structured_summary_ok if requires_structured_summary else legacy_structured_result,
-        "require table/date/code/fields/Typrep/format/record-count reconciliation for Grok",
+        "require table/date/code/fields/Typrep/format/record-count reconciliation when structured result evidence is present",
     )
     transport = _mapping(data.get("download_transport"))
     audit.check("CSMAR UI export", transport.get("ui_export_completed") is True, "ui_export_completed must be true")
@@ -731,9 +700,9 @@ def _verify_freshness(
     )
     started = _receipt_start(data)
     audit.check(
-        "Grok explicit run start timestamp",
-        runtime != "grok" or started is not None,
-        "Grok freshness requires started_at/run_started_at/download_started_at",
+        "explicit run start timestamp",
+        started is not None,
+        "freshness requires started_at/run_started_at/download_started_at",
     )
     zip_mtime = datetime.fromtimestamp(zip_path.stat().st_mtime, timezone.utc)
     now = datetime.now(timezone.utc)
@@ -822,9 +791,7 @@ def verify_receipt(
     declared_runtime = str(data.get("runtime") or "").strip().lower()
     audit.check(
         "runtime declaration",
-        declared_runtime == expected_runtime
-        if expected_runtime == "grok"
-        else not declared_runtime or declared_runtime == expected_runtime,
+        not declared_runtime or declared_runtime == "codex",
         f"runtime={declared_runtime or '<implicit-from-adapter>'}",
     )
     artifacts_raw = data.get("artifacts")
@@ -874,11 +841,7 @@ def verify_receipt(
         if len(csv_relative.parts) > len(expected_prefix.parts)
         else ""
     )
-    version_pattern = (
-        r"\d{4}-\d{2}-\d{2}"
-        if expected_runtime == "codex"
-        else r"\d{4}-\d{2}-\d{2}_grok_v[1-9]\d*"
-    )
+    version_pattern = r"\d{4}-\d{2}-\d{2}"
     runtime_paths_ok = (
         base_paths_ok
         and zip_version_dir == csv_version_dir
@@ -930,7 +893,7 @@ def parse_args(argv: Sequence[str]) -> argparse.Namespace:
     parser.add_argument("--receipt", required=True, type=Path)
     parser.add_argument("--repo-root", required=True, type=Path)
     parser.add_argument("--run-dir", required=True, type=Path)
-    parser.add_argument("--runtime", required=True, choices=("codex", "grok"))
+    parser.add_argument("--runtime", default="codex", choices=("codex",))
     return parser.parse_args(argv)
 
 

@@ -113,7 +113,7 @@ skill	meta-optimize	meta-utils	-	skill 语料自优化提案
 skill	meta-apply	meta-utils	meta-optimize	落地已批准的语料补丁
 skill	feishu-notify	meta-utils	-	飞书通知
 skill	interview-cheatsheet	meta-utils	-	ML/LLM 面试速查手册生成
-skill	browser-session-bridge	business-research	-	Codex 原生 Chrome / Grok chrome-mcp 登录态桥接与下载验真
+skill	browser-session-bridge	business-research	-	Codex 原生 Chrome 登录态复用与下载验真
 skill	business-research-suite	business-research	-	商科实证研究统一轻量路由入口
 skill	business-research-pipeline	business-research	-	文献到数据、分析、审计与写作的分阶段总流程
 skill	business-run-passport	business-research	-	商科项目材料、阶段、工件与验收门状态护照

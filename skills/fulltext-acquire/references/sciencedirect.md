@@ -1,6 +1,6 @@
 # ScienceDirect Site Recipe
 
-Use this recipe for an entitled or open ScienceDirect article PDF. Invoke `browser-session-bridge`; do not embed Codex or MCP calls here.
+Use this recipe for an entitled or open ScienceDirect article PDF. Invoke `browser-session-bridge`; do not embed plugin-specific calls in this site recipe.
 
 ## Base URL
 

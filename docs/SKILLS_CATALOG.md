@@ -43,14 +43,14 @@ End-to-end pipelines that chain many sub-skills. Most users start here.
 
 ## 🏢 Business Empirical Research
 
-Portable business, accounting, finance, management, and economics workflows. The same canonical bodies are packaged for Codex and Grok; protected sites select Codex native Chrome, Grok's official DevTools safety facade, or an explicitly recorded legacy real-Chrome fallback at runtime.
+Codex-native business, accounting, finance, management, and economics workflows. Every model selected inside Codex uses the same Skill package and native plugin surface.
 
 | Skill | Role | Requires |
 |---|---|---|
 | [`/business-research-suite`](../skills/business-research-suite/SKILL.md) | Light router for the next focused business-research stage | None |
 | [`/business-research-pipeline`](../skills/business-research-pipeline/SKILL.md) | Full staged chain: literature → fulltext/method → design → data → analysis → audits → writing | Stage-specific access |
 | [`/business-run-passport`](../skills/business-run-passport/SKILL.md) | Project spine for materials, acquisition, artifacts, decisions, gates, and reproducibility | None |
-| [`/browser-session-bridge`](../skills/browser-session-bridge/SKILL.md) | Authenticated Chrome contract with native Codex, official DevTools-facade Grok, and legacy fallback adapters | Codex Chrome capability or an accepted Grok MCP adapter |
+| [`/browser-session-bridge`](../skills/browser-session-bridge/SKILL.md) | Authenticated Chrome contract through the native Codex plugin | Codex Chrome capability |
 | [`/business-lit-review`](../skills/business-lit-review/SKILL.md) | Business literature map, journal conversation, closest papers, and method norms | Source-dependent |
 | [`/fulltext-acquire`](../skills/fulltext-acquire/SKILL.md) | Verified PDF acquisition through local, OA, CNKI, ScienceDirect, and authorized sessions | Source-dependent |
 | [`/method-harvest`](../skills/method-harvest/SKILL.md) | Evidence-located sample, design, variable, inference, and data method cards from verified PDFs | Local PDF + verifier |

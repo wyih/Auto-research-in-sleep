@@ -1,8 +1,8 @@
 #!/usr/bin/env bash
 # install_aris_codex.sh -- Project-local ARIS agent-skill installation.
 #
-# The filename/manifest keep their historical Codex name for compatibility,
-# but the flat .agents/skills package is also discovered by Grok Build.
+# The filename/manifest keep their historical Codex name for compatibility.
+# The flat .agents/skills package is the single Codex release surface.
 #
 # This installer manages a flat Codex project layout:
 #   <project>/.agents/skills/<skill-name> -> <aris-repo>/skills/<package>/<skill-name>

@@ -4,7 +4,6 @@ import hashlib
 import importlib.util
 import json
 import os
-import shutil
 import struct
 import sys
 import tempfile
@@ -21,33 +20,19 @@ assert SPEC and SPEC.loader
 verifier = importlib.util.module_from_spec(SPEC)
 sys.modules[SPEC.name] = verifier
 SPEC.loader.exec_module(verifier)
-ROOT_VERIFIER = REPO_ROOT / "scripts" / "verify_business_e2e.py"
-ROOT_SPEC = importlib.util.spec_from_file_location("business_e2e_for_cn_extract_tests", ROOT_VERIFIER)
-assert ROOT_SPEC and ROOT_SPEC.loader
-root_verifier = importlib.util.module_from_spec(ROOT_SPEC)
-sys.modules[ROOT_SPEC.name] = root_verifier
-ROOT_SPEC.loader.exec_module(root_verifier)
-
-
 def sha256(path: Path) -> str:
     return hashlib.sha256(path.read_bytes()).hexdigest()
 
 
 class ExtractFixture:
-    def __init__(self, root: Path, site: str, runtime: str = "codex") -> None:
+    def __init__(self, root: Path, site: str) -> None:
         self.repo = root.resolve()
         started = datetime.now(timezone.utc) - timedelta(minutes=2)
         self.run = self.repo / ".aris" / "business-e2e" / started.strftime("%Y%m%dT%H%M%SZ")
         self.site = site
-        self.runtime = runtime
-        if runtime == "codex":
-            raw = self.run / "cn-data" / "raw" / site / "2026-07-18"
-            receipts = self.run / "cn-data" / "receipts"
-            adapter = "codex_native_chrome"
-        else:
-            raw = self.run / "cn-data" / "raw" / site / "2026-07-18_grok_v1"
-            receipts = self.run / "grok-workspace" / "receipts"
-            adapter = "grok_chrome_mcp"
+        self.runtime = "codex"
+        raw = self.run / "cn-data" / "raw" / site / "2026-07-18"
+        receipts = self.run / "cn-data" / "receipts"
         extracted = raw / "extracted"
         extracted.mkdir(parents=True)
         receipts.mkdir(parents=True)
@@ -107,19 +92,6 @@ class ExtractFixture:
                 "export_summary_rows": 1,
                 "export_summary_format": "CSV格式（*.csv）",
             }
-            if runtime == "grok":
-                portal["result_page"] = {
-                    "reconciled": True,
-                    "table_id": "FS_Combas",
-                    "date_start": "2020-12-31",
-                    "date_end": "2020-12-31",
-                    "code_count": 1,
-                    "security_codes": ["000001"],
-                    "selected_fields": list(verifier.CSMAR_HEADER),
-                    "condition": "Typrep=A",
-                    "record_count": 1,
-                    "format": "CSV格式（*.csv）",
-                }
             transport = {
                 "ui_export_completed": True,
                 "ui_local_save_clicked": True,
@@ -131,10 +103,11 @@ class ExtractFixture:
         completed = datetime.now(timezone.utc)
         receipt: dict[str, object] = {
             "receipt_version": "1.0",
-            "acceptance_id": f"p4-{site}-{runtime}",
-            "runtime": runtime,
+            "acceptance_id": f"p4-{site}-codex",
+            "runtime": "codex",
             "source": site,
-            "adapter": adapter,
+            "adapter": verifier.CODEX_ADAPTER,
+            **verifier.CODEX_BINDINGS,
             "started_at": started.isoformat(),
             "completed_at": completed.isoformat(),
             "status": "passed",
@@ -144,7 +117,7 @@ class ExtractFixture:
             "artifacts": [self._artifact(self.zip_path, "zip"), self._artifact(self.csv_path, "csv")],
             "secrets_or_session_material_persisted": False,
         }
-        self.receipt_path = receipts / f"p4-{site}-{runtime}.json"
+        self.receipt_path = receipts / f"p4-{site}-codex.json"
         self.receipt_path.write_text(json.dumps(receipt, ensure_ascii=False), encoding="utf-8")
 
     def _artifact(self, path: Path, detected_format: str) -> dict[str, object]:
@@ -195,69 +168,23 @@ class ExtractFixture:
 
 
 class CNExtractVerifierTests(unittest.TestCase):
-    def test_accepts_real_contract_shape_for_both_sites_and_runtimes(self) -> None:
-        for runtime in ("codex", "grok"):
-            for site in ("cnrds", "csmar"):
-                with self.subTest(runtime=runtime, site=site), tempfile.TemporaryDirectory() as folder:
-                    fixture = ExtractFixture(Path(folder), site, runtime)
-                    report = fixture.verify()
-                    self.assertTrue(report.ok, [check for check in report.checks if not check.ok])
+    def test_accepts_real_codex_contract_shape_for_both_sites(self) -> None:
+        for site in ("cnrds", "csmar"):
+            with self.subTest(site=site), tempfile.TemporaryDirectory() as folder:
+                fixture = ExtractFixture(Path(folder), site)
+                report = fixture.verify()
+                self.assertTrue(report.ok, [check for check in report.checks if not check.ok])
 
-    def test_accepts_ego_lite_task_space_for_grok(self) -> None:
+    def test_rejects_non_codex_adapter(self) -> None:
         with tempfile.TemporaryDirectory() as folder:
-            fixture = ExtractFixture(Path(folder), "cnrds", "grok")
+            fixture = ExtractFixture(Path(folder), "cnrds")
             payload = fixture.payload()
-            payload.update(
-                {
-                    "adapter": verifier.EGO_LITE_ADAPTER,
-                    **verifier.EGO_LITE_BINDINGS,
-                    "task_space_isolated": True,
-                }
-            )
-            fixture.write_payload(payload)
-            report = fixture.verify()
-
-        self.assertTrue(report.ok, [check for check in report.checks if not check.ok])
-
-    def test_rejects_ego_lite_receipt_without_isolated_task_space(self) -> None:
-        with tempfile.TemporaryDirectory() as folder:
-            fixture = ExtractFixture(Path(folder), "cnrds", "grok")
-            payload = fixture.payload()
-            payload.update(
-                {
-                    "adapter": verifier.EGO_LITE_ADAPTER,
-                    **verifier.EGO_LITE_BINDINGS,
-                    "task_space_isolated": False,
-                }
-            )
+            payload["adapter"] = "external_browser"
             fixture.write_payload(payload)
             report = fixture.verify()
 
         self.assertFalse(report.ok)
-        self.assertIn(
-            "ego lite isolated task space",
-            {check.name for check in report.checks if not check.ok},
-        )
-
-    def test_codex_does_not_accept_ego_lite_adapter(self) -> None:
-        with tempfile.TemporaryDirectory() as folder:
-            fixture = ExtractFixture(Path(folder), "cnrds", "codex")
-            payload = fixture.payload()
-            payload.update(
-                {
-                    "adapter": verifier.EGO_LITE_ADAPTER,
-                    **verifier.EGO_LITE_BINDINGS,
-                    "task_space_isolated": True,
-                }
-            )
-            fixture.write_payload(payload)
-            report = fixture.verify()
-
-        self.assertFalse(report.ok)
-        self.assertIn(
-            "runtime adapter",
-            {check.name for check in report.checks if not check.ok},
-        )
+        self.assertIn("runtime adapter", {check.name for check in report.checks if not check.ok})
 
     def test_rejects_wrong_header_even_when_hashes_and_receipt_counters_are_refreshed(self) -> None:
         with tempfile.TemporaryDirectory() as folder:
@@ -352,15 +279,23 @@ class CNExtractVerifierTests(unittest.TestCase):
                 self.assertFalse(report.ok)
                 self.assertIn(expected_check, {check.name for check in report.checks if not check.ok})
 
-    def test_grok_rejects_incomplete_csmar_result_page_reconciliation(self) -> None:
+    def test_rejects_incomplete_csmar_result_page_reconciliation(self) -> None:
         with tempfile.TemporaryDirectory() as folder:
-            fixture = ExtractFixture(Path(folder), "csmar", "grok")
+            fixture = ExtractFixture(Path(folder), "csmar")
             payload = fixture.payload()
             portal = payload["portal_evidence"]
             assert isinstance(portal, dict)
-            result_page = portal["result_page"]
-            assert isinstance(result_page, dict)
-            result_page.pop("selected_fields")
+            portal["result_page"] = {
+                "reconciled": True,
+                "table_id": "FS_Combas",
+                "date_start": "2020-12-31",
+                "date_end": "2020-12-31",
+                "code_count": 1,
+                "security_codes": ["000001"],
+                "condition": "Typrep=A",
+                "record_count": 1,
+                "format": "CSV格式（*.csv）",
+            }
             fixture.write_payload(payload)
             report = fixture.verify()
 
@@ -382,57 +317,20 @@ class CNExtractVerifierTests(unittest.TestCase):
         self.assertIn("download freshness window", failed)
         self.assertIn("artifact not older than evidence run", failed)
 
-    def test_grok_requires_explicit_start_and_runtime_owned_path(self) -> None:
+    def test_requires_explicit_start_timestamp(self) -> None:
         with tempfile.TemporaryDirectory() as folder:
-            fixture = ExtractFixture(Path(folder), "csmar", "grok")
+            fixture = ExtractFixture(Path(folder), "csmar")
             payload = fixture.payload()
             payload.pop("started_at")
             fixture.write_payload(payload)
             report = fixture.verify()
 
         self.assertFalse(report.ok)
-        self.assertIn("Grok explicit run start timestamp", {check.name for check in report.checks if not check.ok})
-
-    def test_grok_cannot_reuse_codex_date_folder(self) -> None:
-        with tempfile.TemporaryDirectory() as folder:
-            fixture = ExtractFixture(Path(folder), "csmar", "grok")
-            codex_raw = fixture.run / "cn-data" / "raw" / "csmar" / "2026-07-18"
-            codex_csv = codex_raw / "extracted" / fixture.csv_path.name
-            codex_csv.parent.mkdir(parents=True)
-            codex_zip = codex_raw / fixture.zip_path.name
-            shutil.copy2(fixture.csv_path, codex_csv)
-            shutil.copy2(fixture.zip_path, codex_zip)
-            payload = fixture.payload()
-            payload["artifacts"] = [fixture._artifact(codex_zip, "zip"), fixture._artifact(codex_csv, "csv")]
-            fixture.write_payload(payload)
-            report = fixture.verify()
-
-        self.assertFalse(report.ok)
-        self.assertIn("runtime-owned artifact paths", {check.name for check in report.checks if not check.ok})
-
-    def test_root_verifier_rechecks_grok_receipts_in_canonical_versioned_paths(self) -> None:
-        for site in ("cnrds", "csmar"):
-            with self.subTest(site=site), tempfile.TemporaryDirectory() as folder:
-                fixture = ExtractFixture(Path(folder), site, "grok")
-                manifest = fixture.run / "cn-data" / "DATA_MANIFEST.md"
-                manifest.parent.mkdir(exist_ok=True)
-                manifest.write_text(
-                    f"# DATA_MANIFEST\n\n| {fixture.csv_path.relative_to(fixture.repo)} | "
-                    f"{sha256(fixture.csv_path)} | grok_chrome_mcp |\n",
-                    encoding="utf-8",
-                )
-                evidence_root = fixture.repo / ".aris" / "business-e2e"
-                root_report = root_verifier.verify_business_e2e(
-                    fixture.repo, evidence_root, fixture.run.name
-                )
-                gate = root_report.runtimes["grok"]["browser"][f"P4_{site.upper()}"]
-                self.assertEqual(gate.status, "PASS", gate.summary)
-                semantic = next(check for check in gate.checks if "deterministic extract" in check.name)
-                self.assertEqual(semantic.status, "PASS", semantic.summary)
+        self.assertIn("explicit run start timestamp", {check.name for check in report.checks if not check.ok})
 
     def test_accepts_frozen_prompt_structured_queue_result_and_legacy_download_fallback(self) -> None:
         with tempfile.TemporaryDirectory() as folder:
-            cnrds = ExtractFixture(Path(folder) / "cnrds", "cnrds", "grok")
+            cnrds = ExtractFixture(Path(folder) / "cnrds", "cnrds")
             payload = cnrds.payload()
             portal = payload["portal_evidence"]
             query = payload["query"]
@@ -445,7 +343,7 @@ class CNExtractVerifierTests(unittest.TestCase):
             self.assertTrue(cnrds.verify().ok)
 
         with tempfile.TemporaryDirectory() as folder:
-            csmar = ExtractFixture(Path(folder) / "csmar", "csmar", "grok")
+            csmar = ExtractFixture(Path(folder) / "csmar", "csmar")
             payload = csmar.payload()
             portal = payload["portal_evidence"]
             transport = payload["download_transport"]

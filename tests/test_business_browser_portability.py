@@ -49,186 +49,69 @@ class BusinessBrowserPortabilityTests(unittest.TestCase):
         self.assertNotRegex(text, re.compile(r"\b(?:cnki|sd)-(?:search|download|paper-detail)\b"))
         self.assertNotIn("Browser requirement", text)
 
-    def test_codex_grok_opencode_and_ego_adapters_are_partitioned(self) -> None:
-        adapters = SKILLS / "browser-session-bridge" / "references"
-        codex = (adapters / "codex-chrome.md").read_text(encoding="utf-8")
-        devtools = (adapters / "grok-chrome-devtools-mcp.md").read_text(
+    def test_bridge_has_one_codex_native_route_for_every_selected_model(self) -> None:
+        bridge = (SKILLS / "browser-session-bridge" / "SKILL.md").read_text(
             encoding="utf-8"
         )
-        legacy = (adapters / "grok-chrome-mcp.md").read_text(encoding="utf-8")
-        ego = (adapters / "ego-lite.md").read_text(encoding="utf-8")
-        ego_flat = " ".join(ego.split())
-        self.assertIn("chrome:control-chrome", codex)
-        self.assertNotIn("chrome-mcp", codex)
-        self.assertIn("chrome-devtools-mcp", devtools)
-        self.assertIn("dedicated_persistent", devtools)
-        self.assertIn("OpenCode/OpenScience", devtools)
-        self.assertIn("client_runtime: opencode", devtools)
-        self.assertNotIn("chrome:control-chrome", devtools)
-        self.assertIn("chrome-mcp", legacy)
-        self.assertNotIn("chrome:control-chrome", legacy)
-        self.assertIn("ego_lite_task_space", ego)
-        self.assertIn("Codex continues to use its native Chrome plugin", ego)
-        self.assertIn("This adapter is macOS only", ego)
-        self.assertIn("uname -s` to return exactly `Darwin", ego)
-        for unsupported in ("Windows", "WSL", "native Linux"):
-            self.assertIn(unsupported, ego_flat)
-        self.assertIn("different Task Spaces", ego)
-        self.assertIn("serialize only this short final", ego)
-        self.assertNotIn("document.cookie", ego)
-
-    def test_bridge_exposes_non_codex_ego_parallel_entry_without_replacing_codex(self) -> None:
-        bridge = (SKILLS / "browser-session-bridge" / "SKILL.md").read_text(
+        adapter = (SKILLS / "browser-session-bridge" / "references" / "codex-chrome.md").read_text(
             encoding="utf-8"
         )
         contract = (
-            SKILLS / "shared-references" / "browser-session-contract.md"
+            SKILLS / "browser-session-bridge" / "references" / "browser-session-contract.md"
         ).read_text(encoding="utf-8")
         for token in (
-            "references/ego-lite.md",
-            "ego_lite_task_space",
-            "OpenClaw",
-            "uniquely named",
-            "Codex | Installed `chrome:control-chrome`",
-            "codex_native_chrome",
-            "grok_chrome_devtools_mcp",
+            "chrome:control-chrome",
+            "client_runtime: codex",
+            "adapter: codex_native_chrome",
+            "selected model does not change the browser route",
         ):
-            self.assertIn(token, bridge)
-        self.assertIn("Keep Codex on native Chrome", bridge)
-        self.assertIn("ego lite (macOS only)", bridge)
-        self.assertIn(
-            "On Windows, WSL, and native Linux, never install, select, or default to ego lite",
-            bridge,
-        )
-        self.assertIn("different Task Space", contract)
-        self.assertIn("one Task Space still has at most one controller", contract)
-
-    def test_installers_do_not_default_install_ego_lite(self) -> None:
-        installers = (
-            REPO_ROOT / "tools" / "install_aris.sh",
-            REPO_ROOT / "tools" / "install_aris_codex.sh",
-            REPO_ROOT / "tools" / "install_aris.ps1",
-        )
-        for installer in installers:
-            text = installer.read_text(encoding="utf-8")
-            with self.subTest(installer=installer.name):
-                self.assertNotIn("ego-lite", text)
-                self.assertNotIn("ego-browser", text)
-
-    def test_grok_ego_release_gate_is_durable_and_not_codex_substitutable(self) -> None:
-        bridge_root = SKILLS / "browser-session-bridge"
-        bridge = (bridge_root / "SKILL.md").read_text(encoding="utf-8")
-        verifier = bridge_root / "scripts" / "verify_grok_ego_forward.sh"
-        verifier_text = verifier.read_text(encoding="utf-8")
-
-        for token in (
-            "## Grok Release Gate",
-            "verify_grok_ego_forward.sh",
-            "Before committing, pushing, tagging, or releasing",
-            "Grok itself—not Codex",
-            "independent absence probe",
-        ):
-            self.assertIn(token, bridge)
-
-        for token in (
-            "grok_args=(",
-            "--output-format json",
-            "--model",
-            "ARIS_GROK_MODEL",
-            "ego_lite_task_space",
-            "completeTaskSpace",
-            "acceptanceSpacePresent",
-            "Grok ego forward acceptance: PASS",
-            "Windows, WSL, or native Linux",
-        ):
-            self.assertIn(token, verifier_text)
-
-        self.assertNotIn("wyih", verifier_text)
-        self.assertNotIn("api_key", verifier_text)
-
-    def test_devtools_adapter_requires_bounded_facade(self) -> None:
-        adapter = (
-            SKILLS
-            / "browser-session-bridge"
-            / "references"
-            / "grok-chrome-devtools-mcp.md"
-        ).read_text(encoding="utf-8")
-        for tool in (
-            "aris_tabs",
-            "aris_open_blank",
-            "aris_select",
-            "aris_inspect",
-            "aris_click",
-            "aris_trigger_element_download",
-            "aris_trigger_loaded_pdf_download",
-            "aris_download_baseline",
-            "aris_download_wait",
-            "aris_copy_download",
-            "aris_release",
-        ):
-            self.assertIn(tool, adapter)
+            self.assertIn(token, bridge + adapter)
         for forbidden in (
-            "evaluate_script",
-            "initScript",
-            "take_heapsnapshot",
-            "list_network_requests",
+            "grok_chrome",
+            "opencode",
+            "openscience",
+            "openclaw",
+            "ego-browser",
+            "chrome-devtools-mcp",
+            "chrome-mcp",
         ):
-            self.assertIn(forbidden, adapter)
-        self.assertIn("action-time confirmation", adapter)
-        self.assertIn("fallback_directory_increment", adapter)
-        self.assertIn("atomic controller lease", adapter)
-        self.assertIn("waiting_browser_turn", adapter)
-        self.assertIn("Never call raw `new_page`, `curl /json/new`", adapter)
+            self.assertNotIn(forbidden, (bridge + adapter + contract).lower())
 
-    def test_bridge_routes_opencode_from_host_capabilities_not_model_vendor(self) -> None:
-        bridge = (SKILLS / "browser-session-bridge" / "SKILL.md").read_text(
-            encoding="utf-8"
+    def test_non_codex_browser_resources_are_absent(self) -> None:
+        bridge_root = SKILLS / "browser-session-bridge"
+        removed = (
+            "references/ego-lite.md",
+            "references/grok-chrome-devtools-mcp.md",
+            "references/grok-chrome-mcp.md",
+            "scripts/chrome_mcp_client.mjs",
+            "scripts/devtools_mcp_facade.mjs",
+            "scripts/verify_grok_ego_forward.sh",
         )
-        adapter = (
-            SKILLS
-            / "browser-session-bridge"
-            / "references"
-            / "grok-chrome-devtools-mcp.md"
-        ).read_text(encoding="utf-8")
-        self.assertIn("OpenCode / OpenScience", bridge)
-        self.assertIn("Grok model running inside OpenCode", bridge)
-        self.assertIn("Running `grok mcp`", bridge)
-        self.assertIn("current session's MCP tool catalog", adapter)
-        self.assertIn("stop with `adapter_unavailable`", adapter)
+        for relative in removed:
+            with self.subTest(relative=relative):
+                self.assertFalse((bridge_root / relative).exists())
 
-    def test_devtools_adapter_preserves_bounded_chatgpt_upload_recipe(self) -> None:
-        adapter = (
-            SKILLS
-            / "browser-session-bridge"
-            / "references"
-            / "grok-chrome-devtools-mcp.md"
-        ).read_text(encoding="utf-8")
-        for required in (
-            "Add files and more",
-            "aris_wait",
-            "Add photos & files",
-            "A `StaticText` role is an accepted proxy",
-            "Remove file N: <filename>",
-            "repeat steps 2–4 once",
-            "do not\n   upload that file again",
+    def test_codex_installers_remain_available_across_operating_system_modes(self) -> None:
+        shell_installer_path = REPO_ROOT / "tools" / "install_aris_codex.sh"
+        powershell_installer_path = REPO_ROOT / "tools" / "install_aris.ps1"
+        readmes = (
+            SKILLS / "skills-codex" / "README.md",
+            SKILLS / "skills-codex" / "README_CN.md",
+        )
+        self.assertTrue(shell_installer_path.is_file())
+        self.assertTrue(powershell_installer_path.is_file())
+        platform_text = "\n".join(path.read_text(encoding="utf-8") for path in readmes)
+        for platform in ("macOS", "Linux", "Windows", "WSL"):
+            self.assertIn(platform, platform_text)
+        for text in (
+            shell_installer_path.read_text(encoding="utf-8"),
+            powershell_installer_path.read_text(encoding="utf-8"),
         ):
-            self.assertIn(required, adapter)
-        self.assertIn(
-            "Do not insert\n   `aris_tabs`, `aris_select`, another inspection",
-            adapter,
-        )
-
-    def test_acceptance_requires_separate_runtime_receipts(self) -> None:
-        acceptance = (REPO_ROOT / "docs" / "BUSINESS_RESEARCH_E2E_ACCEPTANCE.md").read_text(
-            encoding="utf-8"
-        )
-        self.assertIn("adapter = codex_native_chrome", acceptance)
-        self.assertIn("adapter = grok_chrome_devtools_mcp", acceptance)
-        self.assertIn("adapter = grok_chrome_mcp", acceptance)
-        self.assertIn("Full chain", acceptance)
+            self.assertNotIn("ego-browser", text)
+            self.assertNotIn("chrome-devtools-mcp", text)
 
     def test_challenge_and_download_fallback_rules_cover_observed_edge_cases(self) -> None:
-        contract = (SKILLS / "shared-references" / "browser-session-contract.md").read_text(
+        contract = (SKILLS / "browser-session-bridge" / "references" / "browser-session-contract.md").read_text(
             encoding="utf-8"
         )
         cnki = (SKILLS / "fulltext-acquire" / "references" / "cnki.md").read_text(
@@ -338,18 +221,17 @@ class BusinessBrowserPortabilityTests(unittest.TestCase):
             self.assertNotIn(forbidden, cnki)
 
     def test_saved_login_submit_is_narrow_and_never_reads_credentials(self) -> None:
-        contract = (SKILLS / "shared-references" / "browser-session-contract.md").read_text(
-            encoding="utf-8"
-        )
+        contract = (
+            SKILLS / "browser-session-bridge" / "references" / "browser-session-contract.md"
+        ).read_text(encoding="utf-8")
         bridge = (SKILLS / "browser-session-bridge" / "SKILL.md").read_text(
             encoding="utf-8"
         )
         cn_data = (SKILLS / "cn-data-bridge" / "SKILL.md").read_text(encoding="utf-8")
         self.assertIn("auth.submit_saved", contract)
-        self.assertIn("do not read form values", contract)
-        self.assertIn("saved_login_submitted", contract)
-        self.assertIn("saved_login_submitted", bridge)
-        self.assertIn("one-time submit", bridge)
+        self.assertIn("without inspecting values", contract)
+        self.assertIn("single submit", contract)
+        self.assertIn("click its login control once", bridge)
         self.assertIn("Chrome has already filled", cn_data)
         for text in (contract, bridge, cn_data):
             self.assertIn("hard CAPTCHA", text)
@@ -365,9 +247,9 @@ class BusinessBrowserPortabilityTests(unittest.TestCase):
         self.assertIn("inner CSV", recipe)
 
     def test_soft_timeout_recovery_precedes_login_or_access_gap(self) -> None:
-        contract = (SKILLS / "shared-references" / "browser-session-contract.md").read_text(
-            encoding="utf-8"
-        )
+        contract = (
+            SKILLS / "browser-session-bridge" / "references" / "browser-session-contract.md"
+        ).read_text(encoding="utf-8")
         bridge = (SKILLS / "browser-session-bridge" / "SKILL.md").read_text(
             encoding="utf-8"
         )
@@ -380,15 +262,8 @@ class BusinessBrowserPortabilityTests(unittest.TestCase):
         codex = (
             SKILLS / "browser-session-bridge" / "references" / "codex-chrome.md"
         ).read_text(encoding="utf-8")
-        grok = (
-            SKILLS
-            / "browser-session-bridge"
-            / "references"
-            / "grok-chrome-devtools-mcp.md"
-        ).read_text(encoding="utf-8")
-
         self.assertIn("auth.recover_soft_timeout", contract)
-        self.assertIn("dismiss_refresh_restored", contract)
+        self.assertIn("Restored session or fresh logged-out evidence", contract)
         self.assertIn("close → single refresh → re-inspect", cn_data)
         self.assertIn("top-right `×`", recipe)
         self.assertIn("do **not** click **重新登录**", recipe)
@@ -396,7 +271,7 @@ class BusinessBrowserPortabilityTests(unittest.TestCase):
             recipe.index("Soft-Timeout Recovery"),
             recipe.index("Operator Sequence", recipe.index("## CSMAR Adapter")),
         )
-        for text in (bridge, codex, grok):
+        for text in (bridge, codex):
             self.assertIn("recover_soft_timeout", text)
             self.assertIn("reload", text.lower())
 
@@ -463,7 +338,7 @@ class BusinessBrowserPortabilityTests(unittest.TestCase):
                 pipeline.index("## Shared Contracts")
             ],
             bridge[
-                bridge.index("## Admission Gate") : bridge.index("## Runtime Gate")
+                bridge.index("## Admission gate") : bridge.index("## Workflow")
             ],
             cn_data[
                 cn_data.index("## Discovery Before Protected Browser") :

@@ -26,7 +26,11 @@ def tracked_paths() -> list[Path]:
         capture_output=True,
         check=True,
     )
-    return [REPO_ROOT / item.decode("utf-8") for item in result.stdout.split(b"\0") if item]
+    return [
+        path
+        for item in result.stdout.split(b"\0")
+        if item and (path := REPO_ROOT / item.decode("utf-8")).exists()
+    ]
 
 
 def test_release_snapshot_has_no_maintainer_identity_or_machine_path() -> None:

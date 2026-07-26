@@ -21,7 +21,7 @@ from tools.sync_business_portable_mirror import (
 
 def test_portable_business_mirror_is_exact() -> None:
     assert len(PORTABLE_SKILLS) == 24
-    assert len(PORTABLE_REFERENCES) == 9
+    assert len(PORTABLE_REFERENCES) == 8
     assert check() == []
 
 
@@ -34,7 +34,7 @@ def test_portable_business_mirror_check_is_cli_runnable() -> None:
         check=False,
     )
     assert result.returncode == 0, result.stderr
-    assert "24 skills, 9 references" in result.stdout
+    assert "24 skills, 8 references" in result.stdout
 
 
 def test_business_research_catalog_group_is_exact_portable_set() -> None:

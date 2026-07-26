@@ -6,7 +6,7 @@
 
 - 基座覆盖：主线 `skills/` 的 `104` 个 skill 全量同步
 - 支持目录：`shared-references/`，与主线 `39/39` 名称完整对齐
-- 24 个商科实证 skill 由 `tools/sync_business_portable_mirror.py` 从运行时中立的 canonical source 机械同步；Codex 与 Grok 都从 `.agents/skills` 消费同一份内容，浏览器桥在运行时选择适配器。
+- 24 个商科实证 Skill 由 `tools/sync_business_portable_mirror.py` 从 Codex-native canonical source 机械同步；Codex 内选择的任何模型都从 `.agents/skills` 消费同一份内容，并使用同一套原生插件。
 - reviewer-heavy skill 的默认 reviewer 契约：
   - 首轮：`spawn_agent`
   - 续接：`send_input`
@@ -20,22 +20,13 @@
 
 ## 推荐安装方式
 
-Codex 默认推荐项目级安装；Grok Build 也会从同一个 `.agents/skills` 项目目录发现这些 skill：
+Codex 默认推荐项目级安装：
 
 ```bash
 git clone https://github.com/wanshuiyin/Auto-claude-code-research-in-sleep.git ~/aris_repo
 cd ~/your-project
 
 bash ~/aris_repo/tools/install_aris_codex.sh . --office-author "你的姓名"
-```
-
-如果是隔离的 Codex/Grok 烟测工作区，不希望更新可选的全局 helper 指针或 AGENTS 管理块：
-
-```bash
-bash ~/aris_repo/tools/install_aris_codex.sh . \
-  --groups business-research --quiet --office-author "你的姓名" \
-  --no-doc --no-global-pointer
-grok inspect --json
 ```
 
 安装后会形成扁平布局：
@@ -105,23 +96,23 @@ bash ~/aris_repo/tools/install_aris_codex.sh ~/your-project \
   --groups business-research --quiet --office-author "你的姓名"
 ```
 
-WSL 应使用 Linux 版 Node.js 和 Codex/Grok，并在该 distribution 内安装
-Linux Chrome，通过 WSLg 显示。它的专用 Profile 和 `~/Downloads` 与 Windows
+WSL 应使用 Linux 版 Node.js 和 Codex，并在该 distribution 内安装
+Linux Chrome，通过 WSLg 显示。它的 Chrome Profile 和 `~/Downloads` 与 Windows
 Chrome 完全分开。不建议把仓库放到 `/mnt/c`，因为链接、权限和文件监听语义
 不同。本版本不把“WSL 内的 facade 驱动 Windows 宿主 Chrome”列为验收通过的
 路径；如果必须复用 Windows Chrome/登录态，应改用原生 Windows PowerShell
 安装方式运行。
 
 原生 Windows 安装器创建 junction；macOS、原生 Linux 和 WSL 安装器创建
-symlink。所有受支持布局最终都把同一份包暴露到 `.agents/skills`，供 Codex 与
-Grok Build 发现。不要把已经安装好的 `.agents/skills` 直接复制到另一台机器，
+symlink。所有受支持布局最终都把同一份包暴露到 `.agents/skills`，供 Codex
+发现。不要把已经安装好的 `.agents/skills` 直接复制到另一台机器，
 因为链接仍指向原机器路径。应把 release 克隆或解压到稳定目录，再运行对应
 安装器。
 
 浏览器 Profile、cookie、保存的账号密码、WRDS 凭证、授权论文和商业数据库
 数据都不进入发行包。每个使用者必须在自己的机器上建立授权 Profile 并登录。
-如果缺少兼容的浏览器运行时，本地资料、模型原生 web search、开放来源、设计、
-分析和写作仍可使用；受保护获取会明确报告 adapter/access gap。
+如果缺少兼容的 Codex Chrome 能力，本地资料、模型原生 web search、开放来源、
+设计、分析和写作仍可使用；受保护获取会明确报告 browser/access gap。
 
 全文验真和 `method-harvest` 还要求 Poppler 的 `pdfinfo`、`pdftotext` 已加入
 `PATH`。macOS 用 Homebrew 安装 `poppler`；Debian/Ubuntu 和 WSL 用发行版包

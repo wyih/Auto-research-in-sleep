@@ -25,7 +25,7 @@ Use the current authorized network without recording raw IP addresses. If access
 
 ## Existing Browser Session
 
-Invoke `browser-session-bridge` only after local, model-native public web, and bounded OA/direct routes are exhausted for the artifact role. Record `browser_required_reason: authenticated_session | entitled_download | active_challenge`. Reuse the authorized Chrome state and keep credentials inside the browser. Codex and Grok must each produce their own runtime receipt during matched acceptance.
+Invoke `browser-session-bridge` only after local, model-native public web, and bounded OA/direct routes are exhausted for the artifact role. Record `browser_required_reason: authenticated_session | entitled_download | active_challenge`. Reuse the authorized Chrome state and keep credentials inside the browser. Any model selected inside Codex uses the same native Chrome route and receipt contract.
 
 ## Human Handoff
 
