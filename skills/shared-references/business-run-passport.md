@@ -25,6 +25,8 @@ Use one project-level state:
 
 Never infer `terminal_stop` from a missing browser grant, queued profile, pending user checkpoint, unattempted source, sample preview, search result, or incomplete public proxy. If a STOP report says the project can resume merely by receiving a browser turn and running an unattempted source, record `waiting_external_gate` instead.
 
+Track branch-level conclusions separately from the project state: `not_evaluable`, `branch_stop`, `design_killed`, and `scope_down` do not imply project `terminal_stop`.
+
 ## Template
 
 ~~~markdown
@@ -67,12 +69,36 @@ Never infer `terminal_stop` from a missing browser grant, queued profile, pendin
 | Date | Decision | Evidence | Owner |
 |---|---|---|---|
 
+## Feasibility And Gate Calibration
+| Field | Value |
+|---|---|
+| Artifact | `empirical-design/FEASIBILITY_AND_GATE_CALIBRATION.md` |
+| Closest-Study Benchmark | pending / complete |
+| Representative Preflight | pending / complete / justified unavailable |
+| Active Claim Tier | flagship / scoped / descriptive-measurement / none |
+| Required Gate Count | |
+| Verified Pass | |
+| Terminal No-Go For Branch | |
+| Recoverable | |
+| Waiting External Source | |
+| Best-Case Attainable | |
+| QA Stopping Condition | |
+
+## Gate Registry
+| Gate | Threshold | Class | Evidence Basis | Failure Consequence | Status |
+|---|---|---|---|---|---|
+
+## Branch Status
+| Branch Or Claim | Status | Evidence | Fallback |
+|---|---|---|---|
+
 ## Audit Status
 | Gate | Artifact | Verdict | Blocking Issues |
 |---|---|---|---|
 | Novelty | BUSINESS_NOVELTY_CHECK.md | pending | |
 | Fulltext / Method | FULLTEXT_MANIFEST.md / METHOD_CARD_INDEX.md | pending | |
 | Design | RESEARCH_DESIGN.md | pending | |
+| Feasibility / Gate Calibration | FEASIBILITY_AND_GATE_CALIBRATION.md | pending | |
 | Data Acquisition | DATA_MANIFEST.md | pending | |
 | Results Word | RESULTS_DOCX_MANIFEST.md | pending | |
 | Numbers | BUSINESS_NUMBER_AUDIT.md | pending | |
@@ -101,3 +127,7 @@ repro_lock:
 - Keep unresolved issues visible until they are resolved, reframed, or dropped by the user.
 - Keep `waiting_external_gate` and `blocked_source` non-terminal. Do not mark the project complete merely because a precise gap or STOP file exists.
 - Record `terminal_stop` only after applying the pipeline's terminal criteria and distinguishing attempted from unattempted sources and designs.
+- Update best-case gate arithmetic after every branch closure; do not discover mathematical infeasibility only after full production.
+- Record closest-study benchmarks and the evidence basis for every hard threshold before freezing it.
+- Keep `not_evaluable`, branch failure, design failure, scope-down, and project STOP distinct.
+- Keep checkpoint summaries readable without the artifact log: goal, change, importance, current decision, and next bounded action.

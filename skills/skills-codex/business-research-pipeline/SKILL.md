@@ -37,6 +37,7 @@ Read these references when the stage touches them:
 - `../shared-references/business-run-passport.md` for the Business Run Passport
 - `../shared-references/business-handoff-schemas.md` for stage artifact schemas
 - `../shared-references/business-repro-lock.md` for final artifact reproducibility records
+- `../shared-references/business-feasibility-gates.md` before any frozen gate, high-cost acquisition, or STOP decision
 
 ## Pipeline
 
@@ -49,6 +50,7 @@ business-run-passport
   -> business-idea-creator
   -> business-novelty-check
   -> empirical-design-plan
+     -> feasibility-and-gate calibration before frozen gates or expensive acquisition
      -> wrds-query-bridge for WRDS (R/Postgres default)
         -> wrds-sas-cloud only after a recorded escalation or explicit SAS request
      -> cn-data-bridge for CSMAR/CNRDS gaps
@@ -134,6 +136,20 @@ Output:
 - `empirical-design/DATA_PLAN.md`
 - `empirical-design/TABLE_SHELLS.md`
 - `empirical-design/ROBUSTNESS_PLAN.md`
+- `empirical-design/FEASIBILITY_AND_GATE_CALIBRATION.md`
+
+### Stage 5.5: Feasibility And Gate Calibration
+
+Before bulk collection, protected/high-cost exports, or a frozen go/no-go contract:
+
+1. benchmark sample size, treatment support, clusters/events, match coverage, attrition, and precision against verified closest studies;
+2. freeze a claim ladder from flagship through scoped and descriptive contributions;
+3. run a representative end-to-end pilot across easy, typical, and difficult cases;
+4. classify gates as validity-hard, design-hard, quality targets, or aspirational;
+5. compute passed, terminal-no-go, recoverable, external-waiting, and best-case attainable counts;
+6. authorize only bounded QA and acquisition that can change the decision.
+
+Do not proceed when the named branch is already mathematically unable to pass. Scope down or stop that branch before production. Do not treat failure of one branch as project `terminal_stop` while a defensible claim tier remains.
 
 ### Stage 6: Data Acquisition
 
@@ -196,6 +212,7 @@ Pause for user decision after:
 - top idea selection
 - novelty verdict
 - empirical design before coding
+- feasibility and gate calibration before a frozen contract or high-cost acquisition
 - data acquisition plan before protected or high-cost exports
 - evidence-to-claim verdict
 - source-claim audit verdict when the draft is source-heavy
@@ -223,6 +240,7 @@ Apply these terminal criteria strictly:
 5. Use `terminal_stop` only when at least one of these is true: decisive appropriate-grain evidence defeats the core question; every permitted required source and material alternative has been attempted and cannot supply indispensable data; every defensible identification path fails its stated kill test; or the user explicitly chooses to stop.
 6. A terminal report must distinguish attempted paths from unattempted paths, cite evidence for each decisive failure, state why remaining pivots cannot answer the core question, and contain no resume condition that is merely “obtain browser grant and run the unattempted source.” Such a resume condition proves the state is non-terminal.
 7. Obey a project `GOAL_BRIEF.md` instruction to remain active at a serialized gate even when another completion clause permits an evidence-backed STOP.
+8. Treat `not_evaluable`, `branch_stop`, `design_killed`, `scope_down`, and `terminal_stop` as different conclusions. A null p-value, source gap, quality target, or aspirational threshold cannot by itself trigger `terminal_stop`.
 
 ## Rules
 
@@ -238,7 +256,10 @@ Apply these terminal criteria strictly:
 - Preserve ARIS audit discipline: source claims, table claims, citation claims, and reproducibility locks stay traceable.
 - For local tasks, complete only the requested stage and mark downstream gaps as next-stage inputs.
 - Treat a valid STOP as an evidence verdict, never as a convenient way to complete a Goal while a required next action is merely queued or unattempted.
+- Require closest-study benchmark calibration and a representative feasibility preflight before freezing numerical gates. Freezing prevents ex-post manipulation; it does not validate an arbitrary threshold.
+- Apply the QA relevance test from `business-feasibility-gates.md`; repeat artifact-integrity checks only after material mutation, at handoff, or at finalization.
+- Lead checkpoint reports with the research decision in plain language and keep implementation jargon in linked evidence.
 
 ## Full-Pipeline Acceptance
 
-The complete entry point passes only when a fresh session can discover this skill, route every requested stage through its named child skill, and leave independently checkable artifacts. Record each stage as `passed`, a precise non-terminal state, or a valid `terminal_stop`; a precise blocker makes reporting honest but does not by itself complete the full Goal. Keep the Goal active when the next required action is waiting on a temporary gate. Never report `PASS with STOP`, `PASS (gap-documented)`, or another hybrid that marks an unmet required artifact as passed. Inherited logs, old files, browser toasts, and unverified clicks are not fresh acceptance evidence. For protected sources, verify the landed PDF or data slice by identity, structure or required columns, size, and hash before allowing downstream synthesis or analysis.
+The complete entry point passes only when a fresh session can discover this skill, route every requested stage through its named child skill, and leave independently checkable artifacts. Record each stage as `passed`, a precise non-terminal state, or a valid `terminal_stop`; a precise blocker makes reporting honest but does not by itself complete the full Goal. A project with frozen numerical gates must include `FEASIBILITY_AND_GATE_CALIBRATION.md`; a gate without external or analytical calibration is incomplete. Keep the Goal active when the next required action is waiting on a temporary gate. Never report `PASS with STOP`, `PASS (gap-documented)`, or another hybrid that marks an unmet required artifact as passed. Inherited logs, old files, browser toasts, and unverified clicks are not fresh acceptance evidence. For protected sources, verify the landed PDF or data slice by identity, structure or required columns, size, and hash before allowing downstream synthesis or analysis.

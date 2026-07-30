@@ -10,6 +10,7 @@ Use this registry for the `business-research-suite` router and for staged pipeli
 | `method` | Need sample, variables, measures, identification, or merge keys from verified fulltext | `method-harvest` | `*_METHOD_CARD.md` |
 | `novelty` | Need closest-paper delta and risk framing | `business-novelty-check` | `BUSINESS_NOVELTY_CHECK.md` |
 | `design` | Need sample, variables, model, tables | `empirical-design-plan` | `RESEARCH_DESIGN.md` |
+| `feasibility-gates` | Need literature-calibrated sample benchmarks, a pilot, QA bounds, scope-down choices, or STOP rules | `empirical-design-plan` | `FEASIBILITY_AND_GATE_CALIBRATION.md` |
 | `wrds` | Need WRDS data; R/Postgres is the default route | `wrds-query-bridge` | landed extract + `DATA_MANIFEST.md` |
 | `wrds-sas` | Recorded R-path escalation or explicit SAS request | `wrds-sas-cloud` | SAS log + transferred extract + handoff |
 | `cn-data` | Need CSMAR/CNRDS fields or a minimal authorized portal export | `cn-data-bridge` | `DOWNLOAD_SPEC` + raw extract + manifest |
@@ -30,6 +31,7 @@ Use this registry for the `business-research-suite` router and for staged pipeli
 
 - When the user has only a broad topic, start with `scope` or `lit-review`.
 - When a design claim depends on a paper's method, route `fulltext` then `method`; metadata alone is insufficient.
+- Before freezing a numerical gate, starting high-cost acquisition, or declaring STOP, route `feasibility-gates` and apply `business-feasibility-gates.md`.
 - When a data plan names WRDS, route `wrds` first and use `wrds-sas` only after its escalation gate. Route CSMAR/CNRDS to `cn-data`.
 - When the user has data or results, route to `analysis`, then `claims`.
 - Route Word packaging to `results-docx` only after reproducible tidy outputs exist.

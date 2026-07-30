@@ -109,6 +109,21 @@ Required:
 - `table_shells`
 - `known_threats`
 
+## FEASIBILITY_AND_GATE_CALIBRATION.md
+
+Required:
+
+- `closest_study_benchmarks` with sample, firms, events/shocks/clusters, treatment support, match coverage, attrition, precision/CI/MDE, claim level, and verified source locations
+- `comparability_adjustments` for unit, timing, measurement error, clustering, and identification strength
+- `claim_ladder` from flagship through scoped and descriptive/measurement contributions
+- `representative_preflight` covering easy, typical, and difficult cases, or a justified reason it cannot be run
+- `gate_registry` with threshold, class, evidence basis, and branch-specific consequence
+- `best_case_arithmetic` with verified pass, terminal branch no-go, recoverable, external-waiting, attainable maximum, and required threshold
+- `qa_relevance_plan` with decision affected, failure detected, cheapest sufficient check, and QA stopping condition
+- `scope_down_routes`
+- `project_terminal_stop_rule` requiring failure of every meaningful claim tier
+- `plain_language_decision_summary`
+
 ## RESULTS_SUMMARY.md
 
 Required:
@@ -199,5 +214,8 @@ Required:
 - `analysis_backend`
 - `artifact_index`
 - `decision_log`
+- `feasibility_and_gate_calibration`
+- `gate_registry`
+- `branch_status`
 - `audit_status`
 - `repro_lock`
