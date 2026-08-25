@@ -112,6 +112,45 @@ def test_skill_inventory_check_is_cli_runnable() -> None:
     assert result.returncode == 0, result.stderr
 
 
+def test_writing_skills_reject_empty_contrast_and_template_scaffolds() -> None:
+    """Keep the de-AI writing contract on both authoring surfaces.
+
+    A contrast remains valid when it marks a real evidentiary boundary.  The
+    contract targets manufactured setup clauses and repeated prose templates,
+    so these checks intentionally assert the decision rule rather than banning
+    a token such as ``not`` globally.
+    """
+    for root in (MAIN_SKILLS, CODEX_SKILLS):
+        principles = read(root / "shared-references" / "writing-principles.md")
+        assert "Remove Manufactured Contrast" in principles
+        assert "`Y` remains correct after deleting `X`, state `Y` directly" in principles
+        assert "Remove Repeated Rhetorical Scaffolds" in principles
+        assert "quote the exact sentence or paragraph" in principles
+
+        paper_write = read(root / "paper-write" / "SKILL.md")
+        assert "manufactured contrasts" in paper_write.lower()
+        assert "repeated" in paper_write.lower() and "scaffold" in paper_write.lower()
+        assert "quote the exact sentence or paragraph" in paper_write
+
+        improvement_loop = read(root / "auto-paper-improvement-loop" / "SKILL.md")
+        assert "manufactured \"not X, but Y\" contrasts" in improvement_loop
+        assert "Before implementing prose fixes" in improvement_loop
+        assert "do not replace one stock phrase with another" in improvement_loop.lower()
+
+        business_write = read(root / "business-paper-writing" / "SKILL.md")
+        assert "../shared-references/writing-principles.md" in business_write
+        assert "background -> gap -> contribution" in business_write
+        assert "do not replace one stock phrase with another" in business_write.lower()
+
+        business_plan = read(root / "business-paper-plan" / "SKILL.md")
+        assert "coverage inventory" in business_plan
+        assert "not a fixed paragraph-by-paragraph scaffold" in business_plan
+
+        style_profile = read(root / "business-author-style-profile" / "SKILL.md")
+        assert "manufactured contrast" in style_profile
+        assert "formulaic paragraph scaffolds" in style_profile
+
+
 def test_codex_render_html_strips_bom_frontmatter() -> None:
     script = CODEX_SKILLS / "render-html" / "scripts" / "render_html.py"
     spec = importlib.util.spec_from_file_location("codex_render_html", script)

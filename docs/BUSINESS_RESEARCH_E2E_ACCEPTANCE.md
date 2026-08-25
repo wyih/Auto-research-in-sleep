@@ -20,7 +20,7 @@ This matrix is the release gate for the Codex business empirical-research suite.
 | P3 SSRN | Abstract page → passive Cloudflare wait when shown → current PDF download | Correct paper identity, local PDF, manifest, and browser receipt |
 | P3 ScienceDirect | Article page and entitled PDF or an explicit current access blocker | Correct PDF and manifest; no API-only false pass |
 | P3 Wiley | DOI landing page → entitled PDF route in the signed-in session | Correct DOI/title PDF, manifest, and browser receipt |
-| P3 literature synthesis | Verified PDFs → page renders → method cards → evidence matrix → grounded review | Exact variable construction, design, inference, results, source locations, conflicts, and claim ceilings are traceable |
+| P3 fulltext literature synthesis | Verified PDFs → page renders → method cards → evidence matrix → grounded review | Exact variable construction, design, inference, results, source locations, conflicts, and claim ceilings are traceable |
 | P1 WRDS R/Postgres | Real minimal query and immutable extract | Query/filter record, schema, rows, hash, missingness |
 | P1 WRDS SAS Cloud | Real SAS program submit, remote completion, transfer back | SAS log, output file, schema/rows/hash, handoff note |
 | P4 CSMAR | Minimal named table/field/date export from the authorized session/network | Valid vendor file, required fields, filters, hash, manifest |

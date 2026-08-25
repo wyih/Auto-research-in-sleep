@@ -43,6 +43,7 @@ Choose the shortest structure that fits the evidence:
 9. Conclusion
 
 Merge sections when the paper is short. Split sections when the design or journal convention requires it.
+Treat the list as a coverage inventory, not a required order or section quota. Omit unsupported mechanisms and additional analyses; do not create headings merely to complete the template.
 
 ## Workflow
 
@@ -54,7 +55,7 @@ Create:
 
 ### Step 2: Table-First Story
 
-Plan the table order before prose:
+Plan supported table order before prose. The following sequence is illustrative, not a quota:
 
 - Table 1: sample and descriptives
 - Table 2: main result
@@ -63,7 +64,7 @@ Plan the table order before prose:
 - Table 5: mechanism
 - Table 6: heterogeneity or additional analysis
 
-Use only tables supported by existing evidence or a clear data-analysis plan.
+Use only tables supported by existing evidence or a clear data-analysis plan. Do not invent mechanism, heterogeneity, or robustness slots merely to make the sequence look complete.
 
 ### Step 3: Introduction Logic
 
@@ -74,6 +75,8 @@ Force the Introduction to answer:
 - what setting or shock identifies it
 - what the paper finds
 - why the finding matters economically and theoretically
+
+These are questions the Introduction must answer, not a fixed paragraph-by-paragraph scaffold. Combine, reorder, or omit rhetorical transitions according to the paper's evidence and contribution.
 
 ### Step 4: Referee Risk Map
 
@@ -112,5 +115,6 @@ Include:
 - Avoid promising tests that are absent from the table plan.
 - Make contribution type explicit: theory, construct, setting, identification, data, or reconciliation.
 - Keep the Introduction front-loaded with the actual finding.
+- Build the outline around supported claims and tables rather than a standardized section count or contribution formula.
 - Mark missing evidence as `DATA_NEEDED` rather than inventing content.
 - Mark missing source support as `SOURCE_NEEDED`.

@@ -306,12 +306,15 @@ First apply the sentence-level clarity rules from `../shared-references/writing-
 - Significance inflation ("groundbreaking", "revolutionary" → use measured language)
 - Formulaic transitions ("In this section, we..." → remove or vary)
 - Generic conclusions ("This work opens exciting new avenues" → be specific)
+- Manufactured contrasts ("not X, but Y"; "not merely X, but also Y"; `不是……而是……`; `并非只是……更是……`). Keep them only when X is a real interpretation, alternative, or claim already established by evidence, cited literature, the user, or the preceding text. If Y stands on its own, state Y directly.
+- Repeated paragraph scaffolds (for example, broad background -> however-gap -> contribution -> generic theoretical/practical implications). Rebuild the paragraph around its actual claim and evidence instead of swapping transition words.
 
 **Language patterns to fix (watch words):**
 - Replace: delve, pivotal, landscape, tapestry, underscore, noteworthy, intriguingly
 - Remove filler: "It is worth noting that", "Importantly,", "Notably,"
 - Avoid rule-of-three lists ("X, Y, and Z" appearing repeatedly)
 - Don't start consecutive sentences with "This" or "We"
+- Treat contribution lists and paired theoretical/practical implications as content inventories, not quotas; include only parts supported by distinct content.
 
 ### Step 6: Cross-Review with REVIEWER_MODEL
 
@@ -334,6 +337,7 @@ spawn_agent:
     7. Are figures/tables clearly described and properly referenced?
 
     For each issue, specify: severity (CRITICAL/MAJOR/MINOR), location, and fix.
+    For every AI-shaped prose finding, quote the exact sentence or paragraph and name the unsupported rhetorical move. Treat a contrast or repeated scaffold as a problem only when the content does not justify it. Rewrite from the actual claim or evidence; do not return generic advice to "vary structure" or replace one stock phrase with another.
 
     [paste full draft text]
 ```

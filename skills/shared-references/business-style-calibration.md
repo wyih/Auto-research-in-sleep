@@ -20,6 +20,8 @@ Capture:
 - table-result narration style
 - use of economic magnitude
 - tolerance for first-person or passive voice
+- manufactured-contrast and false-dichotomy habits
+- repeated paragraph scaffolds, contribution formulas, and enumerated rhetorical moves
 
 ## Output Template
 
@@ -47,4 +49,6 @@ Target journal or field norms:
 - Journal and discipline norms override personal style.
 - Do not imitate quirks that weaken clarity, precision, or reviewer trust.
 - Do not strengthen causal verbs beyond `CLAIMS_FROM_EVIDENCE.md`.
+- Do not encode unsupported manufactured contrasts or repeated rhetorical scaffolds as author traits to reproduce.
+- Keep "not X, but Y" and equivalent Chinese forms only when X is an established interpretation, alternative, or claim that must be distinguished from Y.
 ```

@@ -479,6 +479,12 @@ Also remove redundancies: "completely eliminate" → "eliminate", "future plans"
 
 Remove AI-isms: delve, pivotal, landscape, tapestry, underscore, noteworthy, intriguingly.
 
+Apply the de-AI rhetoric checks in `../shared-references/writing-principles.md`:
+
+- Flag manufactured contrasts such as "not X, but Y" or "not merely X, but also Y." Keep them only when the draft has established X as a real interpretation, alternative, or claim that must be rejected. If Y remains accurate after deleting X, state Y directly.
+- Compare paragraph openings and internal moves across the section. Rebuild repeated background -> gap -> contribution -> implication scaffolds around the actual claim and evidence instead of varying a few transition words.
+- Treat contribution lists, paired theoretical/practical implications, and rule-of-three structures as content inventories, not quotas. Use them only when the evidence contains those distinct parts.
+
 **Pass 2: Active Voice and Verb Vitality** — Identify who did what.
 
 - Spot passive: "to-be" verb + past participle ("was observed", "were analyzed")
@@ -539,6 +545,7 @@ mcp__codex__codex:
     8. Would a skim reader understand the contribution from the title, abstract, introduction, and Figure 1?
 
     For each issue, specify: severity (CRITICAL/MAJOR/MINOR), location, and fix.
+    For every AI-shaped prose finding, quote the exact sentence or paragraph and name the unsupported rhetorical move. Treat a contrast or repeated scaffold as a problem only when the content does not justify it. Rewrite from the actual claim or evidence; do not return generic advice to "vary structure" or replace one stock phrase with another.
 
     [paste full draft text]
 ```

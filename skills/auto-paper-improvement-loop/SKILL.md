@@ -280,6 +280,12 @@ mcp__codex__codex:
 
     Focus on: theoretical rigor, claims vs evidence alignment, writing clarity,
     self-containedness, notation consistency, AND visual presentation quality.
+    For prose findings, check manufactured "not X, but Y" contrasts and repeated
+    background -> gap -> contribution -> generic implication scaffolds. Keep a
+    contrast when it marks a real evidentiary or conceptual boundary. Otherwise,
+    quote the exact sentence or paragraph, identify the unsupported rhetorical
+    move, and propose a content-bearing rewrite rather than generic advice to
+    "vary structure."
 ```
 
 Save the threadId for Round 2.
@@ -308,6 +314,12 @@ Parse user response same as `/auto-review-loop`: approve / custom instructions /
 
 Parse the review and implement fixes by severity:
 
+Before implementing prose fixes, read `../shared-references/writing-principles.md`.
+Remove manufactured setup clauses when the affirmative claim stands alone, and
+rebuild repeated rhetorical scaffolds from the paper's actual claim and evidence.
+Do not replace one stock phrase with another or delete a contrast that defines a
+real claim boundary.
+
 **Priority order:**
 1. CRITICAL fixes (assumption mismatches, internal contradictions)
 2. MAJOR fixes (overclaims, missing content, notation issues)
@@ -327,7 +339,7 @@ Parse the review and implement fixes by severity:
 | Missing references | Add to `references.bib`, cite in appropriate locations |
 | Theory-practice gap | Explicitly frame theory as idealized; add synthetic validation subsection |
 | Proof gap (theory papers) | Run `/proof-checker` if PROOF_AUDIT.md doesn't exist yet; fix FATAL/CRITICAL issues |
-| Writing clutter / passive voice | Apply sciwrite 5-pass audit: clutter extraction → active voice → sentence architecture → keyword consistency → numerical integrity. See `paper-write` Step 5 |
+| Writing clutter, manufactured contrast, or repeated prose template | Apply the sciwrite 5-pass audit plus the de-AI rhetoric checks in `writing-principles.md`. See `paper-write` Step 5 |
 | Number mismatch (paper vs results) | Run `/paper-claim-audit` if PAPER_CLAIM_AUDIT.md doesn't exist; fix any `number_mismatch` or `aggregation_mismatch` claims |
 | Keyword inconsistency | The "Banana Rule": if Methods says "obese group", Results must not say "heavier group". Extract key terms, verify consistency across all sections |
 
@@ -421,6 +433,12 @@ mcp__codex__codex:
 
     Focus on: theoretical rigor, claims vs evidence alignment, writing clarity,
     self-containedness, notation consistency, and visual presentation quality.
+    For prose findings, check manufactured "not X, but Y" contrasts and repeated
+    background -> gap -> contribution -> generic implication scaffolds. Keep a
+    contrast when it marks a real evidentiary or conceptual boundary. Otherwise,
+    quote the exact sentence or paragraph, identify the unsupported rhetorical
+    move, and propose a content-bearing rewrite rather than generic advice to
+    "vary structure."
 ```
 
 If `REVIEWER_BIAS_GUARD = false` (legacy debugging only), use `mcp__codex__codex-reply` with the saved threadId; this is **not** the recommended path.

@@ -28,7 +28,7 @@ Prefer:
 
 If the user gives a specific section, load only the files needed for that section.
 
-Read `../shared-references/business-style-calibration.md` when applying an author style profile. Read `../shared-references/business-handoff-schemas.md` when required inputs are incomplete.
+Read `../shared-references/business-style-calibration.md` when applying an author style profile. Read `../shared-references/writing-principles.md` before drafting or revising prose, especially when the draft feels generic, templated, or AI-shaped. Read `../shared-references/business-handoff-schemas.md` when required inputs are incomplete.
 
 ## Workflow
 
@@ -64,6 +64,8 @@ Use the business paper plan and any approved style profile:
 - Mechanisms: evidence consistent with the proposed channel
 - Conclusion: contribution and limits
 
+This list defines content coverage, not a paragraph template or section quota. Let the available evidence determine the order, length, and number of rhetorical moves. Do not manufacture a mechanism, implication, or contribution category to fill the list.
+
 ### Step 4: Table Traceability
 
 Every numeric statement must point to a table, figure, or output file.
@@ -85,6 +87,11 @@ Before finalizing, scan for:
 - unsupported mechanism language
 - related-work overclaim
 - source claims with unresolved source-audit issues
+- manufactured contrasts such as "not X, but Y" or `不是……而是……` when X is not a real interpretation or claim that the paper must reject
+- repeated background -> gap -> contribution -> generic implication scaffolds across paragraphs
+- automatic "first, second, finally," "on the one hand/on the other hand," rule-of-three, or paired theoretical/practical contribution structures without distinct supporting content
+
+For each style finding, quote the exact sentence or paragraph and explain which contrast or scaffold lacks substantive support. If the affirmative claim stands after removing the setup, state it directly. Rewrite from the paper's claim, evidence, or boundary; do not replace one stock phrase with another.
 
 ## Output
 

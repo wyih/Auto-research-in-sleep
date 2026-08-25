@@ -133,7 +133,7 @@ For example:
 - “In recent years, deep learning has...”
 - “Neural networks have revolutionized...”
 
-The problem is not just that these openings sound stale. They carry **too little information** to help a reviewer judge the paper's specific contribution.
+These openings sound stale and carry **too little information** to help a reviewer judge the paper's specific contribution.
 
 ## Introduction Structure
 
@@ -334,6 +334,50 @@ Unless uncertainty is genuine, avoid overusing:
 
 Excessive hedging often reads less like rigor and more like self-doubt.
 
+### Remove Manufactured Contrast
+
+Do not invent a weak position merely to negate it and make the next clause sound
+deeper. Watch for repeated forms such as:
+
+- `not X, but Y` / `not merely X, but also Y`,
+- `this is not about X; it is about Y`,
+- `不是……而是……` / `并非只是……更是……` / `不仅在于……更在于……`.
+
+Keep a contrast only when `X` is a real interpretation, alternative, or claim
+already established by the evidence, literature, user, or preceding text. If
+`Y` remains correct after deleting `X`, state `Y` directly. Do not create a
+straw position solely for rhetorical lift.
+
+Weak:
+
+```text
+This is not merely a disclosure effect, but a transformation of governance.
+```
+
+Direct:
+
+```text
+The disclosure rule changes how boards monitor related-party transactions.
+```
+
+A real distinction remains valid: `The estimate identifies an association, not
+a causal effect.` Here both alternatives have defined meanings and the contrast
+sets the claim boundary.
+
+### Remove Repeated Rhetorical Scaffolds
+
+Let evidence determine paragraph shape. Do not repeat the same prefabricated
+sequence across sections, such as broad background → `however` gap → `therefore`
+contribution → generic theory/practice implications. Avoid automatic
+`first/second/finally`, `on one hand/on the other hand`, rule-of-three lists, and
+paired theoretical/practical contributions unless the content actually has
+those parts. A structural template is a starting inventory, never a quota.
+
+When reviewing AI-shaped prose, quote the exact sentence or paragraph and name
+the empty rhetorical move. Replace it with a content-bearing sentence; do not
+offer generic advice to "vary the structure" or swap one stock phrase for
+another.
+
 ### Replace Vague Terms with Specific Ones
 
 | Vague Term | Better Alternative |
@@ -372,7 +416,7 @@ Stronger alternatives are often:
 - introduce
 - characterize
 
-This is not about mechanical substitution. It is about how wording changes a reviewer's intuition about whether the work is a real contribution.
+Mechanical substitution misses the point. Wording changes a reviewer's intuition about whether the work is a real contribution.
 
 ## Mathematical Writing
 
@@ -471,6 +515,8 @@ Do:
 | Inconsistent terminology | Keep one name per concept |
 | Too much passive voice | Prefer active constructions |
 | Hedging everywhere | Keep hedging only where uncertainty is real |
+| Manufactured `not X, but Y` contrast | State `Y` directly unless `X` is a real, established alternative |
+| Repeated rhetorical scaffold | Rebuild the paragraph around its specific evidence and claim |
 
 ### Figure Mistakes
 
@@ -511,6 +557,7 @@ Do:
 - [ ] Terminology is consistent.
 - [ ] There are no generic field-background openings.
 - [ ] Unnecessary hedging has been removed.
+- [ ] Manufactured contrasts and repeated template scaffolds have been removed.
 - [ ] All key figures have self-contained captions.
 
 ### Technical

@@ -47,10 +47,12 @@ Capture:
 - table-result narration
 - economic magnitude language
 - preferred transitions
+- use of manufactured contrast or false dichotomy
+- repeated paragraph scaffolds, contribution formulas, and enumerated rhetorical moves
 
 ### Step 3: Convert To Drafting Rules
 
-Write rules that `business-paper-writing` can apply without imitating errors or overstating evidence.
+Write rules that `business-paper-writing` can apply without imitating errors or overstating evidence. Do not convert frequent manufactured contrasts or repeated rhetorical scaffolds in a sample into habits to reproduce. Preserve a contrast only when both sides are substantively necessary.
 
 ### Step 4: Apply With Claim Discipline
 
@@ -76,5 +78,6 @@ Create or update `AUTHOR_STYLE_PROFILE.md`:
 
 - For local tasks, complete only the requested stage and mark downstream gaps as next-stage inputs.
 - Do not mimic unclear, inflated, or reviewer-hostile habits.
+- Do not mimic unsupported manufactured contrasts or formulaic paragraph scaffolds merely because they recur in a source sample.
 - Do not change evidence strength to match style.
 - Preserve concise business-journal prose.
