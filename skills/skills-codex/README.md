@@ -4,8 +4,8 @@ Codex-native mirror and adaptation layer for the main ARIS `skills/` package.
 
 ## Scope
 
-- Base mirror coverage: all `104` mainline skills under `skills/`
-- Support directory: `shared-references/`, with all `39/39` mainline reference names mirrored
+- Base mirror coverage: all `106` mainline skills under `skills/`
+- Support directory: `shared-references/`, with all `40/40` mainline reference names mirrored
 - The 24 business empirical-research skills are Codex-native canonical copies synchronized by `tools/sync_business_portable_mirror.py`. Every model selected inside Codex consumes the same package through `.agents/skills` and the same native plugin surface.
 - Default reviewer contract for reviewer-heavy skills:
   - round 1: `spawn_agent`
