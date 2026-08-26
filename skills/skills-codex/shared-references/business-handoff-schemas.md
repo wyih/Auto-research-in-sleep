@@ -155,6 +155,18 @@ Required per extract:
 - `status_and_access_gap`
 - `browser_receipt` for protected portal exports
 
+## DATASOURCE_RECEIPT.json
+
+Required per `kimi-datasource` call (the plugin returns only a request/tool-call id and a landed CSV path, so the caller must record the request side itself):
+
+- `data_source_name`
+- `api_name`
+- `params` (verbatim, exactly as sent to `call_data_source_tool`; never reconstructed from memory)
+- `file_path` (landed CSV path from the plugin response)
+- `sha256` (of the landed file)
+- `request_id` (request-id or tool-call id from the plugin response)
+- `field_mapping` (requested field → actual returned column name, e.g. `roe_avg` → `2024年ROE` for wind's localized headers; `not_applicable` when returned columns match the request)
+
 ## RESULTS_DOCX_MANIFEST.md
 
 Required:
