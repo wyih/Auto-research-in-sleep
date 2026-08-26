@@ -54,6 +54,7 @@ PORTABLE_REFERENCES = (
     "business-handoff-schemas.md",
     "business-helper-resolution.md",
     "business-mode-registry.md",
+    "business-method-routing.md",
     "business-repro-lock.md",
     "business-run-passport.md",
     "business-style-calibration.md",

@@ -11,6 +11,8 @@ Audit target: $ARGUMENTS
 
 Verify that paper claims match the empirical outputs on disk. This is the replication and number QA gate for the business research workflow. Run `business-claim-source-audit` as the companion gate when the draft contains citation-supported, institutional, literature, causal, or mechanism claims.
 
+For case-study projects this skill narrows to factual-numeric consistency: dates, amounts, counts, quoted figures, and event sequences in the case narrative must match the case database and source documents. The specification audit (Step 3) does not apply; evidence-chain verification of case claims belongs to `business-claim-source-audit`.
+
 ## Inputs
 
 Read what exists:

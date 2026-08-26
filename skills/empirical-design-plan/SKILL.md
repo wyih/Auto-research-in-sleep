@@ -1,6 +1,6 @@
 ---
 name: empirical-design-plan
-description: Plan and feasibility-test empirical research designs for accounting, finance, management, economics, and business papers. Use for identification, sample construction, variables, models, table shells, robustness, event studies, DiD, IV, RD, gate calibration, sample benchmarks, power or precision, claim ladders, scope-down choices, and defensible STOP decisions.
+description: Plan and feasibility-test empirical research designs for accounting, finance, management, economics, and business papers. Use for method routing across archival, experiment, survey, field, case-study, design-science, and normative research; identification, sample construction, variables, models, table shells, robustness, event studies, DiD, IV, RD, case-study design and protocols, gate calibration, sample benchmarks, power or precision, claim ladders, scope-down choices, and defensible STOP decisions.
 ---
 
 # Empirical Design Plan
@@ -25,8 +25,18 @@ Read available files in this order:
 
 Read `../shared-references/business-handoff-schemas.md` when writing design artifacts.
 Read `../shared-references/business-feasibility-gates.md` before proposing a numerical gate, kill test, high-cost acquisition, or STOP rule.
+Read `../shared-references/business-method-routing.md` before Phase 0 in every run.
 
 ## Workflow
+
+### Phase 0: Route the Method
+
+Classify the idea into exactly one first-level method — archival, experiment, survey, field research, case study, design science, or normative — using the criteria and boundary rules in `business-method-routing.md`. Record the routed method, the primary criterion that fired, and the rejected alternatives at the top of `RESEARCH_DESIGN.md`.
+
+- Archival (including quasi-natural experiments and textual analysis) → continue with Phases 1–6 below.
+- Case study → use the Case Study Branch below; Phases 1, 3, and 6 still apply with the branch's adaptations.
+- Experiment or survey → continue with Phases 1–6; acquisition runs through project-managed instruments, not WRDS/CSMAR bridges.
+- Field research, design science, or normative → this skill has no dedicated design path; record the gap in `RESEARCH_DESIGN.md` and route back to `business-research-suite` instead of forcing the archival template.
 
 ### Phase 1: Freeze Claims
 
@@ -104,6 +114,16 @@ Include:
 - timing windows
 - mechanism alternatives
 
+### Case Study Branch
+
+Use when Phase 0 routes to case study. Follow the case-study design contract in `business-method-routing.md` and adapt the phases:
+
+- Claims (Phase 1): causal language is capped at within-case explanatory inference; cross-case conclusions generalize to theory through replication logic, never to populations. Replace "robustness" with rival-explanation handling, triangulation, and negative-case analysis.
+- Design specification (Phase 2): replace the variable/FE/clustering list with the required case design elements — research question, case boundary, unit of analysis, theory role, case type, selection logic, data sources, analysis strategy, quality plan.
+- Feasibility (Phase 3): benchmark against verified closest case studies for site access, informant coverage, evidence volume per source type, and case count justification; freeze the claim ladder (within-case explanation → cross-case replication → theory contribution); access failure to the primary site is a recoverable gate with named backup cases, not an automatic stop.
+- Table shells (Phase 4): replace with evidence displays — event timeline, construct tables, evidence–claim matrix, replication matrix for multi-case work.
+- Outputs (Phase 6): additionally write `empirical-design/CASE_PROTOCOL.md` covering questions, field procedures, interview/observation topics, required documents, data storage, analysis templates, and the evidence-chain plan from conclusions back to case material.
+
 ### Phase 6: Write Outputs
 
 When writing is allowed, create:
@@ -128,6 +148,7 @@ End with:
 
 ## Rules
 
+- Route the method first (Phase 0). DID, IV, RDD, PSM, event studies, and textual analysis are techniques inside archival research, not parallel paradigms; never escalate method choice by technique sophistication.
 - For local tasks, complete only the requested stage and mark downstream gaps as next-stage inputs.
 - Design tables around claims, not around available variables.
 - State what the design can and cannot identify.

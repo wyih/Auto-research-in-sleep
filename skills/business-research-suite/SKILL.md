@@ -35,7 +35,8 @@ Use the most specific mode:
 - missing paper PDF or protected publisher access: `fulltext-acquire`
 - method, measure, sample, or identification extraction from verified PDFs: `method-harvest`
 - novelty and closest-paper delta: `business-novelty-check`
-- design, sample, variables, models, table shells, feasibility, or gate calibration: `empirical-design-plan`
+- design, sample, variables, models, table shells, feasibility, or gate calibration; first-level method routing (archival, experiment, survey, field, case study, design science, normative); case-study design and protocols: `empirical-design-plan`
+- public or licensed data under Kimi Code CLI (Wind, S&P, SEC EDGAR, Yahoo Finance, China NBS, FRED/IMF/World Bank macro, Tianyancha registry, Chinese standards/law, arXiv/Scholar, Xinhua/Caixin news): `kimi-datasource` plugin via `mcp__plugin-kimi-datasource_data__*`
 - WRDS data through the default R/Postgres path: `wrds-query-bridge`
 - WRDS SAS Cloud after a recorded escalation condition or explicit SAS request: `wrds-sas-cloud`
 - CSMAR or CNRDS variable resolution and minimal portal export: `cn-data-bridge`

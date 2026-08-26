@@ -1,6 +1,6 @@
 ---
 name: business-research-pipeline
-description: Complete end-to-end business, accounting, finance, management, and economics research workflow for Codex. Use when the user wants one entry point that routes literature review, verified fulltext and method synthesis, idea and novelty, empirical design, WRDS or CSMAR/CNRDS acquisition, analysis, evidence audits, paper planning, writing, rebuttal, or resubmission, regardless of which model is selected inside Codex.
+description: Complete end-to-end business, accounting, finance, management, and economics research workflow for Codex or Kimi Code CLI. Use when the user wants one entry point that routes literature review, verified fulltext and method synthesis, idea and novelty, empirical design, WRDS, kimi-datasource, or CSMAR/CNRDS acquisition, analysis, evidence audits, paper planning, writing, rebuttal, or resubmission, regardless of which model is selected in the host CLI.
 ---
 
 # Business Research Pipeline
@@ -25,7 +25,7 @@ Use the cheapest sufficient channel and escalate only when the unresolved eviden
 
 1. project-local verified artifacts, manifests, caches, and checked-in scripts
 2. model-native web search/fetch, when available, for public discovery, official documentation, literature metadata, public filings, and openly downloadable data
-3. a bounded public API or direct HTTP helper when it yields a reproducible public artifact
+3. a bounded public API or direct HTTP helper when it yields a reproducible public artifact. Under Kimi Code CLI the preferred bounded API is the `kimi-datasource` plugin (`mcp__plugin-kimi-datasource_data__get_data_source_desc` → `mcp__plugin-kimi-datasource_data__call_data_source_tool`): `wind`/`stock_finance_data` for A-share/HK quotes and financials, `sp_data`/`sec_edgar`/`yahoo_finance` for US fundamentals and filings, `china_nbs`/`china_nda`/`fred`/`imf`/`world_bank_open_data` for macro, `tianyancha` for Chinese corporate registry, `china_standards`/`yuandian_law` for standards and law, `arxiv`/`scholar` for literature metadata, `xhcj`/`caixin` for financial news. It does not cover WRDS, CSMAR/CNRDS research tables, CNKI or publisher fulltext
 4. an authenticated browser only for a remaining login/session-bound page, protected portal schema, interactive query/export, challenge, or entitled download
 
 Do not acquire a browser turn for public discovery that model-native web search/fetch can complete. Before queuing protected work, record the exact unresolved item and a `browser_required_reason` accepted by `browser-session-bridge`. Public search can identify candidates and open alternatives; it cannot prove the user's current subscription, the live authenticated table state, or a protected export.
@@ -128,7 +128,7 @@ Output:
 
 ### Stage 5: Empirical Design
 
-Run `empirical-design-plan`.
+Run `empirical-design-plan`. Its Phase 0 routes the first-level method via `business-method-routing.md`; archival designs (including quasi-natural experiments and textual analysis) continue through the standard stages, and case-study ideas use its case-study branch. Methods without a dedicated suite path (field research, design science, normative) are recorded as explicit gaps, not forced into the archival template.
 
 Output:
 
@@ -137,6 +137,7 @@ Output:
 - `empirical-design/TABLE_SHELLS.md`
 - `empirical-design/ROBUSTNESS_PLAN.md`
 - `empirical-design/FEASIBILITY_AND_GATE_CALIBRATION.md`
+- `empirical-design/CASE_PROTOCOL.md` when Phase 0 routes to case study
 
 ### Stage 5.5: Feasibility And Gate Calibration
 
@@ -157,7 +158,9 @@ Resolve every required source in `empirical-design/DATA_PLAN.md` before estimati
 
 - Run `wrds-query-bridge` for WRDS. Use its R/Postgres path by default.
 - Run `wrds-sas-cloud` only when the R path has a recorded timeout, OOM, hard failure, authentication blocker after retries, or the user explicitly requires SAS.
-- Run `cn-data-bridge` for minimal CSMAR/CNRDS exports. Route protected portal actions through `browser-session-bridge` and Codex's native Chrome plugin. Keep browser mutations serialized against the user's Chrome profile; parallelize public search and local analysis instead.
+- Under Kimi Code CLI, resolve covered data needs through the `kimi-datasource` plugin before escalating to an authenticated browser: Chinese macro and provincial series via `china_nbs`, global macro via `fred`/`imf`/`world_bank_open_data`, A-share/HK financials and intraday series via `wind`, US filings and fundamentals via `sec_edgar`/`sp_data`, Chinese corporate registry via `tianyancha`, financial news and announcements via `xhcj`/`caixin`. Parameter names come from the live `get_data_source_desc` documentation of each source — never infer them across sources (`china_nbs` takes `filepath`, `wind` takes `file_path`). Independent desc/call pairs for different data sources may be issued in parallel; do not re-fetch a desc already read in the same session, and keep a one-line list of descs already read in `DATA_PLAN.md` or `DATA_MANIFEST.md`. Record one datasource receipt per call (`data_source_name`, `api_name`, verbatim `params`, landed CSV path, hash, request id, and `field_mapping` for localized returned columns) per `DATASOURCE_RECEIPT.json` in `../shared-references/business-handoff-schemas.md`, and link it from `DATA_MANIFEST.md`. `kimi-datasource` does not replace WRDS, CSMAR/CNRDS portal exports, or paywalled fulltext; keep those on their existing routes.
+- Run `cn-data-bridge` for minimal CSMAR/CNRDS exports. Route protected portal actions through `browser-session-bridge` and the host CLI's native browser control (Codex native Chrome plugin under Codex, Kimi WebBridge under Kimi Code CLI). Keep browser mutations serialized against the user's browser profile; parallelize public search and local analysis instead.
+- Case-study primary evidence (interviews, field notes, internal documents) does not route through WRDS, `kimi-datasource`, or `cn-data-bridge`; it lands as project-managed files under the case protocol's evidence-chain rules. Use the bridges only for supplementary archival evidence the design names.
 
 Output:
 
@@ -249,6 +252,7 @@ Apply these terminal criteria strictly:
 - Route empirical execution through `data-analysis-bridge`.
 - Route missing fulltext through `fulltext-acquire` and method extraction through `method-harvest`; never infer method fields from abstracts.
 - Route WRDS through `wrds-query-bridge` first and record any `wrds-sas-cloud` escalation reason.
+- Under Kimi Code CLI, route data needs covered by the `kimi-datasource` plugin through `mcp__plugin-kimi-datasource_data__*` before escalating to an authenticated browser; it does not cover WRDS, CSMAR/CNRDS portal exports, or paywalled fulltext.
 - Route CSMAR/CNRDS through `cn-data-bridge`; its browser transport must come from `browser-session-bridge`.
 - Browser UI is required for authenticated navigation, login-state reuse, and portal mutations that depend on the visible session. Checked-in helper scripts may orchestrate the selected bridge, wait for and copy downloads, hash files, inspect archives, and run deterministic semantic checks. Do not fail an otherwise valid stage merely because the same approved bridge calls were issued by a helper script instead of one-by-one model tool calls.
 - Treat `results-to-docx` as a reproducible results package, not permission to overwrite a manuscript.

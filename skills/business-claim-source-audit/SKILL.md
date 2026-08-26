@@ -39,6 +39,7 @@ Extract claims that need support:
 - mechanism statements
 - causal or quasi-causal language
 - headline empirical interpretations
+- case-study projects: case facts, event dates and sequences, quoted material, stage divisions, and cross-case comparative claims
 
 ### Step 2: Verify Support
 
@@ -49,6 +50,14 @@ For each claim, check the cited source or project artifact. Assign:
 - `MAJOR_DISTORTION`
 - `UNVERIFIABLE`
 - `UNVERIFIABLE_ACCESS`
+
+For case-study projects, verify through the evidence chain instead of statistical outputs:
+
+- each case claim must trace to specific case material (document, transcript, observation note, artifact) recorded in the case database, and from there back to a protocol research question
+- triangulation is checked per claim: at least two source types, or an explicit single-source limitation on the claim
+- claims resting only on management or public success narratives are flagged `UNVERIFIABLE` with a required evidence-limitation note
+- stage divisions must cite their event anchors; quotes must match the transcript record
+- cross-case claims must respect the predeclared replication logic and must not erase case-context differences
 
 ### Step 3: Check Claim Ceiling
 

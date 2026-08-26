@@ -27,6 +27,23 @@ Never infer `terminal_stop` from a missing browser grant, queued profile, pendin
 
 Track branch-level conclusions separately from the project state: `not_evaluable`, `branch_stop`, `design_killed`, and `scope_down` do not imply project `terminal_stop`.
 
+## Decision Cards
+
+Distinguish AI working branches from author-confirmed decisions. Every consequential research choice the agent proposes (research question, theory framing, method route, case or sample selection, output form, claim strength) is a **working branch** until the author explicitly confirms it. Downstream artifacts must state which working branch they assume; no artifact may present a working branch as the author's decision.
+
+Each decision card records a real choice with at least two non-synonymous options and its basis; when the choice genuinely has no room, record that instead of fabricating options. When options can coexist with different emphasis (for example, endogeneity response and heterogeneity analysis), ask which leads, never frame them as mutually exclusive.
+
+Template block:
+
+~~~markdown
+## Decision Cards
+| Card ID | Decision Point | Options | Basis | AI Working Branch | Author Decision | Status |
+|---|---|---|---|---|---|---|
+| DC1 | | | | | | pending / confirmed / dropped |
+~~~
+
+Lifecycle: `pending` while only the AI working branch exists → `confirmed` when the author decides (also copy to Decision Log with date) → `dropped` when the author rejects the choice or the branch closes. A stage whose artifact depends on a `pending` card must mark that dependency in its checkpoint report.
+
 ## Template
 
 ~~~markdown
@@ -122,6 +139,7 @@ repro_lock:
 
 - Create the passport at project intake when none exists.
 - Update `Artifact Index` after each skill writes a deliverable.
+- Maintain `Decision Cards`: agent proposals enter as working branches with status `pending`; only an explicit author decision moves a card to `confirmed` (and into the Decision Log); never record an unconfirmed branch as decided.
 - Update `Acquisition Status` from actual fulltext/data manifests and redacted browser receipts; never from portal reachability alone.
 - Update `Audit Status` only from actual audit artifacts.
 - Keep unresolved issues visible until they are resolved, reframed, or dropped by the user.

@@ -42,7 +42,7 @@ Look for:
 
 ### Step 2: Create Or Update The Passport
 
-Use `../shared-references/business-run-passport.md`. Fill only fields supported by available materials. Mark unknown required fields as `HANDOFF_INCOMPLETE`.
+Use `../shared-references/business-run-passport.md`. Fill only fields supported by available materials. Mark unknown required fields as `HANDOFF_INCOMPLETE`. Maintain the `Decision Cards` block: every consequential choice the agent proposes enters as an AI working branch with status `pending`; only an explicit author decision moves it to `confirmed` and into the Decision Log.
 
 ### Step 3: Add Repro Lock
 
@@ -80,4 +80,5 @@ When writing is not allowed, return a proposed passport patch.
 - Keep unresolved issues visible in `Audit Status`.
 - Treat `repro_lock` as a configuration record, not byte-identical replay.
 - Never convert a missing browser turn, pending user checkpoint, or unattempted source into `terminal_stop` or project completion.
+- Never present an AI working branch as an author-confirmed decision; keep the distinction visible in Decision Cards.
 - When a design kill test fails, record `design_killed` for that design and evaluate viable pivots before changing the overall project state.
