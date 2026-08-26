@@ -49,13 +49,16 @@ class BusinessBrowserPortabilityTests(unittest.TestCase):
         self.assertNotRegex(text, re.compile(r"\b(?:cnki|sd)-(?:search|download|paper-detail)\b"))
         self.assertNotIn("Browser requirement", text)
 
-    def test_bridge_has_one_codex_native_route_for_every_selected_model(self) -> None:
+    def test_bridge_has_one_trusted_route_per_host_runtime(self) -> None:
         bridge = (SKILLS / "browser-session-bridge" / "SKILL.md").read_text(
             encoding="utf-8"
         )
         adapter = (SKILLS / "browser-session-bridge" / "references" / "codex-chrome.md").read_text(
             encoding="utf-8"
         )
+        kimi_adapter = (
+            SKILLS / "browser-session-bridge" / "references" / "kimi-webbridge.md"
+        ).read_text(encoding="utf-8")
         contract = (
             SKILLS / "browser-session-bridge" / "references" / "browser-session-contract.md"
         ).read_text(encoding="utf-8")
@@ -66,6 +69,13 @@ class BusinessBrowserPortabilityTests(unittest.TestCase):
             "selected model does not change the browser route",
         ):
             self.assertIn(token, bridge + adapter)
+        for token in (
+            "kimi-webbridge",
+            "client_runtime: kimi",
+            "adapter: kimi_webbridge",
+            "fallback_directory_increment",
+        ):
+            self.assertIn(token, bridge + kimi_adapter)
         for forbidden in (
             "grok_chrome",
             "opencode",
@@ -75,7 +85,7 @@ class BusinessBrowserPortabilityTests(unittest.TestCase):
             "chrome-devtools-mcp",
             "chrome-mcp",
         ):
-            self.assertNotIn(forbidden, (bridge + adapter + contract).lower())
+            self.assertNotIn(forbidden, (bridge + adapter + kimi_adapter + contract).lower())
 
     def test_non_codex_browser_resources_are_absent(self) -> None:
         bridge_root = SKILLS / "browser-session-bridge"
@@ -90,6 +100,10 @@ class BusinessBrowserPortabilityTests(unittest.TestCase):
         for relative in removed:
             with self.subTest(relative=relative):
                 self.assertFalse((bridge_root / relative).exists())
+        # kimi_webbridge is the whitelisted second trusted backend, not a
+        # forbidden third-party resource: its adapter reference must exist.
+        kimi_reference = bridge_root / "references" / "kimi-webbridge.md"
+        self.assertTrue(kimi_reference.is_file())
 
     def test_codex_installers_remain_available_across_operating_system_modes(self) -> None:
         shell_installer_path = REPO_ROOT / "tools" / "install_aris_codex.sh"

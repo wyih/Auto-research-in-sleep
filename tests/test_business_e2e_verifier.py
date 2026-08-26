@@ -39,11 +39,24 @@ class EvidenceFixture:
         self.run = self.evidence_root / run_id
         (self.run / "cn-data" / "receipts").mkdir(parents=True)
         self.manifest_rows: list[str] = []
+        self.kimi_manifest_rows: list[str] = []
+
+    @property
+    def kimi_run(self) -> Path:
+        return self.evidence_root / "kimi" / self.run.name
 
     def add_codex_portal(self, site: str, *, recorded_rows: int | None = None) -> Path:
-        raw = self.run / "cn-data" / "raw" / site / "2026-07-18"
+        return self._add_portal(site, "codex", recorded_rows=recorded_rows)
+
+    def add_kimi_portal(self, site: str, *, recorded_rows: int | None = None) -> Path:
+        return self._add_portal(site, "kimi", recorded_rows=recorded_rows)
+
+    def _add_portal(self, site: str, runtime: str, *, recorded_rows: int | None = None) -> Path:
+        run = self.run if runtime == "codex" else self.kimi_run
+        raw = run / "cn-data" / "raw" / site / "2026-07-18"
         extracted = raw / "extracted"
         extracted.mkdir(parents=True, exist_ok=True)
+        (run / "cn-data" / "receipts").mkdir(parents=True, exist_ok=True)
         if site == "cnrds":
             artifact = extracted / "上市公司专利申请情况.csv"
             archive = raw / "cnrds-cird-000001-2020.zip"
@@ -105,6 +118,13 @@ class EvidenceFixture:
                 "temporary_url_persisted": False,
             }
             actual_rows, columns = 1, 5
+        if runtime == "kimi":
+            # kimi_webbridge has no download-event hook: completion is proven by
+            # the directory-increment fallback instead of a browser event.
+            transport.pop("browser_download_event_observed", None)
+            transport.update(
+                {"download_event": "unsupported", "completion": "fallback_directory_increment"}
+            )
         artifact.write_bytes(b"\xef\xbb\xbf" + csv_text.encode("utf-8"))
         with zipfile.ZipFile(archive, "w", compression=zipfile.ZIP_DEFLATED) as bundle:
             bundle.writestr(artifact.name, artifact.read_bytes())
@@ -112,14 +132,29 @@ class EvidenceFixture:
         relative = artifact.relative_to(self.repo)
         archive_relative = archive.relative_to(self.repo)
         recorded_rows = actual_rows if recorded_rows is None else recorded_rows
+        identity = (
+            {
+                "acceptance_id": f"p4-{site}-codex",
+                "adapter": "codex_native_chrome",
+                "mcp_server": "native",
+                "implementation": "codex_chrome",
+                "profile_mode": "user_chrome",
+            }
+            if runtime == "codex"
+            else {
+                "acceptance_id": f"p4-{site}-kimi",
+                "runtime": "kimi",
+                "client_runtime": "kimi",
+                "adapter": "kimi_webbridge",
+                "mcp_server": "local_daemon",
+                "implementation": "kimi_webbridge",
+                "profile_mode": "user_browser",
+            }
+        )
         receipt = {
             "receipt_version": "1.0",
-            "acceptance_id": f"p4-{site}-codex",
+            **identity,
             "source": site,
-            "adapter": "codex_native_chrome",
-            "mcp_server": "native",
-            "implementation": "codex_chrome",
-            "profile_mode": "user_chrome",
             "started_at": (datetime.now(timezone.utc) - timedelta(minutes=1)).isoformat(),
             "completed_at": datetime.now(timezone.utc).isoformat(),
             "status": "passed",
@@ -148,15 +183,18 @@ class EvidenceFixture:
             ],
             "secrets_or_session_material_persisted": False,
         }
-        receipt_path = self.run / "cn-data" / "receipts" / f"p4-{site}-codex.json"
+        receipt_path = run / "cn-data" / "receipts" / f"p4-{site}-{runtime}.json"
         receipt_path.write_text(json.dumps(receipt), encoding="utf-8")
-        self.manifest_rows.append(f"| {relative} | {sha256(artifact)} | codex_native_chrome |")
-        self.flush_manifest()
+        rows = self.manifest_rows if runtime == "codex" else self.kimi_manifest_rows
+        rows.append(f"| {relative} | {sha256(artifact)} | {identity['adapter']} |")
+        self.flush_manifest(runtime)
         return artifact
 
-    def flush_manifest(self) -> None:
-        manifest = self.run / "cn-data" / "DATA_MANIFEST.md"
-        manifest.write_text("# DATA_MANIFEST\n\n" + "\n".join(self.manifest_rows) + "\n", encoding="utf-8")
+    def flush_manifest(self, runtime: str = "codex") -> None:
+        run = self.run if runtime == "codex" else self.kimi_run
+        rows = self.manifest_rows if runtime == "codex" else self.kimi_manifest_rows
+        manifest = run / "cn-data" / "DATA_MANIFEST.md"
+        manifest.write_text("# DATA_MANIFEST\n\n" + "\n".join(rows) + "\n", encoding="utf-8")
 
 
 class BusinessE2EVerifierTests(unittest.TestCase):
@@ -696,6 +734,199 @@ class BusinessE2EVerifierTests(unittest.TestCase):
         self.assertEqual(payload["status"], "INCOMPLETE")
         self.assertEqual(before, after)
         self.assertEqual(explicit.name, older.name)
+
+    def test_browser_adapter_checks_accept_only_trusted_runtime_pairs(self) -> None:
+        for runtime, adapter in (("codex", "codex_native_chrome"), ("kimi", "kimi_webbridge")):
+            with self.subTest(runtime=runtime, adapter=adapter):
+                checks = verifier._browser_adapter_checks({"adapter": adapter}, runtime, "G")
+                self.assertEqual(checks[0].status, "PASS")
+        for runtime, adapter in (
+            ("codex", "kimi_webbridge"),
+            ("kimi", "codex_native_chrome"),
+            ("kimi", "external_browser"),
+            ("other", "codex_native_chrome"),
+        ):
+            with self.subTest(runtime=runtime, adapter=adapter):
+                checks = verifier._browser_adapter_checks({"adapter": adapter}, runtime, "G")
+                self.assertEqual(checks[0].status, "FAIL")
+
+    def test_normalize_runtime_recognizes_kimi_host(self) -> None:
+        self.assertEqual(verifier._normalize_runtime({"client_runtime": "kimi"}), "kimi")
+        self.assertEqual(verifier._normalize_runtime({"adapter": "kimi_webbridge"}), "kimi")
+        self.assertIsNone(verifier._normalize_runtime({"adapter": "external_browser"}))
+
+    def test_kimi_adapter_checks_require_client_runtime_and_bindings(self) -> None:
+        good = verifier._browser_adapter_checks(
+            {
+                "adapter": "kimi_webbridge",
+                "client_runtime": "kimi",
+                "mcp_server": "local_daemon",
+                "implementation": "kimi_webbridge",
+                "profile_mode": "user_browser",
+            },
+            "kimi",
+            "G",
+        )
+        self.assertTrue(all(check.status == "PASS" for check in good), [c.summary for c in good])
+        for mutation in (
+            {"client_runtime": "codex"},
+            {"mcp_server": "native"},
+            {"implementation": "codex_chrome"},
+            {"profile_mode": "user_chrome"},
+        ):
+            data = {
+                "adapter": "kimi_webbridge",
+                "client_runtime": "kimi",
+                "mcp_server": "local_daemon",
+                "implementation": "kimi_webbridge",
+                "profile_mode": "user_browser",
+                **mutation,
+            }
+            with self.subTest(mutation=mutation):
+                checks = verifier._browser_adapter_checks(data, "kimi", "G")
+                self.assertTrue(any(check.status == "FAIL" for check in checks))
+
+    def test_kimi_p4_gates_pass_with_webbridge_fallback_evidence(self) -> None:
+        with tempfile.TemporaryDirectory() as folder:
+            fixture = EvidenceFixture(Path(folder))
+            fixture.add_kimi_portal("cnrds")
+            fixture.add_kimi_portal("csmar")
+
+            report = verifier.verify_business_e2e(
+                fixture.repo, fixture.evidence_root, fixture.run.name, runtime="kimi"
+            )
+            browser = report.runtimes["kimi"]["browser"]
+            csmar_checks = {check.name: check for check in browser["P4_CSMAR"].checks}
+
+        self.assertEqual(set(report.runtimes), {"kimi"})
+        self.assertEqual(report.run_path, f".aris/business-e2e/kimi/{fixture.run.name}")
+        self.assertEqual(browser["P4_CNRDS"].status, "PASS", browser["P4_CNRDS"].summary)
+        self.assertEqual(browser["P4_CSMAR"].status, "PASS", browser["P4_CSMAR"].summary)
+        self.assertEqual(csmar_checks["P4_CSMAR download fallback"].status, "PASS")
+        self.assertEqual(csmar_checks["P4_CSMAR download event claim"].status, "PASS")
+        self.assertEqual(csmar_checks["P4_CSMAR deterministic download"].status, "PASS")
+        self.assertEqual(csmar_checks["P4_CSMAR binding:mcp_server"].status, "PASS")
+
+    def test_kimi_gate_is_incomplete_without_kimi_receipt(self) -> None:
+        with tempfile.TemporaryDirectory() as folder:
+            fixture = EvidenceFixture(Path(folder))
+            fixture.add_codex_portal("csmar")
+            fixture.kimi_run.mkdir(parents=True)
+
+            report = verifier.verify_business_e2e(
+                fixture.repo, fixture.evidence_root, fixture.run.name, runtime="kimi"
+            )
+            gate = report.runtimes["kimi"]["browser"]["P4_CSMAR"]
+
+        self.assertEqual(gate.status, "INCOMPLETE")
+        self.assertIn("no kimi csmar receipt", gate.summary)
+
+    def test_kimi_gate_rejects_crossed_runtime_adapter_pair(self) -> None:
+        with tempfile.TemporaryDirectory() as folder:
+            fixture = EvidenceFixture(Path(folder))
+            fixture.add_kimi_portal("csmar")
+            receipt_path = fixture.kimi_run / "cn-data" / "receipts" / "p4-csmar-kimi.json"
+            receipt = json.loads(receipt_path.read_text(encoding="utf-8"))
+            receipt["adapter"] = "codex_native_chrome"
+            receipt_path.write_text(json.dumps(receipt), encoding="utf-8")
+
+            report = verifier.verify_business_e2e(
+                fixture.repo, fixture.evidence_root, fixture.run.name, runtime="kimi"
+            )
+            gate = report.runtimes["kimi"]["browser"]["P4_CSMAR"]
+
+        self.assertEqual(gate.status, "FAIL")
+        self.assertIn("unsupported browser adapter", gate.summary)
+
+    def test_kimi_gate_ignores_receipt_declaring_codex_runtime(self) -> None:
+        with tempfile.TemporaryDirectory() as folder:
+            fixture = EvidenceFixture(Path(folder))
+            fixture.add_kimi_portal("csmar")
+            receipt_path = fixture.kimi_run / "cn-data" / "receipts" / "p4-csmar-kimi.json"
+            receipt = json.loads(receipt_path.read_text(encoding="utf-8"))
+            receipt["runtime"] = "codex"
+            receipt["client_runtime"] = "codex"
+            receipt_path.write_text(json.dumps(receipt), encoding="utf-8")
+
+            report = verifier.verify_business_e2e(
+                fixture.repo, fixture.evidence_root, fixture.run.name, runtime="kimi"
+            )
+            gate = report.runtimes["kimi"]["browser"]["P4_CSMAR"]
+
+        self.assertEqual(gate.status, "INCOMPLETE")
+        self.assertIn("no kimi csmar receipt", gate.summary)
+
+    def test_kimi_gate_rejects_missing_fallback_and_event_claim(self) -> None:
+        mutations = (
+            {"completion": None},
+            {"browser_download_event_observed": True},
+        )
+        for mutation in mutations:
+            with self.subTest(mutation=mutation), tempfile.TemporaryDirectory() as folder:
+                fixture = EvidenceFixture(Path(folder))
+                fixture.add_kimi_portal("csmar")
+                receipt_path = fixture.kimi_run / "cn-data" / "receipts" / "p4-csmar-kimi.json"
+                receipt = json.loads(receipt_path.read_text(encoding="utf-8"))
+                transport = receipt["download_transport"]
+                for key, value in mutation.items():
+                    if value is None:
+                        transport.pop(key, None)
+                    else:
+                        transport[key] = value
+                receipt_path.write_text(json.dumps(receipt), encoding="utf-8")
+
+                report = verifier.verify_business_e2e(
+                    fixture.repo, fixture.evidence_root, fixture.run.name, runtime="kimi"
+                )
+                gate = report.runtimes["kimi"]["browser"]["P4_CSMAR"]
+
+            self.assertEqual(gate.status, "FAIL")
+
+    def test_default_runtime_skips_kimi_subdir_and_keeps_codex_only(self) -> None:
+        with tempfile.TemporaryDirectory() as folder:
+            fixture = EvidenceFixture(Path(folder))
+            fixture.add_codex_portal("csmar")
+            fixture.add_kimi_portal("csmar")
+
+            report = verifier.verify_business_e2e(fixture.repo, fixture.evidence_root)
+            combined = verifier.verify_business_e2e(
+                fixture.repo, fixture.evidence_root, fixture.run.name, runtime="all"
+            )
+
+        self.assertEqual(report.run_id, fixture.run.name)
+        self.assertEqual(set(report.runtimes), {"codex"})
+        self.assertEqual(report.runtimes["codex"]["browser"]["P4_CSMAR"].status, "PASS")
+        self.assertEqual(set(combined.runtimes), {"codex", "kimi"})
+        self.assertEqual(combined.runtimes["kimi"]["browser"]["P4_CSMAR"].status, "PASS")
+        self.assertEqual(combined.runtimes["codex"]["browser"]["P4_CSMAR"].status, "PASS")
+
+    def test_cli_runtime_kimi_reports_separate_gate_group(self) -> None:
+        with tempfile.TemporaryDirectory() as folder:
+            fixture = EvidenceFixture(Path(folder))
+            fixture.add_kimi_portal("csmar")
+            result = subprocess.run(
+                [
+                    sys.executable,
+                    str(VERIFIER),
+                    "--repo-root",
+                    str(fixture.repo),
+                    "--evidence-root",
+                    str(fixture.evidence_root),
+                    "--runtime",
+                    "kimi",
+                    "--json",
+                ],
+                text=True,
+                capture_output=True,
+                check=False,
+            )
+            payload = json.loads(result.stdout)
+
+        self.assertEqual(result.returncode, 1)
+        self.assertEqual(list(payload["runtimes"]), ["kimi"])
+        csmar = payload["runtimes"]["kimi"]["browser"]["P4_CSMAR"]
+        self.assertEqual(csmar["status"], "PASS")
+        self.assertEqual(payload["run_path"], f".aris/business-e2e/kimi/{fixture.run.name}")
 
     def test_rejects_run_id_path_traversal(self) -> None:
         with tempfile.TemporaryDirectory() as folder:

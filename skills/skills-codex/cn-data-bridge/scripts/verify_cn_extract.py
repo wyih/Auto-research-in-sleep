@@ -26,7 +26,7 @@ from pathlib import Path, PurePosixPath
 from typing import Any, Literal, Mapping, Sequence
 
 
-Runtime = Literal["codex"]
+Runtime = Literal["codex", "kimi"]
 Site = Literal["cnrds", "csmar"]
 
 SCHEMA_VERSION = "aris.cn-data-bridge.extract-verification.v1"
@@ -35,6 +35,16 @@ CODEX_BINDINGS: Mapping[str, str] = {
     "mcp_server": "native",
     "implementation": "codex_chrome",
     "profile_mode": "user_chrome",
+}
+KIMI_ADAPTER = "kimi_webbridge"
+KIMI_BINDINGS: Mapping[str, str] = {
+    "mcp_server": "local_daemon",
+    "implementation": "kimi_webbridge",
+    "profile_mode": "user_browser",
+}
+TRUSTED_ADAPTERS: Mapping[Runtime, tuple[str, Mapping[str, str]]] = {
+    "codex": (CODEX_ADAPTER, CODEX_BINDINGS),
+    "kimi": (KIMI_ADAPTER, KIMI_BINDINGS),
 }
 MAX_ARCHIVE_MEMBERS = 100
 MAX_ARCHIVE_BYTES = 64 * 1024 * 1024
@@ -174,15 +184,24 @@ def _normalize_site(data: Mapping[str, Any]) -> Site | None:
 def _verify_runtime_adapter(
     data: Mapping[str, Any], expected_runtime: Runtime, audit: Audit
 ) -> None:
-    """Verify the single Codex-native adapter identity and bindings."""
+    """Verify the trusted host-runtime adapter identity and bindings."""
 
+    trusted = TRUSTED_ADAPTERS.get(expected_runtime)
+    if trusted is None:
+        audit.check(
+            "runtime adapter",
+            False,
+            f"unsupported runtime={expected_runtime!r}",
+        )
+        return
+    expected_adapter, expected_bindings = trusted
     adapter = str(data.get("adapter") or "")
     audit.check(
         "runtime adapter",
-        expected_runtime == "codex" and adapter == CODEX_ADAPTER,
-        f"adapter={adapter!r}, expected={CODEX_ADAPTER!r}",
+        adapter == expected_adapter,
+        f"adapter={adapter!r}, expected={expected_adapter!r} for runtime={expected_runtime!r}",
     )
-    for field, expected in CODEX_BINDINGS.items():
+    for field, expected in expected_bindings.items():
         observed = data.get(field)
         audit.check(
             f"runtime adapter binding:{field}",
@@ -788,11 +807,11 @@ def verify_receipt(
     site = _normalize_site(data)
     audit.check("known P4 source", site in {"cnrds", "csmar"}, f"source={data.get('source')!r}")
     _verify_runtime_adapter(data, expected_runtime, audit)
-    declared_runtime = str(data.get("runtime") or "").strip().lower()
+    declared_runtime = str(data.get("runtime") or data.get("client_runtime") or "").strip().lower()
     audit.check(
         "runtime declaration",
-        not declared_runtime or declared_runtime == "codex",
-        f"runtime={declared_runtime or '<implicit-from-adapter>'}",
+        not declared_runtime or declared_runtime == expected_runtime,
+        f"runtime={declared_runtime or '<implicit-from-adapter>'}, expected={expected_runtime!r}",
     )
     artifacts_raw = data.get("artifacts")
     artifacts = (
@@ -893,7 +912,7 @@ def parse_args(argv: Sequence[str]) -> argparse.Namespace:
     parser.add_argument("--receipt", required=True, type=Path)
     parser.add_argument("--repo-root", required=True, type=Path)
     parser.add_argument("--run-dir", required=True, type=Path)
-    parser.add_argument("--runtime", default="codex", choices=("codex",))
+    parser.add_argument("--runtime", default="codex", choices=("codex", "kimi"))
     return parser.parse_args(argv)
 
 

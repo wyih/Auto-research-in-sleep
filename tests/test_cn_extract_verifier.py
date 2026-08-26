@@ -186,6 +186,37 @@ class CNExtractVerifierTests(unittest.TestCase):
         self.assertFalse(report.ok)
         self.assertIn("runtime adapter", {check.name for check in report.checks if not check.ok})
 
+    def test_accepts_kimi_webbridge_contract_shape_for_both_sites(self) -> None:
+        for site in ("cnrds", "csmar"):
+            with self.subTest(site=site), tempfile.TemporaryDirectory() as folder:
+                fixture = ExtractFixture(Path(folder), site)
+                payload = fixture.payload()
+                payload["runtime"] = "kimi"
+                payload["client_runtime"] = "kimi"
+                payload["adapter"] = verifier.KIMI_ADAPTER
+                payload.update(verifier.KIMI_BINDINGS)
+                fixture.write_payload(payload)
+                report = verifier.verify_receipt(
+                    fixture.receipt_path, fixture.repo, fixture.run, "kimi"
+                )
+                self.assertTrue(report.ok, [check for check in report.checks if not check.ok])
+
+    def test_rejects_crossed_runtime_adapter_pair(self) -> None:
+        with tempfile.TemporaryDirectory() as folder:
+            fixture = ExtractFixture(Path(folder), "cnrds")
+            payload = fixture.payload()
+            payload["runtime"] = "kimi"
+            payload["client_runtime"] = "kimi"
+            payload["adapter"] = verifier.KIMI_ADAPTER
+            payload.update(verifier.KIMI_BINDINGS)
+            fixture.write_payload(payload)
+            report = fixture.verify()  # expected runtime remains codex
+
+        self.assertFalse(report.ok)
+        failed = {check.name for check in report.checks if not check.ok}
+        self.assertIn("runtime adapter", failed)
+        self.assertIn("runtime declaration", failed)
+
     def test_rejects_wrong_header_even_when_hashes_and_receipt_counters_are_refreshed(self) -> None:
         with tempfile.TemporaryDirectory() as folder:
             fixture = ExtractFixture(Path(folder), "csmar")

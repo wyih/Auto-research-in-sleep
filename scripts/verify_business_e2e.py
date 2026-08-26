@@ -4,7 +4,7 @@
 The verifier is read-only.  It trusts neither prose summaries nor a receipt's
 ``status`` field alone: accepted artifacts are re-hashed and, where recorded,
 their dimensions/page counts are checked. Browser evidence is accepted only
-from the Codex native Chrome adapter.
+from the trusted host adapters: Codex native Chrome or Kimi WebBridge.
 """
 
 from __future__ import annotations
@@ -65,6 +65,11 @@ P3_FULLTEXT_MANIFEST_HEADER = (
 )
 P3_BROWSER_SITES = ("cnki", "ssrn", "sciencedirect", "wiley")
 P4_BROWSER_SITES = ("cnrds", "csmar")
+RUNTIMES = ("codex", "kimi")
+# Codex evidence keeps the legacy root layout (<evidence-root>/<run-id>); other
+# runtimes own a subdirectory of the evidence root (<evidence-root>/<runtime>/<run-id>).
+RUNTIME_EVIDENCE_SUBDIRS: Mapping[str, str] = {"codex": "", "kimi": "kimi"}
+RUNTIME_SUBDIR_NAMES = frozenset(name for name in RUNTIME_EVIDENCE_SUBDIRS.values() if name)
 P4_EXTRACT_VERIFIER_SCHEMA = "aris.cn-data-bridge.extract-verification.v1"
 CN_EXTRACT_VERIFIER = (
     Path(__file__).resolve().parents[1]
@@ -1513,33 +1518,166 @@ def _p3_shared_gate(context: Context) -> Gate:
 
 
 def _normalize_runtime(data: Mapping[str, Any]) -> str | None:
-    values = [data.get("executor_runtime"), data.get("host_runtime"), data.get("runtime")]
+    values = [data.get("executor_runtime"), data.get("host_runtime"), data.get("runtime"), data.get("client_runtime")]
     for value in values:
         normalized = str(value or "").lower()
         if "codex" in normalized:
             return "codex"
+        if "kimi" in normalized:
+            return "kimi"
     adapter = str(data.get("adapter") or "").lower()
     if adapter == "codex_native_chrome":
         return "codex"
+    if adapter == "kimi_webbridge":
+        return "kimi"
     return None
+
+
+TRUSTED_BROWSER_ADAPTERS: Mapping[str, str] = {
+    "codex": "codex_native_chrome",
+    "kimi": "kimi_webbridge",
+}
+KIMI_BROWSER_BINDINGS: Mapping[str, str] = {
+    "mcp_server": "local_daemon",
+    "implementation": "kimi_webbridge",
+    "profile_mode": "user_browser",
+}
+KIMI_DOWNLOAD_VERIFIER = (
+    Path(__file__).resolve().parents[1]
+    / "skills"
+    / "browser-session-bridge"
+    / "scripts"
+    / "verify_download.py"
+)
 
 
 def _browser_adapter_checks(
     data: Mapping[str, Any], runtime: str, gate_name: str
 ) -> list[Check]:
-    """Validate the single supported Codex browser adapter identity."""
+    """Validate the trusted browser adapter identity for the host runtime."""
 
     adapter = str(data.get("adapter") or "")
-    accepted = runtime == "codex" and adapter == "codex_native_chrome"
+    expected = TRUSTED_BROWSER_ADAPTERS.get(runtime)
+    accepted = expected is not None and adapter == expected
     checks = [
         Check(
             f"{gate_name} adapter",
             "PASS" if accepted else "FAIL",
             f"adapter={adapter}"
             if accepted
-            else f"unsupported browser adapter: {adapter or '<missing>'}",
+            else f"unsupported browser adapter for runtime {runtime!r}: {adapter or '<missing>'}",
         )
     ]
+    if runtime == "kimi":
+        client_runtime = str(data.get("client_runtime") or "")
+        checks.append(
+            Check(
+                f"{gate_name} client_runtime",
+                "PASS" if client_runtime == "kimi" else "FAIL",
+                "client_runtime=kimi"
+                if client_runtime == "kimi"
+                else "kimi receipts must declare client_runtime=kimi, "
+                f"got {client_runtime or '<missing>'}",
+            )
+        )
+        for field, expected_value in KIMI_BROWSER_BINDINGS.items():
+            value = str(data.get(field) or "")
+            checks.append(
+                Check(
+                    f"{gate_name} binding:{field}",
+                    "PASS" if value == expected_value else "FAIL",
+                    f"{field}={value}"
+                    if value == expected_value
+                    else f"{field}={value or '<missing>'}, expected {expected_value}",
+                )
+            )
+    return checks
+
+
+def _kimi_verify_download_check(
+    name: str, record: Mapping[str, Any], receipt: Receipt, context: Context
+) -> Check:
+    """Re-verify the landed kimi download with the deterministic verify_download tool."""
+
+    label = f"{name} deterministic download"
+    if not KIMI_DOWNLOAD_VERIFIER.is_file():
+        return Check(label, "FAIL", "browser-session-bridge verify_download.py is missing")
+    path = _resolve_path(record.get("path"), receipt.path, context)
+    if path is None or not path.is_file():
+        return Check(label, "FAIL", "download artifact is missing or outside the repository")
+    detected = str(record.get("detected_format") or path.suffix.lstrip(".")).lower()
+    expect = detected if detected in {"pdf", "csv", "zip", "xlsx"} else "any"
+    try:
+        result = subprocess.run(
+            [sys.executable, str(KIMI_DOWNLOAD_VERIFIER), str(path), "--expect", expect],
+            capture_output=True,
+            text=True,
+            timeout=60,
+            check=False,
+        )
+    except (OSError, subprocess.TimeoutExpired) as error:
+        return Check(label, "FAIL", f"verify_download failed to run: {type(error).__name__}")
+    try:
+        payload = json.loads(result.stdout)
+    except json.JSONDecodeError:
+        return Check(label, "FAIL", "verify_download returned malformed JSON")
+    if not isinstance(payload, dict) or payload.get("ok") is not True:
+        error = payload.get("error") if isinstance(payload, dict) else None
+        detail = error or f"exit={result.returncode}"
+        return Check(label, "FAIL", f"verify_download rejected artifact: {detail}")
+    issues: list[str] = []
+    expected_hash = str(record.get("sha256") or "").lower()
+    if re.fullmatch(r"[0-9a-f]{64}", expected_hash) and str(
+        payload.get("sha256") or ""
+    ).lower() != expected_hash:
+        issues.append("verify_download SHA-256 differs from the receipt")
+    expected_size = _numeric(record, "size_bytes", "bytes", "byte_size")
+    if expected_size is not None and payload.get("size_bytes") != expected_size:
+        issues.append(f"verify_download bytes {payload.get('size_bytes')} != {expected_size}")
+    if issues:
+        return Check(label, "FAIL", "; ".join(issues))
+    return Check(
+        label,
+        "PASS",
+        f"verify_download ok ({payload.get('detected_format')}, {payload.get('size_bytes')} bytes)",
+    )
+
+
+def _kimi_download_checks(
+    name: str, receipt: Receipt, artifacts: Sequence[Mapping[str, Any]], context: Context
+) -> list[Check]:
+    """kimi_webbridge has no download-event hook: require directory-increment
+    fallback evidence plus a deterministic verify_download re-check instead."""
+
+    checks: list[Check] = []
+    transport = _mapping(receipt.data.get("download_transport"))
+    fallback = transport.get("completion") == "fallback_directory_increment"
+    checks.append(
+        Check(
+            f"{name} download fallback",
+            "PASS" if fallback else "FAIL",
+            "directory-increment fallback completion recorded"
+            if fallback
+            else "kimi_webbridge cannot observe download events; "
+            "download_transport.completion must be fallback_directory_increment",
+        )
+    )
+    event_claimed = transport.get("browser_download_event_observed") is True
+    checks.append(
+        Check(
+            f"{name} download event claim",
+            "FAIL" if event_claimed else "PASS",
+            "kimi_webbridge cannot observe browser download events"
+            if event_claimed
+            else "no download-event claim, as expected for kimi_webbridge",
+        )
+    )
+    if artifacts:
+        primary = next(
+            (item for item in artifacts if _numeric(item, "data_rows", "rows") is not None),
+            artifacts[-1],
+        )
+        checks.append(_kimi_verify_download_check(name, primary, receipt, context))
     return checks
 
 
@@ -1576,7 +1714,7 @@ def _p4_semantic_extract_check(receipt: Receipt, context: Context, runtime: str,
     """Re-open the P4 ZIP/CSV and verify the frozen slice outside receipt prose."""
 
     name = f"P4_{site.upper()} deterministic extract"
-    if runtime != "codex":
+    if runtime not in TRUSTED_BROWSER_ADAPTERS:
         return Check(name, "FAIL", f"unsupported runtime for P4 extract verification: {runtime}")
     if not CN_EXTRACT_VERIFIER.is_file():
         return Check(name, "FAIL", "cn-data-bridge deterministic verifier is missing")
@@ -1708,6 +1846,8 @@ def _browser_gate(context: Context, stage: str, site: str, runtime: str) -> Gate
         preview_rows = _nested(receipt.data, "portal_evidence", "preview_rows")
         checks.append(_bool_check(f"{name} preview rows", isinstance(preview_rows, int) and preview_rows > 0))
         checks.append(_p4_semantic_extract_check(receipt, context, runtime, site))
+    if runtime == "kimi":
+        checks.extend(_kimi_download_checks(name, receipt, artifacts, context))
     for location in (receipt.data, receipt.data.get("security", {}), receipt.data.get("access", {})):
         if isinstance(location, dict):
             for key in (
@@ -1777,7 +1917,7 @@ def _p5_shared_gate(context: Context) -> Gate:
 
 
 def _p5_runtime_gate(context: Context, runtime: str, shared: Gate) -> Gate:
-    path = context.run_dir / "p5" / "codex-discovery-receipt.json"
+    path = context.run_dir / "p5" / f"{runtime}-discovery-receipt.json"
     receipt, loaded = _load_receipt(path, f"P5 {runtime} discovery")
     checks = [Check("P5 shared", shared.status, f"shared P5: {shared.summary}"), loaded]
     if receipt:
@@ -1785,8 +1925,8 @@ def _p5_runtime_gate(context: Context, runtime: str, shared: Gate) -> Gate:
         checks.append(_bool_check(f"P5 {runtime} runtime identity", _normalize_runtime(receipt.data) == runtime))
         checks.extend(
             [
-                _bool_check("P5 Codex exact set", receipt.data.get("exact_portable_set")),
-                _bool_check("P5 Codex discovered count", receipt.data.get("discovered_count") == 24),
+                _bool_check(f"P5 {runtime.capitalize()} exact set", receipt.data.get("exact_portable_set")),
+                _bool_check(f"P5 {runtime.capitalize()} discovered count", receipt.data.get("discovered_count") == 24),
             ]
         )
         raw = receipt.data.get("raw_output")
@@ -1889,33 +2029,59 @@ def select_run(evidence_root: Path, run_id: str | None = None) -> Path:
         return run
     if not root.is_dir():
         raise VerificationInputError(f"evidence root not found: {root}")
-    runs = sorted((path for path in root.iterdir() if path.is_dir()), key=lambda path: path.name)
+    runs = sorted(
+        (
+            path
+            for path in root.iterdir()
+            if path.is_dir() and path.name not in RUNTIME_SUBDIR_NAMES
+        ),
+        key=lambda path: path.name,
+    )
     if not runs:
         raise VerificationInputError(f"no evidence runs under: {root}")
     return runs[-1]
 
 
-def verify_business_e2e(repo_root: Path, evidence_root: Path, run_id: str | None = None) -> Report:
+def verify_business_e2e(
+    repo_root: Path,
+    evidence_root: Path,
+    run_id: str | None = None,
+    runtime: str = "codex",
+) -> Report:
     repo = repo_root.resolve(strict=True)
-    run = select_run(evidence_root, run_id)
-    try:
-        run.resolve().relative_to(repo)
-    except ValueError as error:
-        raise VerificationInputError("evidence run must be inside --repo-root") from error
-    context = Context(repo_root=repo, run_dir=run.resolve())
-    shared = {
-        "P1": _p1_gate(context),
-        "P2": _p2_gate(context),
-        "P3": _p3_shared_gate(context),
-        "P5": _p5_shared_gate(context),
+    selected = RUNTIMES if runtime == "all" else (runtime,)
+    unknown = next((name for name in selected if name not in RUNTIME_EVIDENCE_SUBDIRS), None)
+    if unknown is not None:
+        raise VerificationInputError(f"unsupported runtime: {unknown}")
+    contexts: dict[str, Context] = {}
+    for name in selected:
+        subdir = RUNTIME_EVIDENCE_SUBDIRS[name]
+        run = select_run(evidence_root / subdir if subdir else evidence_root, run_id)
+        try:
+            run.resolve().relative_to(repo)
+        except ValueError as error:
+            raise VerificationInputError("evidence run must be inside --repo-root") from error
+        contexts[name] = Context(repo_root=repo, run_dir=run.resolve())
+    shared_by_runtime = {
+        name: {
+            "P1": _p1_gate(context),
+            "P2": _p2_gate(context),
+            "P3": _p3_shared_gate(context),
+            "P5": _p5_shared_gate(context),
+        }
+        for name, context in contexts.items()
     }
-    runtimes = {"codex": _runtime_payload(context, "codex", shared)}
+    runtimes = {
+        name: _runtime_payload(contexts[name], name, shared_by_runtime[name]) for name in contexts
+    }
+    primary = "codex" if "codex" in contexts else selected[0]
+    primary_run = contexts[primary].run_dir
     status = combine_status(payload["status"] for payload in runtimes.values())  # type: ignore[arg-type]
     return Report(
-        run_id=run.name,
-        run_path=str(run.relative_to(repo)),
+        run_id=primary_run.name,
+        run_path=str(primary_run.relative_to(repo)),
         status=status,
-        shared=shared,
+        shared=shared_by_runtime[primary],
         runtimes=runtimes,
     )
 
@@ -1943,6 +2109,13 @@ def _parser(default_repo: Path) -> argparse.ArgumentParser:
     parser.add_argument("--repo-root", type=Path, default=default_repo, help="repository root")
     parser.add_argument("--evidence-root", type=Path, help="default: <repo>/.aris/business-e2e")
     parser.add_argument("--run-id", help="explicit run directory name; default: latest lexicographic run")
+    parser.add_argument(
+        "--runtime",
+        choices=(*RUNTIMES, "all"),
+        default="codex",
+        help="host-runtime gate group to build; kimi evidence is read from "
+        "<evidence-root>/kimi/<run-id>, 'all' verifies both runtime trees",
+    )
     parser.add_argument("--json", action="store_true", help="emit JSON to stdout instead of human text")
     return parser
 
@@ -1952,7 +2125,7 @@ def main(argv: Sequence[str] | None = None) -> int:
     args = _parser(default_repo).parse_args(argv)
     evidence_root = args.evidence_root or args.repo_root / ".aris/business-e2e"
     try:
-        report = verify_business_e2e(args.repo_root, evidence_root, args.run_id)
+        report = verify_business_e2e(args.repo_root, evidence_root, args.run_id, runtime=args.runtime)
     except (OSError, VerificationInputError) as error:
         print(f"verify_business_e2e: {error}", file=sys.stderr)
         return 2

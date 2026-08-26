@@ -1,4 +1,4 @@
 interface:
   display_name: "Browser Session Bridge"
-  short_description: "Use Codex with the user's signed-in Chrome"
-  default_prompt: "Use $browser-session-bridge to complete this authenticated Chrome operation and verify the landed artifact."
+  short_description: "Reuse the user's signed-in browser via the host CLI (Codex Chrome or Kimi WebBridge)"
+  default_prompt: "Use $browser-session-bridge to complete this authenticated browser operation and verify the landed artifact."

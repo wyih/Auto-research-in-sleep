@@ -8,13 +8,13 @@ This matrix is the release gate for the Codex business empirical-research suite.
 2. Preserve redacted commands, Codex receipts, local artifact paths, sizes, SHA-256 hashes, schemas, and timestamps.
 3. Keep licensed PDFs and vendor data local; commit only non-sensitive manifests and derived test fixtures.
 4. Mark a gate `pass` only from current artifacts or traces. Use `blocked` for a real login, subscription, network, or human-challenge blocker.
-5. Protected-site actions must use native `chrome:control-chrome`. Another browser backend or profile cannot substitute for Codex acceptance.
+5. Protected-site actions must use the host CLI's trusted binding (`chrome:control-chrome` under Codex, `kimi-webbridge` under Kimi Code). Another browser backend or profile cannot substitute for acceptance.
 
 ## Acceptance Matrix
 
 | Gate | Codex evidence | Artifact gate |
 |---|---|---|
-| Browser adapter | Native Chrome execution receipt with `adapter = codex_native_chrome` | Redacted receipt and deterministic file verification |
+| Browser adapter | Host-native browser execution receipt with a trusted `client_runtime`/`adapter` pair (`codex` + `codex_native_chrome`, or `kimi` + `kimi_webbridge`) | Redacted receipt and deterministic file verification |
 | P3 open-access baseline | Search result, downloaded local PDF, method card | Correct PDF, size/hash, method claims grounded in fulltext |
 | P3 CNKI | Search → article detail → PDF button in the authorized Chrome session | PDF not CAJ/HTML; title match; manifest; method card |
 | P3 SSRN | Abstract page → passive Cloudflare wait when shown → current PDF download | Correct paper identity, local PDF, manifest, and browser receipt |
@@ -31,14 +31,20 @@ This matrix is the release gate for the Codex business empirical-research suite.
 
 ## Browser Receipt
 
-- `client_runtime = codex`
-- `adapter = codex_native_chrome`
-- `mcp_server = native`
-- `implementation = codex_chrome`
-- `profile_mode = user_chrome`
-- current `chrome:control-chrome` instructions were used
-- existing Chrome session or tab was reused when login state mattered
+One of the two trusted host combinations, with its binding fields:
+
+- Codex: `client_runtime = codex`, `adapter = codex_native_chrome`, `mcp_server = native`, `implementation = codex_chrome`, `profile_mode = user_chrome`; current `chrome:control-chrome` instructions were used
+- Kimi Code: `client_runtime = kimi`, `adapter = kimi_webbridge`, `mcp_server = local_daemon`, `implementation = kimi_webbridge`, `profile_mode = user_browser`; current `kimi-webbridge` instructions were used
+- existing browser session or tab was reused when login state mattered
 - no external browser backend produced the protected-site artifact
+
+## Kimi Gate Group
+
+`scripts/verify_business_e2e.py` builds an independent `kimi` gate group alongside `codex`. Select it with `--runtime {codex,kimi,all}`; the default `codex` keeps the legacy layout and report unchanged, and `all` verifies both runtime trees and lists their passed/failed gates separately under `runtimes.codex` and `runtimes.kimi`.
+
+- Evidence tree: Kimi runs live in a runtime subdirectory, `.aris/business-e2e/kimi/<run-id>/`, with the same internal layout as a Codex run (`receipts/`, `manifests/`, `cn-data/`, ...). Codex evidence stays at `.aris/business-e2e/<run-id>/`; latest-run selection ignores runtime subdirectories.
+- Receipt contract: every Kimi browser receipt must declare `client_runtime = kimi`, `adapter = kimi_webbridge`, and the bindings `mcp_server = local_daemon`, `implementation = kimi_webbridge`, `profile_mode = user_browser`. Crossed runtime/adapter pairs are rejected, and a receipt declaring another runtime is not Kimi evidence.
+- Download evidence: kimi-webbridge exposes no browser download-event hook. A Kimi receipt must record `download_transport.completion = fallback_directory_increment` (directory-increment fallback) and must not claim `browser_download_event_observed = true`. The gate re-checks the landed artifact with `skills/browser-session-bridge/scripts/verify_download.py` and matches its SHA-256/size against the receipt; P4 extracts are additionally re-verified by `verify_cn_extract.py --runtime kimi`.
 
 ## Operating Systems
 

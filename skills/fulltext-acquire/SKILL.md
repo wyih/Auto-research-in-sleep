@@ -1,6 +1,6 @@
 ---
 name: fulltext-acquire
-description: Acquire and verify research-paper fulltext through local libraries, open-access sources, CNKI, ScienceDirect, Wiley, or other authorized publisher sessions. Use when a paper PDF is missing, when CNKI must be searched through an article-detail PDF flow, when publisher access depends on the user's signed-in Chrome, or before method-harvest needs a verified local file. Not for CSMAR/CNRDS microdata.
+description: Acquire and verify research-paper fulltext through local libraries, open-access sources, CNKI, ScienceDirect, Wiley, or other authorized publisher sessions. Use when a paper PDF is missing, when CNKI must be searched through an article-detail PDF flow, when publisher access depends on the user's signed-in browser session, or before method-harvest needs a verified local file. Not for CSMAR/CNRDS microdata.
 ---
 
 # Fulltext Acquire
@@ -84,7 +84,7 @@ Append one row per acquired/gap artifact role to `literature/FULLTEXT_MANIFEST.m
 | Artifact completeness | Every required role is verified or has an explicit role-specific gap; a main PDF never silently substitutes for a separate appendix/codebook |
 | File integrity | `%PDF`, EOF marker, at least 10 KiB, SHA-256 |
 | Provenance | Manifest row and browser receipt when a protected session was used |
-| Runtime | Codex native Chrome receipt; the model selected inside Codex does not change the browser route |
+| Runtime | Browser-session receipt whose `client_runtime`/`adapter` pair is one of the trusted combinations approved by `browser-session-bridge` (`codex` + `codex_native_chrome`, or `kimi` + `kimi_webbridge`); the selected model does not change the browser route |
 
 A homepage, HTTP 200, visible PDF viewer, click notification, CAJ file, HTML login page, or unverified extension is a failure. An unauthenticated HTTP 403 is a channel result, not proof that the user's browser session lacks access.
 

@@ -1,10 +1,12 @@
-# Codex Authenticated Browser Contract
+# Authenticated Browser Contract
+
+This contract is host-adaptive. Exactly two bindings are trusted: `codex_native_chrome` (Codex, `client_runtime: codex`) and `kimi_webbridge` (Kimi Code, `client_runtime: kimi`). Any other browser backend — standalone Playwright, a clean profile, a third-party bridge — is forbidden regardless of host.
 
 ## Semantic operations
 
 | Operation | Required behavior | Success evidence |
 |---|---|---|
-| `session.attach` | Connect to the user's authorized Chrome profile through the native Codex binding | Binding and relevant tab context |
+| `session.attach` | Connect to the user's authorized browser profile through the host CLI's trusted binding | Binding and relevant tab context |
 | `tab.open_or_claim` | Reuse a suitable tab or open one in the same profile | Active target tab |
 | `page.inspect` | Read fresh visible or DOM state | Title, URL, and actionable controls |
 | `page.navigate` | Navigate the claimed tab | Fresh state at the expected destination |
@@ -20,8 +22,8 @@
 ## Invariants
 
 - Never read or emit cookies, local storage, credentials, session tokens, auth headers, or password-manager data.
-- Use one native Chrome binding for the whole operation. Do not combine evidence from multiple browser backends.
-- Serialize protected Chrome work against the user's profile. Do not let concurrent projects mutate its tabs.
+- Use one trusted browser binding for the whole operation. Do not combine evidence from multiple browser backends.
+- Serialize protected browser work against the user's profile. Do not let concurrent projects mutate its tabs.
 - Re-inspect after every navigation, authentication transition, modal transition, or challenge completion.
 - Treat a CAPTCHA as active only when its rendered box intersects the viewport and blocks the intended action.
 - Keep site selectors and business filters in the calling skill's recipe, not in this bridge.

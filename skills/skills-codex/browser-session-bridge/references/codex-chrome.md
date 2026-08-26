@@ -1,6 +1,6 @@
 # Codex Native Chrome Adapter
 
-Use this adapter only when the current runtime is Codex and the installed `chrome:control-chrome` capability is available. The user's explicit Chrome choice remains in force.
+Use this adapter only when the current runtime is Codex and the installed `chrome:control-chrome` capability is available. The user's explicit Chrome choice remains in force. When the host is Kimi Code, use [kimi-webbridge.md](kimi-webbridge.md) instead; never mix the two bindings in one operation.
 
 ## Binding Rules
 
