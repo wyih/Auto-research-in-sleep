@@ -1,0 +1,4 @@
+interface:
+  display_name: "R Analysis Bridge"
+  short_description: "Run R analyses for business papers"
+  default_prompt: "Use $r-analysis-bridge to run the empirical design in R and produce tables, figures, logs, and a results summary."

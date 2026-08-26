@@ -1,0 +1,4 @@
+interface:
+  display_name: "Method Harvest"
+  short_description: "Extract source-grounded empirical evidence cards from verified PDFs"
+  default_prompt: "Use $method-harvest to extract source-grounded method cards from these verified PDFs, including construct depth, sample/respondent/unique-entity/cluster units, exact factor/index and questionnaire construction, a numeric consistency audit, complete mediation fields, findings, limitations, and claim ceiling; write unknown instead of guessing."

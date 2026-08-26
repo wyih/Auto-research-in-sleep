@@ -1,0 +1,4 @@
+interface:
+  display_name: "Business Paper Plan"
+  short_description: "Build a table-first journal paper plan for business, accounting, finance, management, or economics."
+  default_prompt: "Create a business journal paper outline from this research design, evidence, and literature positioning."

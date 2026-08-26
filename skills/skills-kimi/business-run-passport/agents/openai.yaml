@@ -1,0 +1,4 @@
+interface:
+  display_name: "Business Run Passport"
+  short_description: "Track project materials, stages, audit gates, and reproducibility state for a business paper."
+  default_prompt: "Use $business-run-passport to create or update the project passport, artifact index, audit gates, and repro lock."

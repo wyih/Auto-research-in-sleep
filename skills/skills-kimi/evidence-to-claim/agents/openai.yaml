@@ -1,0 +1,4 @@
+interface:
+  display_name: "Evidence To Claim"
+  short_description: "Translate empirical tables and robustness results into defensible business-paper claims."
+  default_prompt: "Judge what claims these empirical results support and what language the paper should use."

@@ -1,0 +1,4 @@
+interface:
+  display_name: "Results To Docx"
+  short_description: "Standalone academic results Word from tidy coef CSVs"
+  default_prompt: "Use $results-to-docx to build a standalone academic results .docx from tidy coefficient CSVs, descriptives, and figures without editing the manuscript."

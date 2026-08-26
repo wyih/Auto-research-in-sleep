@@ -1,0 +1,4 @@
+interface:
+  display_name: "Data Analysis Bridge"
+  short_description: "Convert empirical designs into reproducible R, Stata, or Python scripts and paper-ready outputs."
+  default_prompt: "Build the analysis scripts and output structure for this empirical research design."

@@ -1,0 +1,4 @@
+interface:
+  display_name: "Business Lit Review"
+  short_description: "Map and synthesize business literature with source-grounded fulltext evidence."
+  default_prompt: "Review this business research literature and, when verified method cards exist, build a traceable evidence matrix that preserves construct depth, exact measurement and questionnaire provenance, sample and cluster units, numeric audit status, mediation evidence, explicit unknowns, designs, findings, and claim ceilings."

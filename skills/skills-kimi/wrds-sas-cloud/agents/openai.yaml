@@ -1,0 +1,4 @@
+interface:
+  display_name: "WRDS SAS Cloud"
+  short_description: "Escalate WRDS pulls via generic qsas submit, rsync, and hash handoff."
+  default_prompt: "Use $wrds-sas-cloud to escalate a failed or blocked WRDS pull with a generic SAS cloud handoff (qsas, rsync, hash) and update DATA_MANIFEST."

@@ -1,0 +1,4 @@
+interface:
+  display_name: "Business Novelty Check"
+  short_description: "Check a business research idea against published papers, working papers, title variants, and adjacent constructs."
+  default_prompt: "Check whether this business research idea is novel and identify the closest published or working papers."

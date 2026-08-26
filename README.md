@@ -8,7 +8,7 @@
 
 [![Technical Report](https://img.shields.io/badge/Technical%20Report-arXiv%3A2605.03042-b31b1b?style=flat&logo=arxiv)](https://huggingface.co/papers/2605.03042) · [![ARIS Intro (HTML)](https://img.shields.io/badge/ARIS%20Intro-HTML%20%C2%B7%20by%20%2Frender--html-1a4a8c?style=flat&logo=html5&logoColor=white)](https://wanshuiyin.github.io/Auto-claude-code-research-in-sleep/ARIS_INTRO.html) · [![ARIS Intro Slides — VALSE 2026](https://img.shields.io/badge/Slides%20%40%20VALSE%202026-PDF%20%C2%B7%20by%20%2Fpaper--talk-EC1C24?style=flat&logo=adobeacrobatreader&logoColor=white)](docs/aris_intro_slides.pdf) · [![AI Agents](https://img.shields.io/badge/AI%20Agents-AGENT__GUIDE.md-4B2E83?style=flat&logo=readthedocs&logoColor=white)](AGENT_GUIDE.md) · [![Featured on PaperWeekly](https://img.shields.io/badge/Featured%20on-PaperWeekly-red?style=flat)](https://mp.weixin.qq.com/s/tDniVryVGjDkkkWl-5sTkQ) · [![Featured in awesome-agent-skills](https://img.shields.io/badge/Featured%20in-awesome--agent--skills-blue?style=flat&logo=github)](https://github.com/VoltAgent/awesome-agent-skills) · [![AI Digital Crew - Project of the Day](https://img.shields.io/badge/AI%20Digital%20Crew-Project%20of%20the%20Day%20(2026.03.14)-orange?style=flat)](https://aidigitalcrew.com) · [![GitHub stars](https://img.shields.io/github/stars/wanshuiyin/Auto-claude-code-research-in-sleep?style=flat&logo=github&logoColor=white&color=gold&label=Stars)](https://github.com/wanshuiyin/Auto-claude-code-research-in-sleep/stargazers) · [💬 Join Community](#community) · [![Cite](https://img.shields.io/badge/📖_Cite_Us-BibTeX-green?style=flat)](#citation)
 
-💡 *Use ARIS as a skill-based workflow in [Claude Code](https://docs.anthropic.com/en/docs/claude-code) / [Codex CLI](skills/skills-codex/) / [Cursor](docs/CURSOR_ADAPTATION.md) / [Trae](docs/TRAE_ARIS_RUNBOOK_EN.md) / [Antigravity](docs/ANTIGRAVITY_ADAPTATION.md) / [GitHub Copilot CLI](docs/COPILOT_CLI_ADAPTATION.md) / [OpenClaw](docs/OPENCLAW_ADAPTATION.md) / [DeepSeek Harness](https://github.com/wanshuiyin/Auto-claude-code-research-in-sleep/tree/dsh-aris#readme), or get the full experience with the standalone **[ARIS-Code](docs/ARIS-Code-README_EN.md)** CLI — enjoy any way you like!*
+💡 *Use ARIS as a skill-based workflow in [Claude Code](https://docs.anthropic.com/en/docs/claude-code) / [Codex CLI](skills/skills-codex/) / [Cursor](docs/CURSOR_ADAPTATION.md) / [Trae](docs/TRAE_ARIS_RUNBOOK_EN.md) / [Antigravity](docs/ANTIGRAVITY_ADAPTATION.md) / [GitHub Copilot CLI](docs/COPILOT_CLI_ADAPTATION.md) / [Kimi Code](docs/KIMI_ADAPTATION.md) / [OpenClaw](docs/OPENCLAW_ADAPTATION.md) / [DeepSeek Harness](https://github.com/wanshuiyin/Auto-claude-code-research-in-sleep/tree/dsh-aris#readme), or get the full experience with the standalone **[ARIS-Code](docs/ARIS-Code-README_EN.md)** CLI — enjoy any way you like!*
 
 🐋 **On DeepSeek Harness it installs as one plugin:** `dsh plugin --profile web add dsh-aris` — all 82 skills unchanged, Codex still the independent reviewer. Setup and limits on the [`dsh-aris` branch](https://github.com/wanshuiyin/Auto-claude-code-research-in-sleep/tree/dsh-aris#readme).
 
@@ -209,7 +209,7 @@ cd claude-fleet && bash run.sh
 >
 > 🪶 **Radically lightweight — no infrastructure, zero lock-in.** The entire skill layer is plain Markdown files. No framework to learn, no database to maintain, no Docker to configure, no daemon to babysit. Every skill is a single `SKILL.md` readable by any LLM — swap Claude Code for [Codex CLI](skills/skills-codex/), [OpenClaw](docs/OPENCLAW_ADAPTATION.md), [Cursor](docs/CURSOR_ADAPTATION.md), [Trae](docs/TRAE_ARIS_RUNBOOK_EN.md), [Antigravity](docs/ANTIGRAVITY_ADAPTATION.md), [Copilot CLI](docs/COPILOT_CLI_ADAPTATION.md), Windsurf, or your own agent and the workflows still work. Fork it, rewrite it, adapt it to your stack.
 
-Custom [Claude Code](https://docs.anthropic.com/en/docs/claude-code) skills for autonomous ML research workflows. These skills orchestrate **cross-model collaboration** — Claude Code drives the research while an external LLM (via [Codex MCP](https://github.com/openai/codex)) acts as a critical reviewer. 🔀 **Also supports [alternative model combinations](#alternative-model-combinations) (Kimi, LongCat, DeepSeek, etc.) — no Claude or OpenAI API required.** For example, [MiniMax-M3 + GLM-5 or GLM-5 + MiniMax-M3](docs/MiniMax-GLM-Configuration.md). 🤖 **[Codex CLI native](skills/skills-codex/)** — full skill set also available for OpenAI Codex. 🖱️ **[Cursor](docs/CURSOR_ADAPTATION.md)** — works in Cursor too. 🖥️ **[Trae](docs/TRAE_ARIS_RUNBOOK_EN.md)** — ByteDance AI IDE. 🚀 **[Antigravity](docs/ANTIGRAVITY_ADAPTATION.md)** — Google's agent-first IDE. 🐙 **[Copilot CLI](docs/COPILOT_CLI_ADAPTATION.md)** — GitHub's terminal agent (native SKILL.md + MCP). 🆓 **[Free tier via ModelScope](docs/MODELSCOPE_GUIDE.md) — zero cost, zero lock-in.**
+Custom [Claude Code](https://docs.anthropic.com/en/docs/claude-code) skills for autonomous ML research workflows. These skills orchestrate **cross-model collaboration** — Claude Code drives the research while an external LLM (via [Codex MCP](https://github.com/openai/codex)) acts as a critical reviewer. 🔀 **Also supports [alternative model combinations](#alternative-model-combinations) (Kimi, LongCat, DeepSeek, etc.) — no Claude or OpenAI API required.** For example, [MiniMax-M3 + GLM-5 or GLM-5 + MiniMax-M3](docs/MiniMax-GLM-Configuration.md). 🤖 **[Codex CLI native](skills/skills-codex/)** — full skill set also available for OpenAI Codex. 🖱️ **[Cursor](docs/CURSOR_ADAPTATION.md)** — works in Cursor too. 🖥️ **[Trae](docs/TRAE_ARIS_RUNBOOK_EN.md)** — ByteDance AI IDE. 🚀 **[Antigravity](docs/ANTIGRAVITY_ADAPTATION.md)** — Google's agent-first IDE. 🐙 **[Copilot CLI](docs/COPILOT_CLI_ADAPTATION.md)** — GitHub's terminal agent (native SKILL.md + MCP). 🌙 **[Kimi Code](docs/KIMI_ADAPTATION.md)** — Moonshot's terminal agent (dedicated `skills/skills-kimi/` package; one release line per project). 🆓 **[Free tier via ModelScope](docs/MODELSCOPE_GUIDE.md) — zero cost, zero lock-in.**
 
 > 💭 **Why not self-play with a single model?** Using Claude Code subagents or agent teams for both execution and review is technically possible, but tends to fall into **local minima** — the same model reviewing its own patterns creates blind spots.
 >
@@ -443,6 +443,16 @@ bash tools/install_aris_codex.sh ~/your-codex-project --reconcile \
 bash tools/smart_update_codex.sh --local ~/.codex/skills
 bash tools/smart_update_codex.sh --local ~/.codex/skills --apply
 
+# Optional Kimi Code install (project .agents/skills/, Kimi-native skills-kimi package;
+# one release line per project — uninstall the Codex line first if it owns the project)
+bash tools/install_aris_kimi.sh ~/your-kimi-project --office-author "Your Name"
+# (user-level instead: bash tools/install_aris_kimi.sh --global)
+
+# Managed Kimi Code project update
+cd Auto-claude-code-research-in-sleep && git pull
+bash tools/install_aris_kimi.sh ~/your-kimi-project --reconcile \
+  --office-author "Your Name"
+
 # 2. Set up Codex MCP (for review skills)
 npm install -g @openai/codex
 codex setup                    # set model to gpt-5.6-sol when prompted
@@ -599,6 +609,8 @@ Run `aris doctor` to inspect the currently reported sandbox state. `strictMode` 
 **Want Codex to execute but Gemini to review locally?** See [`docs/CODEX_GEMINI_REVIEW_GUIDE.md`](docs/CODEX_GEMINI_REVIEW_GUIDE.md) and [CN](docs/CODEX_GEMINI_REVIEW_GUIDE_CN.md). That path installs the base `skills/skills-codex/*`, then overlays `skills/skills-codex-gemini-review/*`, and routes the reviewer-aware predefined skills through the local `gemini-review` MCP bridge using direct Gemini API by default.
 
 **Want the Codex mirror install chain?** Use `tools/install_aris_codex.sh` for managed project installs and `tools/smart_update_codex.sh` for copied Codex installs. The Claude scripts remain the mainline entry points for Claude projects.
+
+**Want the Kimi Code install chain?** Use `tools/install_aris_kimi.sh` — project installs symlink the Kimi-native `skills/skills-kimi/` package into `.agents/skills/`, `--global` installs to `~/.kimi-code/skills/`. The Kimi and Codex lines release separately (tags `<suite>-codex-vX.Y.Z` / `<suite>-kimi-vX.Y.Z`) and **one project runs exactly one line**: the installer refuses names already managed by `install_aris_codex.sh` — switch lines via `install_aris_codex.sh --uninstall` first. Review-heavy skills use the Kimi-native subagent contract (same-family / provisional); register `llm-chat` for a cross-family accepted route. See [docs/KIMI_ADAPTATION.md](docs/KIMI_ADAPTATION.md).
 
 The base Codex mirror reviews through a fresh Codex `spawn_agent`: workflows may continue, but results are explicitly `same-family / provisional`. Only a Claude/Gemini overlay or deterministic verifier records `accepted`; submission reports therefore expose `submission-ready: provisional | yes | no`.
 
@@ -1520,6 +1532,8 @@ Add `— reviewer: oracle-pro` to any reviewer-aware skill (`/proof-checker`, `/
 > 💡 **Recommended: project-local flat symlink install** (since 2026-04-20). Each ARIS skill is symlinked individually into `.claude/skills/<skill-name>`, so Claude Code's slash-command discovery picks them up. A manifest at `.aris/installed-skills.txt` tracks what ARIS installed — uninstall and reconcile only ever touch managed entries, never your own skills.
 >
 > 🤖 **Codex mirror route:** keep Claude on `install_aris.sh` / `smart_update.sh`. For Codex-native project installs, use `install_aris_codex.sh`; for copied Codex installs, use `smart_update_codex.sh`.
+>
+> 🌙 **Kimi Code route:** project installs use `install_aris_kimi.sh` (symlinks the Kimi-native `skills/skills-kimi/` package into `.agents/skills/`); user-level installs use `install_aris_kimi.sh --global` (into `~/.kimi-code/skills/`). One release line per project — the installer refuses Codex-managed names.
 >
 > 🪪 **Office identity:** any selection containing `results-to-docx` requires an explicit `--office-author "Your Name"` (PowerShell: `-OfficeAuthor "Your Name"`). It is stored only in the recipient's user-local ARIS configuration, never in the project or Git identity.
 

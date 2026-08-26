@@ -8,7 +8,7 @@
 
 [![技术报告](https://img.shields.io/badge/技术报告-arXiv%3A2605.03042-b31b1b?style=flat&logo=arxiv)](https://huggingface.co/papers/2605.03042) · [![ARIS 介绍 (HTML)](https://img.shields.io/badge/ARIS%20介绍-HTML%20%C2%B7%20由%20%2Frender--html%20生成-1a4a8c?style=flat&logo=html5&logoColor=white)](https://wanshuiyin.github.io/Auto-claude-code-research-in-sleep/ARIS_INTRO.html) · [![ARIS 介绍幻灯 — VALSE 2026](https://img.shields.io/badge/VALSE%202026%20幻灯-PDF%20%C2%B7%20由%20%2Fpaper--talk%20生成-EC1C24?style=flat&logo=adobeacrobatreader&logoColor=white)](docs/aris_intro_slides.pdf) · [![AI Agents 指南](https://img.shields.io/badge/AI%20Agents-AGENT__GUIDE.md-4B2E83?style=flat&logo=readthedocs&logoColor=white)](AGENT_GUIDE.md) · [![PaperWeekly 收录](https://img.shields.io/badge/PaperWeekly-收录-red?style=flat)](https://mp.weixin.qq.com/s/tDniVryVGjDkkkWl-5sTkQ) · [![Featured in awesome-agent-skills](https://img.shields.io/badge/Featured%20in-awesome--agent--skills-blue?style=flat&logo=github)](https://github.com/VoltAgent/awesome-agent-skills) · [![AI Digital Crew - Project of the Day](https://img.shields.io/badge/AI%20Digital%20Crew-Project%20of%20the%20Day%20(2026.03.14)-orange?style=flat)](https://aidigitalcrew.com) · [![GitHub 星标](https://img.shields.io/github/stars/wanshuiyin/Auto-claude-code-research-in-sleep?style=flat&logo=github&logoColor=white&color=gold&label=Stars)](https://github.com/wanshuiyin/Auto-claude-code-research-in-sleep/stargazers) · [💬 加入交流群](#community) · [![引用](https://img.shields.io/badge/📖_引用-BibTeX-green?style=flat)](#citation)
 
-💡 *在 [Claude Code](https://docs.anthropic.com/en/docs/claude-code) / [Codex CLI](skills/skills-codex/) / [Cursor](docs/CURSOR_ADAPTATION.md) / [Trae](docs/TRAE_ARIS_RUNBOOK_CN.md) / [Antigravity](docs/ANTIGRAVITY_ADAPTATION_CN.md) / [GitHub Copilot CLI](docs/COPILOT_CLI_ADAPTATION.md) / [OpenClaw](docs/OPENCLAW_ADAPTATION.md) / [DeepSeek Harness](https://github.com/wanshuiyin/Auto-claude-code-research-in-sleep/blob/dsh-aris/README_CN.md) 里以 skill-based workflow 用 ARIS，或用独立的 **[ARIS-Code](docs/ARIS-Code-README_CN.md)** CLI 完整版体验——任你选！*
+💡 *在 [Claude Code](https://docs.anthropic.com/en/docs/claude-code) / [Codex CLI](skills/skills-codex/) / [Cursor](docs/CURSOR_ADAPTATION.md) / [Trae](docs/TRAE_ARIS_RUNBOOK_CN.md) / [Antigravity](docs/ANTIGRAVITY_ADAPTATION_CN.md) / [GitHub Copilot CLI](docs/COPILOT_CLI_ADAPTATION.md) / [Kimi Code](docs/KIMI_ADAPTATION.md) / [OpenClaw](docs/OPENCLAW_ADAPTATION.md) / [DeepSeek Harness](https://github.com/wanshuiyin/Auto-claude-code-research-in-sleep/blob/dsh-aris/README_CN.md) 里以 skill-based workflow 用 ARIS，或用独立的 **[ARIS-Code](docs/ARIS-Code-README_CN.md)** CLI 完整版体验——任你选！*
 
 🐋 **在 DeepSeek Harness 上，ARIS 是一个插件：** `dsh plugin --profile web add dsh-aris` —— 82 个技能零改动，审稿人仍是 Codex。安装与限制见 [`dsh-aris` 分支](https://github.com/wanshuiyin/Auto-claude-code-research-in-sleep/blob/dsh-aris/README_CN.md)。
 
@@ -179,7 +179,7 @@ cd claude-fleet && bash run.sh
 >
 > </details>
 
-基于 [Claude Code](https://docs.anthropic.com/en/docs/claude-code) 的自定义 Skills，用于自主 ML 科研工作流。核心机制是**跨模型协作**——Claude Code 负责执行（读文件、写代码、跑实验、收结果），外部 LLM（通过 [Codex MCP](https://github.com/openai/codex)）负责评审（打分、找弱点、建议修复）。两个模型互不评自己的作业，形成真正的反馈循环。🔀 **也支持[替代模型组合](#alternative-model-combinations)（Kimi、LongCat、DeepSeek 等）——无需 Claude 或 OpenAI API。** 例如 [MiniMax-M3 + GLM-5 或 GLM-5 + MiniMax-M3](docs/MiniMax-GLM-Configuration.md)。 🤖 **[Codex CLI 原生版](skills/skills-codex/)** — 完整 skill 集合也支持 OpenAI Codex。🖱️ **[Cursor](docs/CURSOR_ADAPTATION.md)** — Cursor 也能用。🖥️ **[Trae](docs/TRAE_ARIS_RUNBOOK_CN.md)** — 字节跳动 AI IDE。🚀 **[Antigravity](docs/ANTIGRAVITY_ADAPTATION_CN.md)** — Google Agent-First IDE。🐙 **[Copilot CLI](docs/COPILOT_CLI_ADAPTATION.md)** — GitHub 终端 Agent（原生 SKILL.md + MCP）。🆓 **[ModelScope 免费接入](docs/MODELSCOPE_GUIDE.md)——零成本，零锁定。**
+基于 [Claude Code](https://docs.anthropic.com/en/docs/claude-code) 的自定义 Skills，用于自主 ML 科研工作流。核心机制是**跨模型协作**——Claude Code 负责执行（读文件、写代码、跑实验、收结果），外部 LLM（通过 [Codex MCP](https://github.com/openai/codex)）负责评审（打分、找弱点、建议修复）。两个模型互不评自己的作业，形成真正的反馈循环。🔀 **也支持[替代模型组合](#alternative-model-combinations)（Kimi、LongCat、DeepSeek 等）——无需 Claude 或 OpenAI API。** 例如 [MiniMax-M3 + GLM-5 或 GLM-5 + MiniMax-M3](docs/MiniMax-GLM-Configuration.md)。 🤖 **[Codex CLI 原生版](skills/skills-codex/)** — 完整 skill 集合也支持 OpenAI Codex。🖱️ **[Cursor](docs/CURSOR_ADAPTATION.md)** — Cursor 也能用。🖥️ **[Trae](docs/TRAE_ARIS_RUNBOOK_CN.md)** — 字节跳动 AI IDE。🚀 **[Antigravity](docs/ANTIGRAVITY_ADAPTATION_CN.md)** — Google Agent-First IDE。🐙 **[Copilot CLI](docs/COPILOT_CLI_ADAPTATION.md)** — GitHub 终端 Agent（原生 SKILL.md + MCP）。🌙 **[Kimi Code](docs/KIMI_ADAPTATION.md)** — 月之暗面终端 Agent（专用 `skills/skills-kimi/` 包；同一项目只装一条线）。🆓 **[ModelScope 免费接入](docs/MODELSCOPE_GUIDE.md)——零成本，零锁定。**
 
 > 💭 **为什么不用单模型自我博弈？** 用 Claude Code 的 subagent 或 agent team 同时做执行和审稿在技术上可行，但容易陷入**局部最优**——同一个模型审自己的输出会产生盲区。
 >
@@ -401,6 +401,17 @@ bash Auto-claude-code-research-in-sleep/tools/install_aris_codex.sh \
 bash Auto-claude-code-research-in-sleep/tools/smart_update_codex.sh --local ~/.codex/skills
 bash Auto-claude-code-research-in-sleep/tools/smart_update_codex.sh --local ~/.codex/skills --apply
 
+# 可选：Kimi Code 项目级安装（装进 .agents/skills/，Kimi 原生 skills-kimi 包；
+# 同一项目只装一条线——若 Codex 线已管该项目，先 uninstall 再装 Kimi 线）
+bash Auto-claude-code-research-in-sleep/tools/install_aris_kimi.sh \
+  ~/your-kimi-project --office-author "你的姓名"
+# （想装到用户级？bash Auto-claude-code-research-in-sleep/tools/install_aris_kimi.sh --global）
+
+# Kimi Code 受管项目更新
+cd Auto-claude-code-research-in-sleep && git pull
+bash Auto-claude-code-research-in-sleep/tools/install_aris_kimi.sh \
+  ~/your-kimi-project --reconcile --office-author "你的姓名"
+
 # 2. 配置 Codex MCP（review 类 skill 需要）
 npm install -g @openai/codex
 codex setup                    # 提示选模型时选 gpt-5.6-sol
@@ -551,6 +562,8 @@ cd Auto-claude-code-research-in-sleep && ls skills/ | xargs -I{} rm -rf ~/.claud
 **想让 Codex 执行、Gemini 在本地做审稿？** 见 [`docs/CODEX_GEMINI_REVIEW_GUIDE_CN.md`](docs/CODEX_GEMINI_REVIEW_GUIDE_CN.md) 和[英文版](docs/CODEX_GEMINI_REVIEW_GUIDE.md)。这条路径会先安装基础 `skills/skills-codex/*`，再叠加 `skills/skills-codex-gemini-review/*`，并通过本地 `gemini-review` MCP bridge 转发 reviewer-aware 预定义 skills 的审稿请求，默认 direct Gemini API。
 
 **想走 Codex mirror 安装链？** 项目级受管安装用 `tools/install_aris_codex.sh`，copy 安装更新用 `tools/smart_update_codex.sh`。Claude 脚本仍然是 Claude 主线入口。
+
+**想走 Kimi Code 安装链？** 用 `tools/install_aris_kimi.sh`——项目级把 Kimi 原生 `skills/skills-kimi/` 包 symlink 进 `.agents/skills/`，`--global` 装到 `~/.kimi-code/skills/`。Kimi 与 Codex 分开发 release（tag 命名 `<suite>-codex-vX.Y.Z` / `<suite>-kimi-vX.Y.Z`），**同一项目只装一条线**：安装器会拒绝 Codex 线已管理的同名条目——换线先 `install_aris_codex.sh --uninstall`。review 类 skill 在 skills-kimi 里是 Kimi 子代理原生契约（same-family / provisional），跨族升级注册 `llm-chat`。见 [docs/KIMI_ADAPTATION.md](docs/KIMI_ADAPTATION.md)。
 
 Codex 基础镜像默认由新的 Codex `spawn_agent` 自审：流程可以继续，但结果明确记录为 `same-family / provisional`。只有 Claude/Gemini overlay 或确定性验证才能记录 `accepted`；投稿报告会据此输出 `submission-ready: provisional | yes | no`。
 
@@ -1340,6 +1353,8 @@ claude   # hooks 立即生效
 > 💡 **推荐：项目级扁平 symlink 安装**（2026-04-20 起）。每个 ARIS skill 独立 symlink 到 `.claude/skills/<skill-name>`，让 Claude Code 的 slash command 自动补全能直接发现。manifest 在 `.aris/installed-skills.txt` 跟踪 ARIS 装了什么——uninstall 和 reconcile 只动 manifest 里的条目，绝不碰你自己的 skill。
 >
 > 🤖 **Codex mirror 路线：** Claude 主线继续使用 `install_aris.sh` / `smart_update.sh`。Codex 原生项目安装请用 `install_aris_codex.sh`，Codex copy 安装更新请用 `smart_update_codex.sh`。
+>
+> 🌙 **Kimi Code 路线：** 项目级安装用 `install_aris_kimi.sh`（把 Kimi 原生 `skills/skills-kimi/` 包 symlink 进 `.agents/skills/`）；用户级安装用 `install_aris_kimi.sh --global`（装进 `~/.kimi-code/skills/`）。同一项目只装一条线——安装器拒绝 Codex 已管的名字。
 >
 > 🪪 **Office 身份：**只要安装选择包含 `results-to-docx`，就必须显式传入 `--office-author "你的姓名"`（PowerShell：`-OfficeAuthor "你的姓名"`）。该值只保存在接收者的用户级 ARIS 配置中，不写入项目或 Git 身份。
 

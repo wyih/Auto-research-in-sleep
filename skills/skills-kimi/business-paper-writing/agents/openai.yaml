@@ -1,0 +1,4 @@
+interface:
+  display_name: "Business Paper Writing"
+  short_description: "Draft journal-style business paper sections with claim discipline and table traceability."
+  default_prompt: "Draft or revise this business paper section using the paper plan, evidence, and table outputs."

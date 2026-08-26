@@ -1,0 +1,4 @@
+interface:
+  display_name: "Empirical Design Plan"
+  short_description: "Plan and feasibility-test empirical designs and gates."
+  default_prompt: "Use $empirical-design-plan to build an empirical design with closest-study benchmarks, calibrated gates, a claim ladder, table shells, and robustness checks."

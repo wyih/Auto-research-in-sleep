@@ -1,7 +1,7 @@
 # ARIS skill catalog — single source of truth for selective install.
 # Consumed by: install_aris.sh / install_aris_codex.sh / install_aris_copilot.sh /
-#              install_aris.ps1 / smart_update*.sh|ps1 / tools/skill_picker.py /
-#              tests/test_skill_groups.py
+#              install_aris_kimi.sh / install_aris.ps1 / smart_update*.sh|ps1 /
+#              tools/skill_picker.py / tests/test_skill_groups.py
 #
 # Record types (tab-separated):
 #   group	<group-id>	<display-name>	<description>

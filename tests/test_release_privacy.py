@@ -99,6 +99,7 @@ def test_skill_installers_do_not_rewrite_recipient_git_identity() -> None:
         Path("tools/install_aris.ps1"),
         Path("tools/install_aris_codex.sh"),
         Path("tools/install_aris_copilot.sh"),
+        Path("tools/install_aris_kimi.sh"),
     ):
         text = (REPO_ROOT / relative).read_text(encoding="utf-8")
         assert "git config user.name" not in text
@@ -110,6 +111,7 @@ def test_every_installer_requires_an_explicit_office_author_for_results() -> Non
         Path("tools/install_aris.sh"),
         Path("tools/install_aris_codex.sh"),
         Path("tools/install_aris_copilot.sh"),
+        Path("tools/install_aris_kimi.sh"),
     )
     for relative in bash_installers:
         text = (REPO_ROOT / relative).read_text(encoding="utf-8")

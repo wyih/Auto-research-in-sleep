@@ -1,0 +1,4 @@
+interface:
+  display_name: "Business Research Pipeline"
+  short_description: "Run a calibrated research chain from evidence to paper."
+  default_prompt: "Use $business-research-pipeline to run the complete business-research chain with verified literature, calibrated feasibility gates, bounded data work, analysis, audits, and writing."

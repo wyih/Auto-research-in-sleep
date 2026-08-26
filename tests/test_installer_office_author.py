@@ -29,6 +29,11 @@ REPO_ROOT = Path(__file__).resolve().parents[1]
             Path(".github/skills/results-to-docx"),
             (),
         ),
+        (
+            "install_aris_kimi.sh",
+            Path(".agents/skills/results-to-docx"),
+            ("--no-global-pointer",),
+        ),
     ),
 )
 def test_bash_installers_require_and_store_explicit_office_author(

@@ -1,0 +1,4 @@
+interface:
+  display_name: "Business Research Suite"
+  short_description: "Route and calibrate research workflows before costly work."
+  default_prompt: "Use $business-research-suite to choose the next business-research stage and calibrate feasibility, gates, QA, and STOP decisions before costly work."
