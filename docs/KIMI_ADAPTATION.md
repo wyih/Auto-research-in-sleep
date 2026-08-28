@@ -31,6 +31,9 @@ git pull
 bash tools/install_aris_kimi.sh ~/your-project --reconcile --office-author "Your Name"
 # (NEW upstream skills need confirmation — --add-new to accept all non-interactively)
 
+# Or one command: fetch + checkout newest -kimi-* tag + reconcile each install
+bash tools/smart_update_kimi.sh --apply --project ~/your-project   # dry-run without --apply
+
 # Uninstall (removes only manifest-managed entries, never your own skills)
 bash tools/install_aris_kimi.sh ~/your-project --uninstall
 ```
