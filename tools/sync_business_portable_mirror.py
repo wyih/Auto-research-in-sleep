@@ -35,7 +35,7 @@ PORTABLE_SKILLS = (
     "business-research-pipeline",
     "business-research-suite",
     "business-run-passport",
-    "business-thesis-prereview",
+    "business-prereview",
     "cn-data-bridge",
     "data-analysis-bridge",
     "empirical-design-plan",

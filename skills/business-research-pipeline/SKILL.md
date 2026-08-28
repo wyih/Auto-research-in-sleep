@@ -64,7 +64,7 @@ business-run-passport
   -> business-paper-plan
      -> business-author-style-profile when writing samples or target-journal style are available
   -> business-paper-writing
-  -> business-thesis-prereview for a draft before defense (thesis mode) or journal submission (referee mode)
+  -> business-prereview for a draft before defense (thesis mode) or journal submission (referee mode)
      -> revisions route back to the owning stage skills, then audits and pre-review rerun
 ```
 
@@ -210,9 +210,9 @@ Output:
 - `AUTHOR_STYLE_PROFILE.md` when style calibration is used
 - manuscript sections or full `paper/` directory
 
-### Stage 9.5: Thesis Pre-Review
+### Stage 9.5: Pre-Review (Thesis & Journal)
 
-When a full or near-full draft exists, run `business-thesis-prereview` before defense (thesis mode) or journal submission (journal mode). Thesis mode scores the draft against the MPAcc or generic master's rubric and writes committee-style comments; journal mode writes a referee report with a target-journal fit note. Both produce a P0/P1/P2 revision plan routed back to the owning stage skills. After revisions, rerun Stage 8 audits and then the pre-review; the loop stays open while any P0 item is unresolved.
+When a full or near-full draft exists, run `business-prereview` before defense (thesis mode) or journal submission (journal mode). Thesis mode scores the draft against the MPAcc or generic master's rubric and writes committee-style comments; journal mode writes a referee report with a target-journal fit note. Both produce a P0/P1/P2 revision plan routed back to the owning stage skills. After revisions, rerun Stage 8 audits and then the pre-review; the loop stays open while any P0 item is unresolved.
 
 Output:
 

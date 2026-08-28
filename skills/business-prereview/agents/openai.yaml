@@ -1,0 +1,4 @@
+interface:
+  display_name: "Business Thesis Pre-Review"
+  short_description: "Committee-style pre-review of master's theses with routed revision plans."
+  default_prompt: "Use $business-prereview to pre-review this thesis or journal manuscript and produce a P0/P1/P2 revision plan routed back to the business research suite."

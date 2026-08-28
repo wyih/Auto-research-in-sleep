@@ -51,7 +51,7 @@ Use the most specific mode:
 - paper architecture: `business-paper-plan`
 - author voice calibration: `business-author-style-profile`
 - paper drafting or revision: `business-paper-writing`
-- pre-review of a draft before defense or journal submission — thesis mode (committee voice, MPAcc/master rubric) or journal mode (referee report + target-journal fit), both with a routed revision plan: `business-thesis-prereview`
+- pre-review of a draft before defense or journal submission — thesis mode (committee voice, MPAcc/master rubric) or journal mode (referee report + target-journal fit), both with a routed revision plan: `business-prereview`
 - response to reviewers: `business-rebuttal`
 - staged end-to-end run: `business-research-pipeline`
 

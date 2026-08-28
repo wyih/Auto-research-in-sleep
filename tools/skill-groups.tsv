@@ -119,7 +119,7 @@ skill	browser-session-bridge	business-research	-	Codex 原生 Chrome 登录态�
 skill	business-research-suite	business-research	-	商科实证研究统一轻量路由入口
 skill	business-research-pipeline	business-research	-	文献到数据、分析、审计与写作的分阶段总流程
 skill	business-run-passport	business-research	-	商科项目材料、阶段、工件与验收门状态护照
-skill	business-thesis-prereview	business-research	-	学位论文/期刊稿件预审(MPAcc rubric + 期刊审稿人报告 + 修改路由)
+skill	business-prereview	business-research	-	学位论文/期刊稿件预审(MPAcc rubric + 期刊审稿人报告 + 修改路由)
 skill	business-lit-review	business-research	-	商科文献版图、核心对话与最近邻研究综述
 skill	fulltext-acquire	business-research	-	OA/CNKI/ScienceDirect 等授权渠道全文获取与验真
 skill	method-harvest	business-research	browser-session-bridge	从已验证 PDF 提取可追溯方法卡

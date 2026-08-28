@@ -1,5 +1,5 @@
 ---
-name: business-thesis-prereview
+name: business-prereview
 description: Reviewer-side pre-review for business, accounting, finance, management, and economics manuscripts — master's theses (MPAcc rubric built in) AND journal papers (referee-report mode with target-journal fit). Use when a draft exists and the author needs pre-defense or pre-submission evaluation, dimension scoring, review comments, and a prioritized revision plan routed back to the business research suite skills.
 ---
 

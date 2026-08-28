@@ -70,7 +70,7 @@ Codex-native business, accounting, finance, management, and economics workflows.
 | [`/business-paper-plan`](../skills/business-paper-plan/SKILL.md) | Journal-facing paper architecture, narrative, and evidence placement | Accepted upstream artifacts |
 | [`/business-author-style-profile`](../skills/business-author-style-profile/SKILL.md) | Executable style constraints learned from author or journal examples | Writing samples |
 | [`/business-paper-writing`](../skills/business-paper-writing/SKILL.md) | Evidence-disciplined business paper drafting and revision | Accepted plan/audits |
-| [`/business-thesis-prereview`](../skills/business-thesis-prereview/SKILL.md) | Pre-review before defense (thesis mode, MPAcc/master rubric) or journal submission (referee report + journal fit), revision plan routed back to suite skills | Full or near-full draft |
+| [`/business-prereview`](../skills/business-prereview/SKILL.md) | Pre-review before defense (thesis mode, MPAcc/master rubric) or journal submission (referee report + journal fit), revision plan routed back to suite skills | Full or near-full draft |
 | [`/business-rebuttal`](../skills/business-rebuttal/SKILL.md) | Reviewer report parsing, revision strategy, and response letter | Review package |
 
 ## 📚 Literature & Search

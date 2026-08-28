@@ -26,7 +26,7 @@
 - CNKI 可访问环境(需要中文文献全文时)
 - 浏览器桥(需要从 CSMAR/CNRDS/CNKI 网页导出数据时;复用你浏览器里已登录的会话,套件不会替你登录):
   - Kimi Code 用户装 **Kimi WebBridge** 浏览器扩展
-  - Codex 用户用自带的 **Chrome 浏览器桥**(`browser-session-bridge`,装 Codex 线时随套件一起安装)
+  - Codex 用户用 Codex 自带的 **Control Chrome** 插件(`chrome:control-chrome`;套件侧由 `browser-session-bridge` 自动路由过去,不用单独配置)
 
 没有这些账号也能开始:选题、查新、研究设计、写作、预审都不需要数据账号。
 
@@ -78,7 +78,7 @@ mkdir $HOME\my-thesis
 ls ~/my-thesis/.agents/skills
 ```
 
-应该看到 26 个条目,其中包括 `business-research-suite`、`business-research-pipeline`、`business-thesis-prereview` 等 25 个 skill 加一个 `shared-references`。
+应该看到 26 个条目,其中包括 `business-research-suite`、`business-research-pipeline`、`business-prereview` 等 25 个 skill 加一个 `shared-references`。
 
 > 注意:**一个项目只装一条线**。如果这个项目之前装过 Codex 线,先 `bash tools/install_aris_codex.sh ~/my-thesis --uninstall`,再装 Kimi 线,反之亦然。两条线的卸载互不影响。
 
@@ -134,7 +134,7 @@ kimi        # Kimi Code 用户;Codex 用户用 codex
 
 1. **公开数据(最简单)**:Kimi Code 下直接用官方数据源插件——Wind、S&P、SEC EDGAR、Yahoo Finance、国家统计局、FRED/IMF/世界银行、天眼查、国标法规、arXiv/Scholar、新华财经/财新。宏观、公告、标准、文献类需求优先走这里。
 2. **WRDS**:有账号就配置好 R + Postgres,套件负责抽取、缓存、链接表和来源清单;大任务超时了会自动交接 SAS Cloud 路径。
-3. **CSMAR / CNRDS / CNKI 门户**:需要你自己在浏览器里登录(套件不碰你的账号密码)。Kimi Code 用户装 Kimi WebBridge 扩展、Codex 用户用套件自带的 Chrome 浏览器桥;套件借用你已登录的会话做检索和导出,下载文件会逐一校验。
+3. **CSMAR / CNRDS / CNKI 门户**:需要你自己在浏览器里登录(套件不碰你的账号密码)。Kimi Code 用户装 Kimi WebBridge 扩展、Codex 用户启用 Codex 自带的 Control Chrome 插件;套件借用你已登录的会话做检索和导出,下载文件会逐一校验。
 
 ---
 
@@ -184,5 +184,5 @@ bash tools/install_aris_kimi.sh ~/my-thesis --uninstall
 
 - **安装器报 CONFLICT、什么都不写** → 这个项目已被另一条线管理,先卸载那条线(见第 2 节末尾)。
 - **提示要 `--office-author`** → 你选了 `results-to-docx`,补上 `--office-author "你的名字"` 即可。
-- **数据下载失败/校验不过** → 先确认你在浏览器里已登录对应平台,且浏览器桥已启用(Kimi 的 WebBridge 扩展 / Codex 的 Chrome 浏览器桥);仍不行就把报错原样发给宿主,它会按下载验证流程排查。
+- **数据下载失败/校验不过** → 先确认你在浏览器里已登录对应平台,且浏览器桥已启用(Kimi 的 WebBridge 扩展 / Codex 的 Control Chrome 插件);仍不行就把报错原样发给宿主,它会按下载验证流程排查。
 - **想知道审稿意见可信吗** → 审阅类 skill 默认是同族模型互审,结果诚实标注 `same-family / provisional`;需要跨族复审时,按 `docs/KIMI_ADAPTATION.md` 注册 `mcp-servers/llm-chat`。
