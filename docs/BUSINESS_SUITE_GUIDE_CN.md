@@ -12,7 +12,9 @@
 
 **必须有:**
 
-- 一台电脑(macOS / Linux / Windows 的 WSL 均可),装有 `git`
+- 一台电脑,装有 `git`:
+  - **macOS / Linux**:直接打开终端用下面的命令
+  - **Windows**:两条路——Codex 线有原生 PowerShell 安装器(`tools/install_aris.ps1`,用 junction 链接,不需要管理员权限);Kimi 线的安装器是 bash 脚本,请在 **WSL**(Windows 的 Linux 子系统)里运行。PowerShell 里 `git`、`cd`、`mkdir`、`ls` 命令和本文写法一致,只有安装/升级脚本要按你的线选对版本
 - 一个宿主环境,二选一:
   - **Kimi Code CLI**(推荐):<https://www.kimi.com/code> 按官方指引安装
   - **Codex CLI**:<https://github.com/openai/codex> 按官方指引安装
@@ -22,7 +24,9 @@
 - WRDS 账号(用美股/Compustat/CRSP 数据时)
 - CSMAR / CNRDS 账号(用中国数据时,一般走学校图书馆入口)
 - CNKI 可访问环境(需要中文文献全文时)
-- Kimi WebBridge 浏览器扩展(需要从 CSMAR/CNRDS/CNKI 网页导出数据时;它复用你浏览器里已登录的会话,套件不会替你登录)
+- 浏览器桥(需要从 CSMAR/CNRDS/CNKI 网页导出数据时;复用你浏览器里已登录的会话,套件不会替你登录):
+  - Kimi Code 用户装 **Kimi WebBridge** 浏览器扩展
+  - Codex 用户用自带的 **Chrome 浏览器桥**(`browser-session-bridge`,装 Codex 线时随套件一起安装)
 
 没有这些账号也能开始:选题、查新、研究设计、写作、预审都不需要数据账号。
 
@@ -52,6 +56,18 @@ bash tools/install_aris_kimi.sh ~/my-thesis --groups business-research --office-
 ```bash
 mkdir -p ~/my-thesis
 bash tools/install_aris_codex.sh ~/my-thesis --groups business-research --office-author "你的名字"
+```
+
+**Windows 用户(PowerShell):**
+
+```powershell
+# 同上,先 git clone 并 checkout 到本 release
+mkdir $HOME\my-thesis
+
+# Codex 线(原生支持 Windows):
+.\tools\install_aris.ps1 -ProjectPath $HOME\my-thesis -Platform codex -Groups business-research -OfficeAuthor "你的名字"
+
+# Kimi 线:请改用 WSL,在 WSL 终端里跑上面的 bash 命令
 ```
 
 > `--office-author` 只用于 `results-to-docx` 生成 Word 结果包时的署名,填一次即可。
@@ -106,7 +122,7 @@ kimi        # Kimi Code 用户;Codex 用户用 codex
 | 结果打包 | 「把结果做成 Word」 | 生成独立学术风格 Word 结果包 | `results.docx` |
 | 审计 | 「核一遍数字和引用」 | 逐项核对文稿数字 vs 分析输出、来源 vs 主张;裁定每个结论的证据上限 | 审计报告 |
 | 写作 | 「按设计写初稿」 | 基于证据和(可选的)目标期刊/作者风格约束写作 | 论文初稿 |
-| **预审** | 「帮我预审这篇初稿」 | 按 MPAcc/硕士评审标准打分、写委员会式评语,给送审结论 | `THESIS_PREREVIEW.md` |
+| **预审** | 「帮我预审这篇初稿」/「这篇要投《XX》,帮我审一遍」 | 学位论文:按 MPAcc/硕士评审标准打分、写委员会式评语、给送审结论;期刊稿件:写审稿人报告(主要/次要意见)+ 目标期刊适配判断 | `THESIS_PREREVIEW.md` / `JOURNAL_PREREVIEW.md` |
 | 修改 | 按预审的 P0/P1/P2 逐条改 | 每条修改路由回负责的 skill(数据问题回分析、主张越界回审计……) | 修改后的稿子 |
 | 回复审稿 | 「帮我回复这些审稿意见」 | 解析意见、规划修订、写回复信 | 回复信 + 修订稿 |
 
@@ -118,18 +134,28 @@ kimi        # Kimi Code 用户;Codex 用户用 codex
 
 1. **公开数据(最简单)**:Kimi Code 下直接用官方数据源插件——Wind、S&P、SEC EDGAR、Yahoo Finance、国家统计局、FRED/IMF/世界银行、天眼查、国标法规、arXiv/Scholar、新华财经/财新。宏观、公告、标准、文献类需求优先走这里。
 2. **WRDS**:有账号就配置好 R + Postgres,套件负责抽取、缓存、链接表和来源清单;大任务超时了会自动交接 SAS Cloud 路径。
-3. **CSMAR / CNRDS / CNKI 门户**:需要你自己在浏览器里登录(套件不碰你的账号密码)。装 Kimi WebBridge 扩展后,套件借用你已登录的会话做检索和导出,下载文件会逐一校验。
+3. **CSMAR / CNRDS / CNKI 门户**:需要你自己在浏览器里登录(套件不碰你的账号密码)。Kimi Code 用户装 Kimi WebBridge 扩展、Codex 用户用套件自带的 Chrome 浏览器桥;套件借用你已登录的会话做检索和导出,下载文件会逐一校验。
 
 ---
 
-## 6. 写完初稿:预审闭环(学位论文重点)
+## 6. 写完初稿:预审闭环
 
-初稿完成后,说「帮我预审这篇论文」:
+初稿完成后,说「帮我预审这篇论文」。两种稿件两种口径:
+
+**学位论文(答辩/送审前):**
 
 1. 它先读你的初稿和过程材料,按 MPAcc 评审标准(非 MPAcc 用通用硕士标准)逐维度打分,明确标出哪些地方证据不足;
 2. 输出 `THESIS_PREREVIEW.md`:委员会式评语(证据 → 判断 → 修改动作)+ 送审结论(可送审 / 大修后送审 / 暂不建议送审);
-3. 评语里每条问题都带 P0(必须改)/ P1(应该改)/ P2(可选)优先级,并指明该回哪个 skill 去修;
-4. 改完后再说「重新预审」,它会先重跑数字审计和来源审计,再重新评分——P0 没清完,这个循环不关闭。
+3. 评语里每条问题都带 P0(必须改)/ P1(应该改)/ P2(可选)优先级,并指明该回哪个 skill 去修。
+
+**期刊稿件(投稿前自查):**
+
+1. 说「这篇要投《XX期刊》,帮我按审稿人标准审一遍」——它会以审稿人口径写 `JOURNAL_PREREVIEW.md`:一段论文摘要、逐条主要意见(问题 → 为什么威胁结论 → 需要什么证据或分析才能解决)、次要意见;
+2. 增量贡献不和作者自己说的一致,而是对着查新报告核;
+3. 给出投稿建议(可投 / 小修后投 / 大修后投 / 暂不适合该刊),并附期刊适配判断:这篇是否进入目标刊近三五年的对话,不合适的话哪一两个刊物更合适;
+4. 修改项同样按 P0/P1/P2 路由回对应 skill。
+
+**修改后复审(两种稿件通用):** 改完说「重新预审」,它会先重跑数字审计和来源审计,再重新评分——P0 没清完,这个循环不关闭。
 
 ---
 
@@ -141,6 +167,8 @@ bash tools/smart_update_kimi.sh --apply --project ~/my-thesis
 ```
 
 (不加 `--apply` 只看计划不动手。)它会拉取最新 release tag、移动本地仓库、并把新增/移除的 skill 同步进你的项目。Codex 线的受管安装升级用 `git pull` + `install_aris_codex.sh --reconcile`;copy 安装用 `smart_update_codex.sh`。
+
+**Windows 对照:** Codex 线在 PowerShell 里用 `.\tools\smart_update.ps1 -ProjectPath $HOME\my-thesis -TargetSubdir '.agents/skills' -Apply`;Kimi 线在 WSL 里跑上面的 bash 命令。
 
 ## 8. 卸载
 
@@ -156,5 +184,5 @@ bash tools/install_aris_kimi.sh ~/my-thesis --uninstall
 
 - **安装器报 CONFLICT、什么都不写** → 这个项目已被另一条线管理,先卸载那条线(见第 2 节末尾)。
 - **提示要 `--office-author`** → 你选了 `results-to-docx`,补上 `--office-author "你的名字"` 即可。
-- **数据下载失败/校验不过** → 先确认你在浏览器里已登录对应平台,且 Kimi WebBridge 扩展已启用;仍不行就把报错原样发给 Kimi Code,它会按下载验证流程排查。
+- **数据下载失败/校验不过** → 先确认你在浏览器里已登录对应平台,且浏览器桥已启用(Kimi 的 WebBridge 扩展 / Codex 的 Chrome 浏览器桥);仍不行就把报错原样发给宿主,它会按下载验证流程排查。
 - **想知道审稿意见可信吗** → 审阅类 skill 默认是同族模型互审,结果诚实标注 `same-family / provisional`;需要跨族复审时,按 `docs/KIMI_ADAPTATION.md` 注册 `mcp-servers/llm-chat`。
