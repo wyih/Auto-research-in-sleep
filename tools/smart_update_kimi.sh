@@ -11,7 +11,8 @@
 #
 # Options:
 #   --to <ref>        checkout this tag/branch/commit instead of the newest
-#                     business-research-suite-kimi-v* tag
+#                     business-research-suite-v* tag (legacy -kimi-* tags also
+#                     match, as fallback for pre-unification clones)
 #   --pull            fast-forward the current branch instead of checking out a tag
 #   --project <path>  reconcile this project install (repeatable). Without any
 #                     --project, only the global install (~/.aris manifest) is
@@ -40,7 +41,7 @@ ALLOW_DIRTY=false
 NEW_POLICY=""   # "" (installer default: prompt on TTY, skip otherwise) | add | skip
 PROJECTS=()
 
-usage() { sed -n '2,34p' "$0" | sed 's/^# \?//'; }
+usage() { sed -n '2,35p' "$0" | sed 's/^# \?//'; }
 
 while [[ $# -gt 0 ]]; do
     case "$1" in
@@ -95,8 +96,11 @@ elif [[ -n "$TO" ]]; then
     TARGET_KIND="checkout"
     TARGET_REF="$TO"
 else
-    TARGET_REF="$(git -C "$REPO_ROOT" tag -l 'business-research-suite-kimi-v*' --sort=-v:refname | head -1)"
-    [[ -n "$TARGET_REF" ]] || die "no business-research-suite-kimi-v* tag found; use --to <ref>"
+    # Unified release line: one tag covers both hosts (install_aris_kimi.sh or
+    # install_aris_codex.sh, user's choice). Legacy -kimi-* tags still match as
+    # a fallback for clones pinned before the lines merged.
+    TARGET_REF="$(git -C "$REPO_ROOT" tag -l 'business-research-suite-v*' 'business-research-suite-kimi-v*' --sort=-v:refname | head -1)"
+    [[ -n "$TARGET_REF" ]] || die "no business-research-suite-v* tag found; use --to <ref>"
     TARGET_KIND="checkout"
     TARGET_SHA="$(git -C "$REPO_ROOT" rev-parse "$TARGET_REF^{commit}")"
 fi

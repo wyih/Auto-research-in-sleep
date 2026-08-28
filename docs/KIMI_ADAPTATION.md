@@ -58,9 +58,9 @@ bash tools/install_aris_codex.sh ~/your-project --uninstall
 bash tools/install_aris_kimi.sh  ~/your-project --office-author "Your Name"
 ```
 
-### Release split convention
+### Release convention
 
-Codex and Kimi release separately, per suite. Tag naming: `<suite>-codex-vX.Y.Z` / `<suite>-kimi-vX.Y.Z`. The two lines are versioned independently; a project pins one line and upgrades it with `--reconcile` after pulling the matching tag.
+One unified release covers both hosts. Tag naming: `<suite>-vX.Y.Z` (e.g. `business-research-suite-v0.5.0`); the release notes give both install commands — `tools/install_aris_kimi.sh` for Kimi Code, `tools/install_aris_codex.sh` for Codex — and a project picks exactly one line. Upgrade a Kimi-line project with `bash tools/smart_update_kimi.sh --apply --project <path>` (or `git checkout <tag>` + `install_aris_kimi.sh --reconcile`). Legacy `<suite>-kimi-vX.Y.Z` tags still match `smart_update_kimi.sh`'s default lookup, but no new split tags will be cut.
 
 ## 3. Data & Browser Channels Under Kimi Code
 

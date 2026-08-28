@@ -34,8 +34,8 @@ def make_skill(path: Path, body: str) -> None:
     (path / "SKILL.md").write_text(body)
 
 
-def make_git_aris_repo(root: Path) -> Path:
-    """Minimal skills-kimi repo under git, tagged business-research-suite-kimi-v0.0.1."""
+def make_git_aris_repo(root: Path, tag: str = "business-research-suite-v0.0.1") -> Path:
+    """Minimal skills-kimi repo under git, tagged with the given v0.0.1 tag."""
     repo = root / "aris"
     (repo / "tools").mkdir(parents=True)
     shutil.copy(INSTALL_SCRIPT, repo / "tools" / INSTALL_SCRIPT.name)
@@ -50,18 +50,18 @@ def make_git_aris_repo(root: Path) -> Path:
     git(repo, "init", "--quiet", "--initial-branch=main")
     git(repo, "add", "-A")
     git(repo, "commit", "--quiet", "-m", "v0.0.1")
-    git(repo, "tag", "business-research-suite-kimi-v0.0.1")
+    git(repo, "tag", tag)
     return repo
 
 
-def bump_repo(repo: Path) -> str:
-    """Add a skill, tag business-research-suite-kimi-v0.0.2, return to v0.0.1."""
+def bump_repo(repo: Path, tag: str = "business-research-suite-v0.0.2") -> str:
+    """Add a skill, tag the v0.0.2 tag, return to v0.0.1."""
     make_skill(repo / "skills" / "skills-kimi" / "gamma", "# kimi gamma v2\n")
     git(repo, "add", "-A")
     git(repo, "commit", "--quiet", "-m", "v0.0.2")
-    git(repo, "tag", "business-research-suite-kimi-v0.0.2")
+    git(repo, "tag", tag)
     sha_v2 = git(repo, "rev-parse", "HEAD").stdout.strip()
-    git(repo, "checkout", "--quiet", "business-research-suite-kimi-v0.0.1")
+    git(repo, "checkout", "--quiet", "HEAD~1")
     return sha_v2
 
 
@@ -77,7 +77,7 @@ def test_smart_update_kimi_dry_run_changes_nothing(tmp_path: Path) -> None:
     result = run(["bash", str(repo / "tools" / "smart_update_kimi.sh")])
 
     assert result.returncode == 0
-    assert "business-research-suite-kimi-v0.0.2" in result.stdout
+    assert "business-research-suite-v0.0.2" in result.stdout
     assert "Dry-run only" in result.stdout
     assert head_sha(repo) == sha_before
     assert head_sha(repo) != sha_v2
@@ -123,7 +123,18 @@ def test_smart_update_kimi_refuses_dirty_clone(tmp_path: Path) -> None:
 
     assert result.returncode == 1
     assert "uncommitted tracked changes" in result.stderr
-    assert head_sha(repo) == git(repo, "rev-parse", "business-research-suite-kimi-v0.0.1").stdout.strip()
+    assert head_sha(repo) == git(repo, "rev-parse", "business-research-suite-v0.0.1").stdout.strip()
+
+
+def test_smart_update_kimi_legacy_kimi_tag_still_matches(tmp_path: Path) -> None:
+    """Pre-unification clones only have -kimi-* tags; the default must still find them."""
+    repo = make_git_aris_repo(tmp_path, tag="business-research-suite-kimi-v0.0.1")
+    bump_repo(repo, tag="business-research-suite-kimi-v0.0.2")
+
+    result = run(["bash", str(repo / "tools" / "smart_update_kimi.sh")])
+
+    assert result.returncode == 0
+    assert "business-research-suite-kimi-v0.0.2" in result.stdout
 
 
 def test_smart_update_kimi_avoids_bash4_associative_arrays() -> None:

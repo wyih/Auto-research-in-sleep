@@ -563,7 +563,7 @@ cd Auto-claude-code-research-in-sleep && ls skills/ | xargs -I{} rm -rf ~/.claud
 
 **想走 Codex mirror 安装链？** 项目级受管安装用 `tools/install_aris_codex.sh`，copy 安装更新用 `tools/smart_update_codex.sh`。Claude 脚本仍然是 Claude 主线入口。
 
-**想走 Kimi Code 安装链？** 用 `tools/install_aris_kimi.sh`——项目级把 Kimi 原生 `skills/skills-kimi/` 包 symlink 进 `.agents/skills/`，`--global` 装到 `~/.kimi-code/skills/`。Kimi 与 Codex 分开发 release（tag 命名 `<suite>-codex-vX.Y.Z` / `<suite>-kimi-vX.Y.Z`），**同一项目只装一条线**：安装器会拒绝 Codex 线已管理的同名条目——换线先 `install_aris_codex.sh --uninstall`。review 类 skill 在 skills-kimi 里是 Kimi 子代理原生契约（same-family / provisional），跨族升级注册 `llm-chat`。见 [docs/KIMI_ADAPTATION.md](docs/KIMI_ADAPTATION.md)。
+**想走 Kimi Code 安装链？** 用 `tools/install_aris_kimi.sh`——项目级把 Kimi 原生 `skills/skills-kimi/` 包 symlink 进 `.agents/skills/`，`--global` 装到 `~/.kimi-code/skills/`；升级一条命令：`tools/smart_update_kimi.sh --apply --project <路径>`。Kimi 与 Codex 走**同一条统一发行线**（tag 命名 `<suite>-vX.Y.Z`，release 说明里两套安装命令任选），**同一项目只装一条线**：安装器会拒绝 Codex 线已管理的同名条目——换线先 `install_aris_codex.sh --uninstall`。review 类 skill 在 skills-kimi 里是 Kimi 子代理原生契约（same-family / provisional），跨族升级注册 `llm-chat`。见 [docs/KIMI_ADAPTATION.md](docs/KIMI_ADAPTATION.md)。
 
 Codex 基础镜像默认由新的 Codex `spawn_agent` 自审：流程可以继续，但结果明确记录为 `same-family / provisional`。只有 Claude/Gemini overlay 或确定性验证才能记录 `accepted`；投稿报告会据此输出 `submission-ready: provisional | yes | no`。
 
