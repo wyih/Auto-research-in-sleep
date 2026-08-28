@@ -670,7 +670,7 @@ ARIS ships **107+ skills** across literature, business empirical research, ideat
 | Use case | Start here |
 |---|---|
 | End-to-end research (idea → paper) | [`/research-pipeline`](skills/research-pipeline/SKILL.md) |
-| Business empirical research (literature → data → Word) | [`/business-research-suite`](skills/business-research-suite/SKILL.md) |
+| Business empirical research (literature → data → Word) | [`/business-research-suite`](skills/business-research-suite/SKILL.md) · [学生指南 →](docs/BUSINESS_SUITE_GUIDE_CN.md) |
 | Idea discovery + method refinement | [`/idea-discovery`](skills/idea-discovery/SKILL.md) |
 | Run experiments from a plan | [`/experiment-bridge`](skills/experiment-bridge/SKILL.md) |
 | Auto review → fix → re-review | [`/auto-review-loop`](skills/auto-review-loop/SKILL.md) |

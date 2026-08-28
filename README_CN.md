@@ -623,7 +623,7 @@ ARIS 现有 **107+ 个 skill**，覆盖文献调研、商科实证、idea 生成
 | 场景 | 入口 skill |
 |---|---|
 | 端到端研究（idea → paper） | [`/research-pipeline`](skills/research-pipeline/SKILL.md) |
-| 商科实证研究（文献 → 数据 → Word） | [`/business-research-suite`](skills/business-research-suite/SKILL.md) |
+| 商科实证研究（文献 → 数据 → Word） | [`/business-research-suite`](skills/business-research-suite/SKILL.md) · [学生使用指南 →](docs/BUSINESS_SUITE_GUIDE_CN.md) |
 | Idea 发现 + 方案精炼 | [`/idea-discovery`](skills/idea-discovery/SKILL.md) |
 | 按计划跑实验 | [`/experiment-bridge`](skills/experiment-bridge/SKILL.md) |
 | 自动 review → 修 → 再 review | [`/auto-review-loop`](skills/auto-review-loop/SKILL.md) |
