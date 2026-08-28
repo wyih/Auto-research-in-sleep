@@ -64,6 +64,8 @@ business-run-passport
   -> business-paper-plan
      -> business-author-style-profile when writing samples or target-journal style are available
   -> business-paper-writing
+  -> business-thesis-prereview for a master's thesis draft before defense or submission
+     -> revisions route back to the owning stage skills, then audits and pre-review rerun
 ```
 
 Use `business-rebuttal` after reviews arrive. Use `resubmit-pipeline` for text-only cross-venue resubmission of an already polished paper.
@@ -208,6 +210,15 @@ Output:
 - `AUTHOR_STYLE_PROFILE.md` when style calibration is used
 - manuscript sections or full `paper/` directory
 
+### Stage 9.5: Thesis Pre-Review
+
+When the project is a master's thesis and a full or near-full draft exists, run `business-thesis-prereview` before defense or submission. It scores the draft against the MPAcc or generic master's rubric on top of the suite's verified artifacts, writes committee-style comments, and produces a P0/P1/P2 revision plan routed back to the owning stage skills. After revisions, rerun Stage 8 audits and then the pre-review; the loop stays open while any P0 item is unresolved.
+
+Output:
+
+- `THESIS_PREREVIEW.md`
+- passport Audit Status and Decision Cards updated with the verdict and revision routing
+
 ## Checkpoints
 
 Pause for user decision after:
@@ -220,6 +231,7 @@ Pause for user decision after:
 - evidence-to-claim verdict
 - source-claim audit verdict when the draft is source-heavy
 - paper plan before full manuscript drafting
+- thesis pre-review verdict before defense or submission
 
 ## Run-State And STOP Discipline
 

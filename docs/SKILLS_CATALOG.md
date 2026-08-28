@@ -1,6 +1,6 @@
 # ARIS Skills Catalog
 
-Every skill that ships with ARIS, grouped by role. **106 skills** as of the
+Every skill that ships with ARIS, grouped by role. **107 skills** as of the
 latest update; new skills land via PR and get added to the table below.
 
 - Each `Skill` link goes to the canonical `SKILL.md` (the LLM-readable spec).
@@ -70,6 +70,7 @@ Codex-native business, accounting, finance, management, and economics workflows.
 | [`/business-paper-plan`](../skills/business-paper-plan/SKILL.md) | Journal-facing paper architecture, narrative, and evidence placement | Accepted upstream artifacts |
 | [`/business-author-style-profile`](../skills/business-author-style-profile/SKILL.md) | Executable style constraints learned from author or journal examples | Writing samples |
 | [`/business-paper-writing`](../skills/business-paper-writing/SKILL.md) | Evidence-disciplined business paper drafting and revision | Accepted plan/audits |
+| [`/business-thesis-prereview`](../skills/business-thesis-prereview/SKILL.md) | Committee-style master thesis pre-review with MPAcc/master rubric scoring and a revision plan routed back to suite skills | Full or near-full draft |
 | [`/business-rebuttal`](../skills/business-rebuttal/SKILL.md) | Reviewer report parsing, revision strategy, and response letter | Review package |
 
 ## 📚 Literature & Search

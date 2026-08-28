@@ -51,6 +51,7 @@ Use the most specific mode:
 - paper architecture: `business-paper-plan`
 - author voice calibration: `business-author-style-profile`
 - paper drafting or revision: `business-paper-writing`
+- committee-style pre-review of a master's thesis draft with scored rubric and routed revision plan: `business-thesis-prereview`
 - response to reviewers: `business-rebuttal`
 - staged end-to-end run: `business-research-pipeline`
 

@@ -103,7 +103,7 @@ def test_kimi_skill_set_matches_codex_line() -> None:
     main_names = skill_names(MAIN_SKILLS)
     codex_names = skill_names(CODEX_SKILLS)
     kimi_names = skill_names(KIMI_SKILLS)
-    assert len(main_names) == 106
+    assert len(main_names) == 107
     assert kimi_names == codex_names == main_names
 
 
@@ -117,7 +117,7 @@ def test_kimi_shared_reference_set_matches_codex_line() -> None:
 def test_kimi_portable_set_is_byte_identical_to_canonical() -> None:
     """The portable business suite must not diverge between canonical,
     skills-codex, and skills-kimi — all three are byte-for-byte copies."""
-    assert len(PORTABLE_SKILLS) == 24
+    assert len(PORTABLE_SKILLS) == 25
     assert len(PORTABLE_REFERENCES) == 10
     for name in PORTABLE_SKILLS:
         assert included_files(MAIN_SKILLS / name) == included_files(KIMI_SKILLS / name), name
@@ -136,7 +136,7 @@ def test_kimi_package_regeneration_is_idempotent() -> None:
         check=False,
     )
     assert result.returncode == 0, result.stderr
-    assert "106 skills" in result.stdout
+    assert "107 skills" in result.stdout
 
 
 def test_kimi_no_codex_leaks_in_non_portable_files() -> None:
