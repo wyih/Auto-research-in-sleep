@@ -110,7 +110,7 @@ def test_kimi_skill_set_matches_codex_line() -> None:
 def test_kimi_shared_reference_set_matches_codex_line() -> None:
     codex_refs = {p.name for p in (CODEX_SKILLS / "shared-references").glob("*.md")}
     kimi_refs = {p.name for p in (KIMI_SKILLS / "shared-references").glob("*.md")}
-    assert len(codex_refs) == 41
+    assert len(codex_refs) == 42
     assert kimi_refs == codex_refs
 
 
@@ -118,7 +118,7 @@ def test_kimi_portable_set_is_byte_identical_to_canonical() -> None:
     """The portable business suite must not diverge between canonical,
     skills-codex, and skills-kimi — all three are byte-for-byte copies."""
     assert len(PORTABLE_SKILLS) == 25
-    assert len(PORTABLE_REFERENCES) == 10
+    assert len(PORTABLE_REFERENCES) == 11
     for name in PORTABLE_SKILLS:
         assert included_files(MAIN_SKILLS / name) == included_files(KIMI_SKILLS / name), name
     for name in PORTABLE_REFERENCES:

@@ -90,7 +90,7 @@ Before finalizing, scan for:
 - manufactured contrasts such as "not X, but Y" or `不是……而是……` when X is not a real interpretation or claim that the paper must reject
 - repeated background -> gap -> contribution -> generic implication scaffolds across paragraphs
 - automatic "first, second, finally," "on the one hand/on the other hand," rule-of-three, or paired theoretical/practical contribution structures without distinct supporting content
-- defensive wording: stacked hedges, per-paragraph caveats outside the limits discussion, self-defence ("we do not claim", "our goal is merely"), reviewer-facing prebuttals that apologize for the sample, setting, or design
+- defensive wording, per the scan list in `../shared-references/business-confident-prose.md`: stacked hedges, per-paragraph caveats outside the limits discussion, self-defence ("we do not claim", "our goal is merely"), reviewer-facing prebuttals that apologize for the sample, setting, or design
 
 For each style finding, quote the exact sentence or paragraph and explain which contrast or scaffold lacks substantive support. If the affirmative claim stands after removing the setup, state it directly. Rewrite from the paper's claim, evidence, or boundary; do not replace one stock phrase with another.
 
@@ -108,10 +108,6 @@ Create or update `paper/` using the existing ARIS LaTeX conventions when full ma
 - Use `DATA_NEEDED` comments for genuine gaps.
 - Use `SOURCE_NEEDED` comments for citation or source support gaps.
 
-### Confident prose, honest limits (tone edits never upgrade claims)
+### Confident prose, honest limits
 
-- Calibrate each claim to the evidence's actual scope and design assumptions, then state that calibrated claim directly. Necessary scope, assumptions, and uncertainty are part of the claim or the design section; stacked hedges and defensive throat-clearing belong nowhere.
-- Consolidate generic caveats and boundary discussion in one place — the limits paragraph of the Conclusion. Outside it, remove per-paragraph disclaimers ("these results should be interpreted with caution", "further research is needed") scattered through the text.
-- Never write "we do not claim/address X" or "our goal is merely Y" — writing instructions and reviewer feedback are not manuscript content; omit X, or replace the self-defence with a positive, evidence-matched statement of what the paper establishes. If a defensive sentence carries a real boundary, keep that boundary once, in the claim or in limits; do not delete truth-conditional content.
-- An unsupported claim is narrowed to what the evidence supports, or cut — never kept at the same scope behind a softer synonym.
-- Tone edits never alter facts, negation, modality, scope, numbers, or citations; calibrating tone must not hide null or mixed findings.
+Apply `../shared-references/business-confident-prose.md` whenever drafting or revising prose — that contract is binding, not advisory. In short: calibrate each claim to the evidence, then state it directly; generic caveats live only in the limits paragraph of the Conclusion; no "we do not claim X" self-defence or reviewer-facing prebuttals; tone edits never alter facts, numbers, scope, or citations, and never hide null or mixed findings.

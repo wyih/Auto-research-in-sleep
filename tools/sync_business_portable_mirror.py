@@ -51,6 +51,7 @@ PORTABLE_SKILLS = (
 
 PORTABLE_REFERENCES = (
     "business-claim-source-audit.md",
+    "business-confident-prose.md",
     "business-feasibility-gates.md",
     "business-handoff-schemas.md",
     "business-helper-resolution.md",
