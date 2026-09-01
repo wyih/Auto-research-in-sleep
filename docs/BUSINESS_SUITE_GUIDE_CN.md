@@ -40,7 +40,7 @@
 # 1. 克隆仓库并切到本 release
 git clone https://github.com/wyih/Auto-research-in-sleep.git
 cd Auto-research-in-sleep
-git checkout business-research-suite-v0.5.0
+git checkout business-research-suite-v0.6.0
 ```
 
 **Kimi Code 用户:**
