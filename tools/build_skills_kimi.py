@@ -701,6 +701,13 @@ REPLACEMENTS_A: list[tuple[str, str]] = [
         "Copilot backend depends on this file for round-to-round continuity (every round is a fresh process), so",
         "Backends without native subagent continuity depend on this file for round-to-round continuity (every round is a fresh process), so",
     ),
+    # ── idea-creator: two-reviewer-models union (upstream #422) ─────────
+    # Kimi Code's Agent tool exposes no model/effort parameter, so the
+    # two-model union becomes two fresh host-strongest subagent runs.
+    (
+        "Then spawn the **same bundle once more** with `model: gpt-5.5` (same xhigh\nreasoning, a fresh agent) and take the union — the two models fail differently\nas generators, and the union keeps either model's taste from capping the pool.\nSave both agent ids; Phase 4's `send_input` follow-ups go to the default-model\nagent. Tag each candidate with the model that produced it; merge both sets by\nmechanical dedup only — never drop a candidate for being \"weak\" (that is the\nPhase-4 verdict). If the second spawn errors (model unavailable on this\naccount), print one WARN line and continue single-model.",
+        "Then spawn the **same bundle once more** as a fresh reviewer subagent at the\nhost's strongest reasoning configuration, and take the union — two independent\ngenerations fail differently, and the union keeps one run's taste from capping\nthe pool. Save both agent ids; Phase 4's `kimi_subagent_continue` follow-ups go\nto the first agent. Tag each candidate with the run that produced it; merge both\nsets by mechanical dedup only — never drop a candidate for being \"weak\" (that is\nthe Phase-4 verdict). If the second spawn errors, print one WARN line and\ncontinue single-run.",
+    ),
 ]
 
 REPLACEMENTS_B: list[tuple[str, str]] = [
