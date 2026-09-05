@@ -17,12 +17,63 @@ from tools.sync_business_portable_mirror import (
     PORTABLE_SKILLS,
     check,
 )
+from tools import sync_business_portable_mirror as mirror
 
 
-def test_portable_business_mirror_is_exact() -> None:
+def test_portable_business_mirror_matches_sources_and_overrides() -> None:
     assert len(PORTABLE_SKILLS) == 25
     assert len(PORTABLE_REFERENCES) == 11
     assert check() == []
+
+
+def test_codex_overrides_preserve_shared_updates(tmp_path: Path, monkeypatch) -> None:
+    source = tmp_path / "skills"
+    package = source / "skills-codex"
+    overrides = tmp_path / "overrides" / "codex-business"
+    for name, value in {
+        "REPO_ROOT": tmp_path,
+        "SKILLS_ROOT": source,
+        "PACKAGE_ROOT": package,
+        "OVERRIDES_ROOT": overrides,
+        "PORTABLE_SKILLS": ("demo",),
+        "PORTABLE_REFERENCES": ("routing.md",),
+    }.items():
+        monkeypatch.setattr(mirror, name, value)
+
+    files = {
+        source / "demo/SKILL.md": "shared instructions",
+        source / "demo/scripts/run.py": "shared helper v1",
+        source / "shared-references/routing.md": "shared routing",
+        package / "shared-references/writing-principles.md": "upstream writing rules",
+        overrides / "demo/SKILL.md": "Codex instructions",
+        overrides / "shared-references/routing.md": "Codex routing",
+    }
+    for path, content in files.items():
+        path.parent.mkdir(parents=True, exist_ok=True)
+        path.write_text(content)
+
+    mirror.sync()
+    assert mirror.check() == []
+    assert (package / "demo/SKILL.md").read_text() == "Codex instructions"
+    assert (package / "shared-references/routing.md").read_text() == "Codex routing"
+    assert (source / "demo/SKILL.md").read_text() == "shared instructions"
+
+    (source / "demo/scripts/run.py").write_text("shared helper v2")
+    assert mirror.check()  # A shared update must be detected and reach the package.
+    mirror.sync()
+    assert mirror.check() == []
+    assert (package / "demo/scripts/run.py").read_text() == "shared helper v2"
+    assert (package / "demo/SKILL.md").read_text() == "Codex instructions"
+    assert (package / "shared-references/writing-principles.md").read_text() == "upstream writing rules"
+
+    (package / "demo/SKILL.md").write_text("accidental package edit")
+    assert mirror.check()  # Compare with overrides, not just shared sources.
+    (overrides / "demo/SKILL.md").unlink()
+    (overrides / "shared-references/routing.md").unlink()
+    mirror.sync()
+    assert mirror.check() == []
+    assert (package / "demo/SKILL.md").read_text() == "shared instructions"
+    assert (package / "shared-references/routing.md").read_text() == "shared routing"
 
 
 def test_portable_business_mirror_check_is_cli_runnable() -> None:

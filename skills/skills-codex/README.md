@@ -6,7 +6,7 @@ Codex-native mirror and adaptation layer for the main ARIS `skills/` package.
 
 - Base mirror coverage: all `107` mainline skills under `skills/`
 - Support directory: `shared-references/`, with all `40/40` mainline reference names mirrored
-- The 25 business empirical-research skills are Codex-native canonical copies synchronized by `tools/sync_business_portable_mirror.py`. Every model selected inside Codex consumes the same package through `.agents/skills` and the same native plugin surface.
+- The 25 business empirical-research skills are generated from shared sources plus file-level Codex overrides by `tools/sync_business_portable_mirror.py`. Every model selected inside Codex consumes the same package through `.agents/skills` and the same native plugin surface.
 - Default reviewer contract for reviewer-heavy skills:
   - round 1: `spawn_agent`
   - follow-up: `send_input`
@@ -19,6 +19,21 @@ Codex-native mirror and adaptation layer for the main ARIS `skills/` package.
   - `skills-codex-gemini-review`
 
 This package is still an appendage to the Claude mainline, not a separate Codex-first product line.
+
+## Maintaining Business Skills
+
+Merge upstream changes into the fork with Git. Shared business sources live in
+`skills/<name>` and `skills/shared-references`; Codex-specific files live at the
+same relative paths under `overrides/codex-business/`. Edit those sources, then
+run `python3 tools/sync_business_portable_mirror.py` to regenerate this package.
+Use `--check` to compare the package with the combined sources without writing.
+
+An override replaces one file. Unoverridden scripts, templates, and shared
+references continue to use the shared source. Merge changes to an overridden
+file into its override when relevant; remove the override to resume copying the
+shared version. Keep general writing rules such as `writing-principles.md` and
+the existing `business-confident-prose.md` upstream relationship in shared
+sources. Kimi's business package continues to copy shared sources only.
 
 ## Recommended Install
 

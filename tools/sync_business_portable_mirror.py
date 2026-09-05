@@ -1,12 +1,12 @@
 #!/usr/bin/env python3
 """Synchronize canonical business skills into the Codex package.
 
-The canonical authoring source remains ``skills/<name>``.  The existing ARIS
+Shared authoring sources remain ``skills/<name>``. Codex-only files in
+``overrides/codex-business`` are applied after copying those sources. The ARIS
 installer consumes ``skills/skills-codex`` and installs that package into the
 ``.agents/skills`` discovery surface used by Codex.  The selected model inside
-Codex does not create another package variant.  These business skills contain
-no reviewer-backend rewrite, so their packaged copies must stay byte-for-byte
-identical instead of being maintained by hand.
+Codex does not create another package variant. Edit shared sources or overrides,
+not generated package files. Kimi continues to consume the shared sources only.
 """
 
 from __future__ import annotations
@@ -20,6 +20,7 @@ from pathlib import Path
 REPO_ROOT = Path(__file__).resolve().parents[1]
 SKILLS_ROOT = REPO_ROOT / "skills"
 PACKAGE_ROOT = SKILLS_ROOT / "skills-codex"
+OVERRIDES_ROOT = REPO_ROOT / "overrides" / "codex-business"
 
 PORTABLE_SKILLS = (
     "browser-session-bridge",
@@ -78,13 +79,15 @@ def included_files(root: Path) -> dict[str, bytes]:
     return files
 
 
-def compare_tree(source: Path, target: Path) -> list[str]:
+def compare_tree(source: Path, target: Path, overrides: Path | None = None) -> list[str]:
     if not source.is_dir():
         return [f"missing canonical directory: {source.relative_to(REPO_ROOT)}"]
     if not target.is_dir():
         return [f"missing packaged directory: {target.relative_to(REPO_ROOT)}"]
 
     source_files = included_files(source)
+    if overrides is not None:
+        source_files.update(included_files(overrides))
     target_files = included_files(target)
     problems: list[str] = []
     for rel in sorted(source_files.keys() - target_files.keys()):
@@ -97,15 +100,19 @@ def compare_tree(source: Path, target: Path) -> list[str]:
     return problems
 
 
+def reference_source(name: str) -> Path:
+    override = OVERRIDES_ROOT / "shared-references" / name
+    return override if override.is_file() else SKILLS_ROOT / "shared-references" / name
+
+
 def check() -> list[str]:
     problems: list[str] = []
     for name in PORTABLE_SKILLS:
-        problems.extend(compare_tree(SKILLS_ROOT / name, PACKAGE_ROOT / name))
+        problems.extend(compare_tree(SKILLS_ROOT / name, PACKAGE_ROOT / name, OVERRIDES_ROOT / name))
 
-    canonical_refs = SKILLS_ROOT / "shared-references"
     packaged_refs = PACKAGE_ROOT / "shared-references"
     for name in PORTABLE_REFERENCES:
-        source = canonical_refs / name
+        source = reference_source(name)
         target = packaged_refs / name
         if not source.is_file():
             problems.append(f"missing canonical reference: {source.relative_to(REPO_ROOT)}")
@@ -127,11 +134,14 @@ def sync() -> None:
         if target.exists():
             shutil.rmtree(target)
         shutil.copytree(source, target, copy_function=shutil.copy2, ignore=ignore)
+        override = OVERRIDES_ROOT / name
+        if override.is_dir():
+            shutil.copytree(override, target, dirs_exist_ok=True, ignore=ignore)
 
     packaged_refs = PACKAGE_ROOT / "shared-references"
     packaged_refs.mkdir(parents=True, exist_ok=True)
     for name in PORTABLE_REFERENCES:
-        source = SKILLS_ROOT / "shared-references" / name
+        source = reference_source(name)
         if not source.is_file():
             raise FileNotFoundError(f"canonical shared reference missing: {source}")
         shutil.copy2(source, packaged_refs / name)

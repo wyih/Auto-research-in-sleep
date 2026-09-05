@@ -6,7 +6,7 @@
 
 - 基座覆盖：主线 `skills/` 的 `107` 个 skill 全量同步
 - 支持目录：`shared-references/`，与主线 `40/40` 名称完整对齐
-- 25 个商科实证 Skill 由 `tools/sync_business_portable_mirror.py` 从 Codex-native canonical source 机械同步；Codex 内选择的任何模型都从 `.agents/skills` 消费同一份内容，并使用同一套原生插件。
+- 25 个商科实证 Skill 由 `tools/sync_business_portable_mirror.py` 从公共源加 Codex 文件覆盖生成；Codex 内选择的任何模型都从 `.agents/skills` 消费同一份内容，并使用同一套原生插件。
 - reviewer-heavy skill 的默认 reviewer 契约：
   - 首轮：`spawn_agent`
   - 续接：`send_input`
@@ -17,6 +17,20 @@
 - 可选 overlay：
   - `skills-codex-claude-review`
   - `skills-codex-gemini-review`
+
+## 商科技能维护
+
+通过 Git 将上游更新合并到 fork。商科公共源保存在 `skills/<name>` 和
+`skills/shared-references`；Codex 专属文件按相同相对路径保存在
+`overrides/codex-business/`。修改这些源文件后，运行
+`python3 tools/sync_business_portable_mirror.py` 重新生成安装包；加 `--check`
+可只读核对安装包与合成内容是否一致。运行时安装路径保持不变。
+
+覆盖按单个文件生效，未覆盖的脚本、模板和共享参考继续使用公共源。
+被覆盖文件的公共源发生变化时，需将相关改动合并到覆盖文件；删除覆盖文件后
+即可恢复跟随公共源。`writing-principles.md` 等通用写作规则及
+`business-confident-prose.md` 现有的上游同步关系继续在公共层维护。
+Kimi 商科安装包仍只从公共源生成。
 
 ## 推荐安装方式
 
