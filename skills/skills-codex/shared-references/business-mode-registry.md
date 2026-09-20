@@ -17,6 +17,9 @@ Named outputs describe full-stage artifacts. Standalone requests may use existin
 | `wrds-sas` | Recorded R-path escalation or explicit SAS request | `wrds-sas-cloud` | SAS log + transferred extract + handoff |
 | `cn-data` | Need CSMAR/CNRDS fields or a minimal authorized portal export | `cn-data-bridge` | `DOWNLOAD_SPEC` + raw extract + manifest |
 | `analysis` | Need R/Stata/Python analysis execution | `data-analysis-bridge` | `RESULTS_SUMMARY.md` |
+| `explain-change` | Need to understand a code revision's effects on sample, estimates, and claims | `data-analysis-bridge` (`explain-change`) | evidence-backed before/after explanation |
+| `audit-code` | Need an independent correctness audit of empirical code | `data-analysis-bridge` (`audit-code`) | confirmed findings and unresolved checks |
+| `independent-check` | Need a separate implementation of a key analysis from its specification | `data-analysis-bridge` (`independent-check`) | separate code and aligned output comparison |
 | `r-analysis` | R, Quarto, Rmd, fixest, tidyverse workflow | `r-analysis-bridge` | R outputs |
 | `stata-analysis` | Stata, do-files, dta workflow | `stata-analysis-bridge` | Stata outputs |
 | `results-docx` | Need standalone academic regression/descriptive tables in Word | `results-to-docx` | verified results `.docx` + manifest |
@@ -36,6 +39,7 @@ Named outputs describe full-stage artifacts. Standalone requests may use existin
 - Before freezing a numerical gate, starting high-cost acquisition, or declaring STOP, route `feasibility-gates` and apply `business-feasibility-gates.md`.
 - When a data plan names WRDS, route `wrds` first and use `wrds-sas` only after its escalation gate. Route CSMAR/CNRDS to `cn-data`.
 - Route data requiring computation to `analysis`; route existing results requiring interpretation directly to `claims`.
+- Route change-impact questions, empirical code audits, and independent reimplementation to their corresponding analysis modes before ordinary project inventory. They are optional focused tasks, not automatic pipeline gates. Independent-check implementers must not inherit the original code, results, or execution narrative.
 - Route Word packaging to `results-docx` only after reproducible tidy outputs exist.
 - Verify submission-facing numbers and source support. Run separate `number-audit` and `source-claim-audit` workflows when requested, required by the project's submission workflow, or needed to resolve a substantive verification gap.
 - When the user asks for "which skill should I use", start with this registry and choose one mode.

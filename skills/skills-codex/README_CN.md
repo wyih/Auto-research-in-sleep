@@ -32,6 +32,16 @@
 `business-confident-prose.md` 现有的上游同步关系继续在公共层维护。
 Kimi 商科安装包仍只从公共源生成。
 
+### 按需分析验证
+
+Business suite 通过 `data-analysis-bridge` 路由以下三项任务：
+
+- `explain-change`：结合修改前后的代码和输出，解释样本、估计结果及论文结论发生了什么变化。
+- `audit-code`：独立检查实证代码，并用源文件和针对性诊断核实重要发现。
+- `independent-check`：在独立上下文中，根据不含结果的规格说明重新实现选定分析，优先使用另一种语言，再对齐口径比较输出。
+
+可以直接说“解释最近一次提交对主结果的影响”或“根据研究设计和原始数据，用 Stata 独立复核表 3”，也可以指定模式名。这些是按需任务，不会在每次分析后自动增加审核阶段。详细规则见 [Data Analysis Bridge](data-analysis-bridge/SKILL.md)，R 和 Stata 入口也已接入。
+
 ## 推荐安装方式
 
 Codex 默认推荐项目级安装：

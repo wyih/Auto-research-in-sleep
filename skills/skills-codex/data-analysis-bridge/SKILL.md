@@ -1,6 +1,6 @@
 ---
 name: data-analysis-bridge
-description: Convert an empirical design plan into analysis scripts and reproducible outputs for business, accounting, finance, management, and economics papers. Use when the user has data or a research design and needs R, Stata, or Python code, cleaning scripts, regression tables, event-study plots, robustness execution, or a business replacement for experiment-bridge.
+description: Implement empirical business research in R, Stata, or Python; explain how code changes affect samples and results; independently audit empirical code; or reimplement a key analysis from its specification for verification.
 ---
 
 # Data Analysis Bridge
@@ -12,6 +12,18 @@ Plan or data context: $ARGUMENTS
 Bridge empirical design to executable analysis. Produce reproducible code, logs, and paper-ready tables.
 
 Use the supplied design, data, and existing project layout. Implement the requested analyses and necessary diagnostics; the full layout and artifact names below are conventions for a complete analysis project, not prerequisites for a local task.
+
+## Select The Mode
+
+Choose from the user's request before inventorying project files. Load only the selected reference; the implementation workflow below applies to ordinary analysis work.
+
+| Mode | Trigger | Guidance and completion condition |
+|---|---|---|
+| `explain-change` | Explain what an analysis revision changed and whether results moved | Read [change impact](references/explain-change.md). Trace the change through sample, estimates, and claims, distinguishing measured differences from effects not yet verified. |
+| `audit-code` | Check empirical code for correctness, including changes to an existing analysis | Read [empirical code audit](references/audit-code.md). Return evidence-backed findings after independent review and verification of material findings. |
+| `independent-check` | Independently reproduce a selected table, variable, or sample construction from the design | Read [independent implementation](references/independent-check.md). Preserve a separate implementation, compare outputs on aligned definitions, and report agreement or unresolved discrepancies. |
+
+An explicit mode name is optional. These modes are available on request or when a concrete verification question requires them; they are not mandatory stages after each run. Explanations and audits do not themselves authorize changes to the analysis. If the user already requested fixes, verify the findings and make those fixes within that scope.
 
 ## Defaults
 

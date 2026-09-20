@@ -11,6 +11,8 @@ Analysis context: $ARGUMENTS
 
 Turn an empirical design into reproducible R scripts, logs, tables, figures, and analysis summaries that feed paper writing, number audits, and claim calibration.
 
+For change-impact explanations, independent code audits, or independent reimplementation, first select `explain-change`, `audit-code`, or `independent-check` in [Data Analysis Bridge](../data-analysis-bridge/SKILL.md). In independent-check work, the fresh implementer uses only the supplied specification and input files; skip this skill's normal inventory of the original project's code and results. Keep execution and outputs in the separate verification directory.
+
 ## When To Use
 
 Use this skill when:

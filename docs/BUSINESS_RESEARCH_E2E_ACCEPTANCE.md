@@ -8,7 +8,7 @@ This matrix is the release gate for the Codex business empirical-research suite.
 2. Preserve redacted commands, Codex receipts, local artifact paths, sizes, SHA-256 hashes, schemas, and timestamps.
 3. Keep licensed PDFs and vendor data local; commit only non-sensitive manifests and derived test fixtures.
 4. Mark a gate `pass` only from current artifacts or traces. Use `blocked` for a real login, subscription, network, or human-challenge blocker.
-5. Protected-site actions must use the host CLI's trusted binding (`chrome:control-chrome` under Codex, `kimi-webbridge` under Kimi Code). Another browser backend or profile cannot substitute for acceptance.
+5. Protected-site actions must use the host CLI's trusted binding: native Chrome through the current Computer Use tools under Codex, or the legacy `chrome:control-chrome` binding when it is actually available; `kimi-webbridge` under Kimi Code. Discover the callable binding and follow its current documentation. Another browser backend or profile cannot substitute for acceptance.
 
 ## Acceptance Matrix
 
@@ -33,10 +33,12 @@ This matrix is the release gate for the Codex business empirical-research suite.
 
 One of the two trusted host combinations, with its binding fields:
 
-- Codex: `client_runtime = codex`, `adapter = codex_native_chrome`, `mcp_server = native`, `implementation = codex_chrome`, `profile_mode = user_chrome`; current `chrome:control-chrome` instructions were used
+- Codex: `client_runtime = codex`, `adapter = codex_native_chrome`, `profile_mode = existing_user_chrome`; record the actual `mcp_server` and `implementation` for the current Computer Use or available legacy binding, and follow that binding's returned documentation. Do not copy identifiers from another binding. See the [Codex Chrome adapter](../skills/skills-codex/browser-session-bridge/references/codex-chrome.md).
 - Kimi Code: `client_runtime = kimi`, `adapter = kimi_webbridge`, `mcp_server = local_daemon`, `implementation = kimi_webbridge`, `profile_mode = user_browser`; current `kimi-webbridge` instructions were used
 - existing browser session or tab was reused when login state mattered
 - no external browser backend produced the protected-site artifact
+
+For Codex downloads, record an observed download event separately from file completion. When the binding has no documented file-saving/path API, or an event times out, verify the newly completed file in the actual download directory. If no file arrives, inspect the same browser's download panel and native controls, including any conditional warning, before retrying. Apply the [download recovery contract](../skills/skills-codex/browser-session-bridge/references/browser-session-contract.md#native-download-recovery); a click or notification alone is not acceptance evidence.
 
 ## Kimi Gate Group
 

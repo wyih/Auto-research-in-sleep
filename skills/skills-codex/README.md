@@ -35,6 +35,16 @@ shared version. Keep general writing rules such as `writing-principles.md` and
 the existing `business-confident-prose.md` upstream relationship in shared
 sources. Kimi's business package continues to copy shared sources only.
 
+### Focused analysis verification
+
+The business suite routes these optional tasks through `data-analysis-bridge`:
+
+- `explain-change`: explain a revision's effects on samples, estimates, and paper claims using before/after code and outputs.
+- `audit-code`: independently inspect empirical code and verify material findings against source files and targeted diagnostics.
+- `independent-check`: reimplement a selected analysis in a fresh context from a result-free specification, preferably in another language, then compare aligned outputs.
+
+Ask in ordinary language or name the mode, for example: "Explain how the last commit changed the main results" or "Independently reproduce Table 3 in Stata from the design and raw data." These are focused tasks, not automatic gates after every analysis. Detailed instructions live in [Data Analysis Bridge](data-analysis-bridge/SKILL.md); R and Stata entry points also route to them.
+
 ## Recommended Install
 
 Project-local install is the default path for Codex:

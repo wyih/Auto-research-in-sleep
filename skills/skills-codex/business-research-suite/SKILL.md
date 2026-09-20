@@ -19,6 +19,9 @@ Identify the user's material state and requested outcome, then load the focused 
 - CSMAR/CNRDS variable resolution or export: `cn-data-bridge`
 - Licensed/public data through Kimi Code: the `kimi-datasource` plugin when available
 - Analysis: `data-analysis-bridge`, `r-analysis-bridge`, or `stata-analysis-bridge`
+- Explain how an analysis change affects samples and results: `data-analysis-bridge` in `explain-change` mode
+- Independently audit empirical code for correctness: `data-analysis-bridge` in `audit-code` mode
+- Independently reimplement a key analysis from its specification: `data-analysis-bridge` in `independent-check` mode
 - Standalone results Word document: `results-to-docx`
 - Interpretation: `evidence-to-claim`
 - Paper structure, voice, or writing: `business-paper-plan`, `business-author-style-profile`, or `business-paper-writing`
@@ -27,7 +30,7 @@ Identify the user's material state and requested outcome, then load the focused 
 - Project continuity: `business-run-passport`
 - Explicit end-to-end work: `business-research-pipeline`
 
-Check the focused skill is available before routing. Read [the mode registry](../shared-references/business-mode-registry.md) only when selection remains unclear.
+Check that the focused skill is available before routing. If a listed skill is absent, complete the requested standalone work with available capabilities when possible; do not pretend the missing workflow ran. Report the specific gap only when a required method, access path, or downstream contract cannot be satisfied. Read [the mode registry](../shared-references/business-mode-registry.md) only when selection remains unclear.
 
 ## Project records and handoffs
 
