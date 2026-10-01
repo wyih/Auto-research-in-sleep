@@ -1,6 +1,10 @@
 name: Windows PowerShell installer tests
 
 on:
+  # Validation-only trigger for this branch; not for main.
+  push:
+    branches:
+      - 'codex/windows-install-ps1-ci'
   pull_request:
     paths:
       - 'tools/install_aris.ps1'
