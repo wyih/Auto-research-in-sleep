@@ -32,7 +32,7 @@ group	paper-visuals	配图与展示	插图、示意图、海报、幻灯片与�
 group	submission	投稿与基金	返修 rebuttal、重投 pipeline、基金申请书
 group	patent	专利	发明构建、权利要求、实施例到各国格式的专利流水线
 group	meta-utils	元工具与杂项	skill 语料自优化、通知、面试准备等
-group	business-research	商科实证研究	文献全文、方法提取、WRDS/CSMAR/CNRDS、R/Stata 分析与 Word 结果交付
+group	business-research	商科实证研究	文献与设计、研究数据、文本指标、R/Stata/Python 分析、Word 结果与研讨会报告
 skill	arxiv	lit-search	-	arXiv 搜索/下载/入库
 skill	alphaxiv	lit-search	-	单篇论文快速解读(AlphaXiv 摘要)
 skill	deepxiv	lit-search	-	DeepXiv 渐进式论文阅读
@@ -115,7 +115,7 @@ skill	meta-optimize	meta-utils	-	skill 语料自优化提案
 skill	meta-apply	meta-utils	meta-optimize	落地已批准的语料补丁
 skill	feishu-notify	meta-utils	-	飞书通知
 skill	interview-cheatsheet	meta-utils	-	ML/LLM 面试速查手册生成
-skill	browser-session-bridge	business-research	-	Codex 原生 Chrome 登录态复用与下载验真
+skill	browser-session-bridge	business-research	-	宿主浏览器(Codex Chrome/Kimi WebBridge/Claude in Chrome)登录态复用与下载验真
 skill	business-research-suite	business-research	-	商科实证研究统一轻量路由入口
 skill	business-research-pipeline	business-research	-	文献到数据、分析、审计与写作的分阶段总流程
 skill	business-run-passport	business-research	-	商科项目材料、阶段、工件与验收门状态护照
@@ -140,3 +140,6 @@ skill	business-paper-plan	business-research	-	商科期刊论文结构、叙事�
 skill	business-author-style-profile	business-research	-	从作者样本提取可执行写作风格约束
 skill	business-paper-writing	business-research	-	基于证据与风格约束撰写商科论文
 skill	business-rebuttal	business-research	-	商科审稿意见解析、修订与回复信
+skill	business-public-data	business-research	-	SEC EDGAR/XBRL 与官方宏观序列获取和核验
+skill	business-text-measures	business-research	-	财务披露与金融文本指标构建和验证
+skill	business-research-talk	business-research	-	商科论文研讨会报告、讨论人幻灯片与讲稿

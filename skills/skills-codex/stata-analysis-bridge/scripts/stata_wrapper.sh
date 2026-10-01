@@ -20,7 +20,10 @@ detect_stata_bin() {
         /opt/stata18/stata \
         /Applications/Stata/StataMP.app/Contents/MacOS/stata-mp \
         /Applications/Stata/StataSE.app/Contents/MacOS/stata-se \
-        /Applications/Stata/Stata.app/Contents/MacOS/stata
+        /Applications/Stata/Stata.app/Contents/MacOS/stata \
+        /Applications/StataNow/StataMP.app/Contents/MacOS/stata-mp \
+        /Applications/StataNow/StataSE.app/Contents/MacOS/stata-se \
+        /Applications/StataNow/Stata.app/Contents/MacOS/stata
     do
         [[ -n "$candidate" && -x "$candidate" ]] || continue
         echo "$candidate"

@@ -66,6 +66,8 @@ Use the business paper plan and any approved style profile:
 
 This list defines content coverage, not a paragraph template or section quota. Let the available evidence determine the order, length, and number of rhetorical moves. Do not manufacture a mechanism, implication, or contribution category to fill the list.
 
+When writing identification or result interpretation, read [empirical reporting](references/empirical-reporting.md) for method-specific scope and economic-magnitude conventions. Preserve the existing author style and include only content that helps interpret the actual result.
+
 ### Step 4: Table Traceability
 
 Every numeric statement must point to a table, figure, or output file.

@@ -14,6 +14,9 @@ Use this registry for the `business-research-suite` router and for staged pipeli
 | `wrds` | Need WRDS data; R/Postgres is the default route | `wrds-query-bridge` | landed extract + `DATA_MANIFEST.md` |
 | `wrds-sas` | Recorded R-path escalation or explicit SAS request | `wrds-sas-cloud` | SAS log + transferred extract + handoff |
 | `cn-data` | Need CSMAR/CNRDS fields or a minimal authorized portal export | `cn-data-bridge` | `DOWNLOAD_SPEC` + raw extract + manifest |
+| `public-data` | Need SEC filings/XBRL or official macro series | `business-public-data` | checked extracts and source/definition notes |
+| `text-measures` | Need financial/disclosure text scores and construct validation | `business-text-measures` | score dataset, code, and validation notes |
+| `figures` | Need publication figures from data or saved estimates | `data-analysis-bridge` | reproducible figures and source outputs |
 | `analysis` | Need R/Stata/Python analysis execution | `data-analysis-bridge` | `RESULTS_SUMMARY.md` |
 | `r-analysis` | R, Quarto, Rmd, fixest, tidyverse workflow | `r-analysis-bridge` | R outputs |
 | `stata-analysis` | Stata, do-files, dta workflow | `stata-analysis-bridge` | Stata outputs |
@@ -24,6 +27,7 @@ Use this registry for the `business-research-suite` router and for staged pipeli
 | `paper-plan` | Need journal paper architecture | `business-paper-plan` | `BUSINESS_PAPER_PLAN.md` |
 | `style-profile` | Need writing sample calibration | `business-author-style-profile` | `AUTHOR_STYLE_PROFILE.md` |
 | `write` | Need manuscript section or full paper drafting | `business-paper-writing` | paper text |
+| `research-talk` | Need an author/discussant deck or timed script | `business-research-talk` | editable deck/source, preview, and requested script |
 | `rebuttal` | Reviews arrived | `business-rebuttal` | response plan or letter |
 | `full-pipeline` | User wants staged end-to-end workflow | `business-research-pipeline` | staged artifacts |
 
@@ -34,6 +38,7 @@ Use this registry for the `business-research-suite` router and for staged pipeli
 - Before freezing a numerical gate, starting high-cost acquisition, or declaring STOP, route `feasibility-gates` and apply `business-feasibility-gates.md`.
 - When a data plan names WRDS, route `wrds` first and use `wrds-sas` only after its escalation gate. Route CSMAR/CNRDS to `cn-data`.
 - When the user has data or results, route to `analysis`, then `claims`.
+- Route public-source extracts to `public-data`, text construct work to `text-measures`, and requested presentations to `research-talk`. Use the existing source/analysis stage when the project already supplies those artifacts.
 - Route Word packaging to `results-docx` only after reproducible tidy outputs exist.
 - Before submission-ready writing, run `number-audit` and `source-claim-audit`.
 - When the user asks for "which skill should I use", start with this registry and choose one mode.

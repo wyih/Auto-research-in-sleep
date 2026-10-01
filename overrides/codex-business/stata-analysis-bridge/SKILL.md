@@ -68,6 +68,8 @@ Keep raw source files under `data/raw/`. Put rebuildable staged files under `dat
 
 Map raw files, `.dta` files, merge keys, panel identifiers, time variables, variable labels, existing do files, and output folders. Record data-access gaps instead of creating placeholder analysis outputs.
 
+For design-dependent estimation, use the relevant section of [empirical diagnostics](../shared-references/business-empirical-diagnostics.md). For publication figures, use [empirical figure guidance](../data-analysis-bridge/references/empirical-figures.md).
+
 ### Step 2: Write Or Repair Do Files
 
 Write or repair the do files needed for the requested specifications and diagnostics, using table shells or the supplied design. Relevant tasks include:
@@ -96,6 +98,8 @@ Inside Codex `exec_command` sessions, use foreground mode so the tool keeps the 
 ```bash
 "$STATA_SUBMIT" --foreground do/04_main_results.do
 ```
+
+Under Claude Code, keep the default detached mode: the job survives between Bash tool calls. If `--wait` reaches the tool timeout, rerun `--status` or `--wait` for the same job ID instead of resubmitting.
 
 If the project is running from a Codex mirror install, use the corresponding installed skill path. If Stata is outside the usual locations, set:
 

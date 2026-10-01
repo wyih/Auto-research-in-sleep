@@ -201,6 +201,42 @@ class CNExtractVerifierTests(unittest.TestCase):
                 )
                 self.assertTrue(report.ok, [check for check in report.checks if not check.ok])
 
+    def test_accepts_claude_in_chrome_receipt_and_rejects_crossed_or_wrong_binding(self) -> None:
+        with tempfile.TemporaryDirectory() as folder:
+            fixture = ExtractFixture(Path(folder), "csmar")
+            payload = fixture.payload()
+            payload["runtime"] = "claude_code"
+            payload["client_runtime"] = "claude_code"
+            payload["adapter"] = verifier.CLAUDE_ADAPTER
+            payload.update(verifier.CLAUDE_BINDINGS)
+            # Claude in Chrome exposes no download event: directory-increment completion.
+            payload["download_transport"] = {
+                "ui_export_completed": True,
+                "ui_local_save_clicked": True,
+                "browser_download_event_observed": False,
+                "download_event": "unsupported",
+                "completion": "fallback_directory_increment",
+                "temporary_url_persisted": False,
+            }
+            fixture.write_payload(payload)
+            accepted = verifier.verify_receipt(
+                fixture.receipt_path, fixture.repo, fixture.run, "claude_code"
+            )
+            crossed = fixture.verify()  # expected runtime remains codex
+            payload["mcp_server"] = "chrome-devtools"
+            fixture.write_payload(payload)
+            wrong_binding = verifier.verify_receipt(
+                fixture.receipt_path, fixture.repo, fixture.run, "claude_code"
+            )
+
+        self.assertTrue(accepted.ok, [check for check in accepted.checks if not check.ok])
+        self.assertFalse(crossed.ok)
+        self.assertFalse(wrong_binding.ok)
+        self.assertIn(
+            "runtime adapter binding:mcp_server",
+            {check.name for check in wrong_binding.checks if not check.ok},
+        )
+
     def test_rejects_crossed_runtime_adapter_pair(self) -> None:
         with tempfile.TemporaryDirectory() as folder:
             fixture = ExtractFixture(Path(folder), "cnrds")

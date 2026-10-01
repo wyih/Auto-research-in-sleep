@@ -68,6 +68,8 @@ Keep raw source files under `data/raw/`. Put rebuildable staged files under `dat
 
 Map raw files, derived datasets, keys, unit of observation, panel identifiers, date variables, variable labels, existing R scripts, and output folders. Record package/version or data-access gaps in `analysis/ANALYSIS_LOG.md`.
 
+For design-dependent estimation, use the relevant section of [empirical diagnostics](../shared-references/business-empirical-diagnostics.md). For publication figures, use [empirical figure guidance](../data-analysis-bridge/references/empirical-figures.md).
+
 ### Step 2: Write Or Repair R Scripts
 
 Write or repair the scripts needed for the requested specifications and diagnostics, using table shells or the supplied design. Relevant tasks include:
@@ -97,6 +99,8 @@ Inside Codex `exec_command` sessions, use foreground mode so the tool keeps the 
 ```bash
 "$R_SUBMIT" --foreground R/04_main_results.R
 ```
+
+Under Claude Code, keep the default detached mode: the job survives between Bash tool calls. If `--wait` reaches the tool timeout, rerun `--status` or `--wait` for the same job ID instead of resubmitting.
 
 If R is outside the usual locations, set:
 

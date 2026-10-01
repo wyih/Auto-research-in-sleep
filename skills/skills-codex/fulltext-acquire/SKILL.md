@@ -88,7 +88,7 @@ When the user requests a pipeline handoff, the project already maintains a manif
 | Artifact completeness | Every required role is verified or has an explicit role-specific gap; a main PDF never silently substitutes for a separate appendix/codebook |
 | File integrity | `%PDF`, EOF marker, at least 10 KiB, SHA-256 |
 | Provenance | Source and version identified; full manifest for project/pipeline use, and browser receipt when a protected session was used |
-| Runtime, when a browser was used | Browser-session receipt whose `client_runtime`/`adapter` pair is one of the trusted combinations approved by `browser-session-bridge` (`codex` + `codex_native_chrome`, or `kimi` + `kimi_webbridge`); the selected model does not change the browser route |
+| Runtime, when a browser was used | Browser-session receipt whose `client_runtime`/`adapter` pair is one of the trusted combinations approved by `browser-session-bridge` (`codex` + `codex_native_chrome`, `kimi` + `kimi_webbridge`, or `claude_code` + `claude_in_chrome`); the selected model does not change the browser route |
 
 A homepage, HTTP 200, visible PDF viewer, click notification, CAJ file, HTML login page, or unverified extension is a failure. An unauthenticated HTTP 403 is a channel result, not proof that the user's browser session lacks access.
 

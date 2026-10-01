@@ -18,13 +18,16 @@ Identify the user's material state and requested outcome, then load the focused 
 - WRDS: `wrds-query-bridge` using R/Postgres by default; `wrds-sas-cloud` only after a documented escalation or explicit SAS request
 - CSMAR/CNRDS variable resolution or export: `cn-data-bridge`
 - Licensed/public data through Kimi Code: the `kimi-datasource` plugin when available
-- Analysis: `data-analysis-bridge`, `r-analysis-bridge`, or `stata-analysis-bridge`
+- Public SEC filings/XBRL or official macro series: `business-public-data`
+- Financial/disclosure text measures and construct validation: `business-text-measures`
+- Analysis or empirical figures: `data-analysis-bridge`, `r-analysis-bridge`, or `stata-analysis-bridge`
 - Explain how an analysis change affects samples and results: `data-analysis-bridge` in `explain-change` mode
 - Independently audit empirical code for correctness: `data-analysis-bridge` in `audit-code` mode
 - Independently reimplement a key analysis from its specification: `data-analysis-bridge` in `independent-check` mode
 - Standalone results Word document: `results-to-docx`
 - Interpretation: `evidence-to-claim`
 - Paper structure, voice, or writing: `business-paper-plan`, `business-author-style-profile`, or `business-paper-writing`
+- Research presentations, discussant decks, or speaker scripts: `business-research-talk`
 - Pre-review or response to reviewers: `business-prereview` or `business-rebuttal`
 - Requested number/source audits: `business-number-audit` or `business-claim-source-audit`
 - Project continuity: `business-run-passport`

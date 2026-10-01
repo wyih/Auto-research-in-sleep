@@ -3,10 +3,23 @@ from __future__ import annotations
 import subprocess
 from pathlib import Path
 
+import pytest
+
 
 REPO_ROOT = Path(__file__).resolve().parents[1]
 INSTALL_SCRIPT = REPO_ROOT / "tools" / "install_aris_codex.sh"
 UPDATE_SCRIPT = REPO_ROOT / "tools" / "smart_update_codex.sh"
+
+
+@pytest.fixture(autouse=True)
+def isolated_home(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> Path:
+    # install_aris_codex.sh and smart_update_codex.sh --apply write $HOME/.aris/repo.
+    # Run every subprocess in this module against a per-test HOME.
+    home = tmp_path / "user-home"
+    home.mkdir()
+    monkeypatch.setenv("HOME", str(home))
+    monkeypatch.delenv("ARIS_OFFICE_AUTHOR_FILE", raising=False)
+    return home
 
 
 def run(

@@ -150,8 +150,9 @@ must contain a dedicated `results_docx/` directory.
 
 When Codex's `documents` skill is available, resolve its managed Python and
 renderer through the workspace dependency loader rather than using system
-Python. Other runtimes may use a compatible Python 3 environment with
-`python-docx` and `lxml`.
+Python. Other runtimes use a Python 3 interpreter that imports `python-docx`
+and `lxml`: probe `python3`, then `/usr/bin/python3`, and report the gap rather
+than installing packages when neither has them.
 
 **Upstream R path (preferred for estimation when R already runs the analysis):**
 
@@ -274,6 +275,15 @@ env TMPDIR=/private/tmp "$PYTHON" "$DOCUMENTS_SKILL_DIR/render_docx.py" \
   analysis/output/results_docx/results_main.docx \
   --output_dir analysis/output/results_docx/rendered \
   --emit_pdf
+```
+
+Without that skill (for example under Claude Code), use LibreOffice and Poppler when installed:
+
+```bash
+soffice --headless --convert-to pdf --outdir analysis/output/results_docx/rendered \
+  analysis/output/results_docx/results_main.docx
+pdftoppm -png -r 100 analysis/output/results_docx/rendered/results_main.pdf \
+  analysis/output/results_docx/rendered/page
 ```
 
 Fail acceptance for clipped text, overlap, broken three-line rules, table

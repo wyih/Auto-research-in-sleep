@@ -62,6 +62,9 @@ class BusinessBrowserPortabilityTests(unittest.TestCase):
         contract = (
             SKILLS / "browser-session-bridge" / "references" / "browser-session-contract.md"
         ).read_text(encoding="utf-8")
+        claude_adapter = (
+            SKILLS / "browser-session-bridge" / "references" / "claude-in-chrome.md"
+        ).read_text(encoding="utf-8")
         for token in (
             "chrome:control-chrome",
             "client_runtime: codex",
@@ -85,7 +88,9 @@ class BusinessBrowserPortabilityTests(unittest.TestCase):
             "chrome-devtools-mcp",
             "chrome-mcp",
         ):
-            self.assertNotIn(forbidden, (bridge + adapter + kimi_adapter + contract).lower())
+            self.assertNotIn(
+                forbidden, (bridge + adapter + kimi_adapter + claude_adapter + contract).lower()
+            )
 
     def test_non_codex_browser_resources_are_absent(self) -> None:
         bridge_root = SKILLS / "browser-session-bridge"

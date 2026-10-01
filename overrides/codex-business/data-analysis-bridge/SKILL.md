@@ -31,6 +31,8 @@ An explicit mode name is optional. These modes are available on request or when 
 - Use `stata-analysis-bridge` when the project already uses `.do` files, `.dta` files, Stata table shells, or the user asks for Stata.
 - Use Python when the project is already Python-based or the analysis depends on Python-specific parsing.
 
+For ordinary implementation, read [Python panels](references/python-panel.md) when Python is selected, [empirical figures](references/empirical-figures.md) when producing a research figure, and the selected section of [design-specific diagnostics](../shared-references/business-empirical-diagnostics.md) when the analysis uses DiD, IV, RD, or a finance event study. Route text-variable construction to `business-text-measures` when its measurement workflow is needed.
+
 ## Inputs
 
 Read available files or their project equivalents:

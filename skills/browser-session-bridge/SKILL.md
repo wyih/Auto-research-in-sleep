@@ -1,6 +1,6 @@
 ---
 name: browser-session-bridge
-description: Reuse the user's authorized browser session from the host CLI — Codex's native Chrome plugin or Kimi Code's WebBridge — for authenticated web navigation and verified downloads. Use for CNKI, SSRN, ScienceDirect, Wiley, CSMAR, CNRDS, library portals, subscription pages, protected fields, interactive exports, or entitled downloads that require existing browser state. Route public pages to web-fetcher and open research-paper retrieval to fulltext-acquire first.
+description: Reuse the user's authorized browser session from the host CLI — Codex's native Chrome plugin, Kimi Code's WebBridge, or Claude Code's Claude in Chrome — for authenticated web navigation and verified downloads. Use for CNKI, SSRN, ScienceDirect, Wiley, CSMAR, CNRDS, library portals, subscription pages, protected fields, interactive exports, or entitled downloads that require existing browser state. Route public pages to web-fetcher and open research-paper retrieval to fulltext-acquire first.
 ---
 
 # Browser Session Bridge
@@ -11,14 +11,15 @@ Perform one authenticated browser operation through the host CLI's trusted brows
 
 ## Host-adaptive adapter selection
 
-Exactly two adapters are trusted. Choose by the host CLI, never by convenience or model:
+Exactly three adapters are trusted, one per host CLI. Choose by the host CLI, never by convenience or model:
 
 | Host CLI | Binding | `client_runtime` | `adapter` |
 |---|---|---|---|
 | Codex | `chrome:control-chrome` native Chrome plugin | `codex` | `codex_native_chrome` |
 | Kimi Code | `kimi-webbridge` local daemon driving the user's real browser | `kimi` | `kimi_webbridge` |
+| Claude Code | Claude in Chrome extension (`claude-in-chrome` MCP server) driving the user's signed-in Chrome | `claude_code` | `claude_in_chrome` |
 
-Every other browser backend remains forbidden: standalone Playwright, a clean or automation-only profile, and any third-party browser bridge or MCP browser server. `kimi_webbridge` is a second trusted backend, not an opening for arbitrary ones.
+Every other browser backend remains forbidden: standalone Playwright, a clean or automation-only profile, and any third-party browser bridge or MCP browser server. `kimi_webbridge` and `claude_in_chrome` are host-specific trusted backends, not an opening for arbitrary ones.
 
 ## Required references
 
@@ -27,6 +28,7 @@ Read the shared contract and the adapter reference for the current host before a
 - [references/browser-session-contract.md](references/browser-session-contract.md) for semantic operations and acceptance gates.
 - [references/codex-chrome.md](references/codex-chrome.md) for the Codex native Chrome binding.
 - [references/kimi-webbridge.md](references/kimi-webbridge.md) for the Kimi Code WebBridge binding.
+- [references/claude-in-chrome.md](references/claude-in-chrome.md) for the Claude Code Claude in Chrome binding.
 
 ## Admission gate
 
@@ -47,13 +49,13 @@ Use or rule out project-local evidence, then model-native web search/fetch, then
 ## Workflow
 
 1. Freeze the target site, requested operation, filters, expected format, and landing directory.
-2. Select the adapter for the current host CLI and load its binding: `chrome:control-chrome` under Codex, `kimi-webbridge` under Kimi Code. Do not substitute another browser backend, standalone Playwright, or another profile.
+2. Select the adapter for the current host CLI and load its binding: `chrome:control-chrome` under Codex, `kimi-webbridge` under Kimi Code, Claude in Chrome under Claude Code (resolve and select the requested browser instance first). Do not substitute another browser backend, standalone Playwright, or another profile.
 3. Reuse or claim one relevant user tab. Inspect visible page state without reading cookies, storage, credentials, auth headers, or password-manager data.
 4. Classify the page as usable, logged out, access denied, or blocked by an active rendered challenge. Offscreen or preloaded challenge markup is not a blocker.
 5. If a caller-approved site recipe identifies a soft timeout overlay, run `auth.recover_soft_timeout`: close only that overlay, reload the same stable page once, and inspect again before entering a login branch.
-6. If the user has authorized submission and the browser has already populated a normal login form, click its login control once without reading or typing field values. Pause for the user when fields are empty, MFA or account choice is required, the attempt errors, or a hard CAPTCHA is active.
+6. If the user has authorized submission and the browser has already populated a normal login form, click its login control once without reading or typing field values; under Claude Code, hand every login to the user instead. Pause for the user when fields are empty, MFA or account choice is required, the attempt errors, or a hard CAPTCHA is active.
 7. Execute only the caller's site recipe and minimal requested export or download.
-8. Snapshot the approved landing directory and arm download handling before the final click. On event timeout — or under `kimi_webbridge`, which has no download event — use only the contract's narrow new-and-stabilized-file fallback.
+8. Snapshot the approved landing directory and arm download handling before the final click. On event timeout — or under `kimi_webbridge` or `claude_in_chrome`, which expose no download event — use only the contract's narrow new-and-stabilized-file fallback.
 9. Verify the landed file:
 
    ```bash
@@ -64,7 +66,7 @@ Use or rule out project-local evidence, then model-native web search/fetch, then
 
 ## Receipt
 
-Return the trusted pair for the host that actually ran: `client_runtime: codex` with `adapter: codex_native_chrome` under Codex, or `client_runtime: kimi` with `adapter: kimi_webbridge` under Kimi Code. Add the binding fields from the adapter reference (`mcp_server`, `implementation`, `profile_mode`), followed by the site, operation, browser-required reason, session reuse, login-state category, artifact path, expected format, size, SHA-256, generic verification result, caller-specific verification result, download completion mode, and blocker if any.
+Return the trusted pair for the host that actually ran: `client_runtime: codex` with `adapter: codex_native_chrome` under Codex, `client_runtime: kimi` with `adapter: kimi_webbridge` under Kimi Code, or `client_runtime: claude_code` with `adapter: claude_in_chrome` under Claude Code. Add the binding fields from the adapter reference (`mcp_server`, `implementation`, `profile_mode`), followed by the site, operation, browser-required reason, session reuse, login-state category, artifact path, expected format, size, SHA-256, generic verification result, caller-specific verification result, download completion mode, and blocker if any.
 
 Never include cookies, tokens, account identifiers, raw IP addresses, auth headers, signed download URLs, or credential values.
 

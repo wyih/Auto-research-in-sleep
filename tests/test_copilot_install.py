@@ -6,10 +6,23 @@ import os
 import subprocess
 from pathlib import Path
 
+import pytest
+
 
 REPO_ROOT = Path(__file__).resolve().parents[1]
 INSTALL_SCRIPT = REPO_ROOT / "tools" / "install_aris_copilot.sh"
 UPDATE_SCRIPT = REPO_ROOT / "tools" / "smart_update_copilot.sh"
+
+
+@pytest.fixture(autouse=True)
+def isolated_home(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> Path:
+    # install_aris_copilot.sh and smart_update_copilot.sh --apply write $HOME/.aris/repo.
+    # Run every subprocess in this module against a per-test HOME.
+    home = tmp_path / "user-home"
+    home.mkdir()
+    monkeypatch.setenv("HOME", str(home))
+    monkeypatch.delenv("ARIS_OFFICE_AUTHOR_FILE", raising=False)
+    return home
 TRACE_SCRIPT = REPO_ROOT / "tools" / "save_trace.sh"
 
 

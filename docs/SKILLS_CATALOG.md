@@ -1,6 +1,6 @@
 # ARIS Skills Catalog
 
-Every skill that ships with ARIS, grouped by role. **107 skills** as of the
+Every skill that ships with ARIS, grouped by role. **110 skills** as of the
 latest update; new skills land via PR and get added to the table below.
 
 - Each `Skill` link goes to the canonical `SKILL.md` (the LLM-readable spec).
@@ -43,14 +43,14 @@ End-to-end pipelines that chain many sub-skills. Most users start here.
 
 ## 🏢 Business Empirical Research
 
-Codex-native business, accounting, finance, management, and economics workflows. Every model selected inside Codex uses the same Skill package and native plugin surface.
+Business, accounting, finance, management, and economics workflows for Codex, Kimi Code, and Claude Code. The host CLI, not the selected model, determines the installed package and browser binding.
 
 | Skill | Role | Requires |
 |---|---|---|
 | [`/business-research-suite`](../skills/business-research-suite/SKILL.md) | Light router for the next focused business-research stage | None |
 | [`/business-research-pipeline`](../skills/business-research-pipeline/SKILL.md) | Full staged chain: literature → fulltext/method → design → data → analysis → audits → writing | Stage-specific access |
 | [`/business-run-passport`](../skills/business-run-passport/SKILL.md) | Project spine for materials, acquisition, artifacts, decisions, gates, and reproducibility | None |
-| [`/browser-session-bridge`](../skills/browser-session-bridge/SKILL.md) | Authenticated Chrome contract through the native Codex plugin | Codex Chrome capability |
+| [`/browser-session-bridge`](../skills/browser-session-bridge/SKILL.md) | Authenticated browser-session contract through the host's trusted binding: Codex native Chrome, Kimi WebBridge, or Claude in Chrome | Host browser binding |
 | [`/business-lit-review`](../skills/business-lit-review/SKILL.md) | Business literature map, journal conversation, closest papers, and method norms | Source-dependent |
 | [`/fulltext-acquire`](../skills/fulltext-acquire/SKILL.md) | Verified PDF acquisition through local, OA, CNKI, ScienceDirect, and authorized sessions | Source-dependent |
 | [`/method-harvest`](../skills/method-harvest/SKILL.md) | Evidence-located sample, design, variable, inference, and data method cards from verified PDFs | Local PDF + verifier |
@@ -60,6 +60,9 @@ Codex-native business, accounting, finance, management, and economics workflows.
 | [`/wrds-query-bridge`](../skills/wrds-query-bridge/SKILL.md) | Default WRDS R/Postgres extraction, identifier links, caches, and manifests | WRDS account + R |
 | [`/wrds-sas-cloud`](../skills/wrds-sas-cloud/SKILL.md) | Policy-gated SAS Cloud submission, transfer, hash, and handoff | WRDS SAS/SSH access |
 | [`/cn-data-bridge`](../skills/cn-data-bridge/SKILL.md) | Minimal CSMAR/CNRDS field resolution and authorized portal export | Subscription/network access |
+| [`/business-public-data`](../skills/business-public-data/SKILL.md) | SEC filings/XBRL and official macro-series extraction with information-date and definition checks | Source-dependent API/contact configuration |
+| [`/business-text-measures`](../skills/business-text-measures/SKILL.md) | Validated financial/disclosure text scores with source and aggregation traceability | Text corpus + chosen scorer |
+| [`/business-research-talk`](../skills/business-research-talk/SKILL.md) | Author/discussant research decks and timed scripts with sourced exhibits | Source paper + chosen presentation runtime |
 | [`/data-analysis-bridge`](../skills/data-analysis-bridge/SKILL.md) | Backend-neutral routing and empirical output contract | Chosen backend |
 | [`/r-analysis-bridge`](../skills/r-analysis-bridge/SKILL.md) | R/fixest/tidyverse empirical analysis and reproducible outputs | R |
 | [`/stata-analysis-bridge`](../skills/stata-analysis-bridge/SKILL.md) | Stata do/dta empirical analysis and reproducible outputs | Stata |

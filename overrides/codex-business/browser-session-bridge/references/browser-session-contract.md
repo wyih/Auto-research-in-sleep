@@ -1,6 +1,6 @@
 # Authenticated Browser Contract
 
-This contract is host-adaptive. Exactly two bindings are trusted: `codex_native_chrome` (Codex, `client_runtime: codex`) and `kimi_webbridge` (Kimi Code, `client_runtime: kimi`). Any other browser backend — standalone Playwright, a clean profile, a third-party bridge — is forbidden regardless of host.
+This contract is host-adaptive. Exactly three bindings are trusted, one per host CLI: `codex_native_chrome` (Codex, `client_runtime: codex`), `kimi_webbridge` (Kimi Code, `client_runtime: kimi`), and `claude_in_chrome` (Claude Code, `client_runtime: claude_code`). Any other browser backend — standalone Playwright, a clean profile, a third-party bridge — is forbidden regardless of host.
 
 ## Semantic operations
 
@@ -27,7 +27,7 @@ This contract is host-adaptive. Exactly two bindings are trusted: `codex_native_
 - Re-inspect after every navigation, authentication transition, modal transition, or challenge completion.
 - Treat a CAPTCHA as active only when its rendered box intersects the viewport and blocks the intended action.
 - Keep site selectors and business filters in the calling skill's recipe, not in this bridge.
-- Credential entry and hard CAPTCHA or challenge completion require user handoff. A user-authorized single submit of already populated fields is the only automated login transition.
+- Credential entry and hard CAPTCHA or challenge completion require user handoff. A user-authorized single submit of already populated fields is the only automated login transition; under Claude Code, login submission also goes to the user.
 - Access denial is a documented gap, not a reason to bypass controls.
 
 ## Download fallback
@@ -44,7 +44,7 @@ If an event was observed, record that separately; directory-based completion doe
 
 ## Native download recovery
 
-When a download click leaves no completed file, inspect the same browser's download panel/history and native UI before repeating it or treating an event timeout as failure. Chrome can conditionally flag uncommon, suspicious, dangerous, unverified, or insecure downloads; record the actual displayed reason for the matching file. A normal Save/Save As confirmation is part of the authorized download. A browser security-warning override such as Keep/Download anyway requires user handoff under the current Computer Use policy: retain the relevant page, explain the warning, and let the user perform the override. Then resume disk-completion and content verification. This check does not require a warning on every download. See [Google's download-warning explanation](https://support.google.com/chrome/answer/6261569).
+When a download click leaves no completed file, inspect the same browser's download panel/history and native UI before repeating it or treating an event timeout as failure. Chrome can conditionally flag uncommon, suspicious, dangerous, unverified, or insecure downloads; record the actual displayed reason for the matching file. A normal Save/Save As confirmation is part of the authorized download. A browser security-warning override such as Keep/Download anyway requires user handoff under the host's browser safety policy (Computer Use under Codex, Claude in Chrome under Claude Code): retain the relevant page, explain the warning, and let the user perform the override. Then resume disk-completion and content verification. This check does not require a warning on every download. See [Google's download-warning explanation](https://support.google.com/chrome/answer/6261569).
 
 If an authorized direct or automated download fails (for example, `ERR_BLOCKED_BY_CLIENT`), inspect the actual failure and try an appropriate visible native download control in the same browser instance and website account before reporting a blocker. Check for an already landed file before retrying an uncertain download. Use the site's file menu, preview Download button, library, or export panel as available; a rendered PDF viewer's native Download control is a valid route. Read fresh UI state and use the selected binding's supported actions.
 

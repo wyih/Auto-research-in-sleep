@@ -228,6 +228,22 @@ require_office_author_for_selection() {
     log "Office author: explicitly supplied (value not printed)"
 }
 
+# Claude Code runs a same-named personal skill (~/.claude/skills/<name>) instead
+# of the project's .claude/skills/<name>, so such project entries stay unused.
+warn_personal_skill_shadowing() {
+    local selected_file="$1" personal="${CLAUDE_CONFIG_DIR:-$HOME/.claude}/skills" name
+    local shadowed=()
+    [[ -d "$personal" ]] || return 0
+    while read -r name; do
+        [[ -n "$name" && -e "$personal/$name" ]] && shadowed+=("$name")
+    done < "$selected_file"
+    [[ ${#shadowed[@]} -gt 0 ]] || return 0
+    warn "${#shadowed[@]} selected skill(s) also exist in $personal;"
+    warn "  Claude Code runs those personal copies instead of this project's install:"
+    warn "  ${shadowed[*]}"
+    warn "  Remove or rename the personal copies to use the project-installed versions."
+}
+
 write_office_author_config() {
     $OFFICE_AUTHOR_REQUIRED || return 0
     local config_dir tmp
@@ -1301,6 +1317,7 @@ N_SELECTED=$(grep -c '^skill|' "$SELECTED_UPSTREAM" || true)
 N_UPSTREAM=$(grep -c '^skill|' "$UPSTREAM_FILE" || true)
 log ""
 log "Selection: $N_SELECTED of $N_UPSTREAM upstream skills"
+warn_personal_skill_shadowing "$SELECTED_FILE"
 
 PLAN_FILE="$(mktemp -t aris-plan.XXXX)"
 compute_plan "$SELECTED_UPSTREAM" "$MANIFEST_DATA" "$PLAN_FILE"

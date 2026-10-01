@@ -4,9 +4,9 @@
 
 ## 当前范围
 
-- 基座覆盖：主线 `skills/` 的 `107` 个 skill 全量同步
-- 支持目录：`shared-references/`，与主线 `40/40` 名称完整对齐
-- 25 个商科实证 Skill 由 `tools/sync_business_portable_mirror.py` 从公共源加 Codex 文件覆盖生成；Codex 内选择的任何模型都从 `.agents/skills` 消费同一份内容，并使用同一套原生插件。
+- 基座覆盖：主线 `skills/` 的 `110` 个 skill 全量同步
+- 支持目录：`shared-references/`，与主线 `44/44` 名称完整对齐
+- 28 个商科实证 Skill 由 `tools/sync_business_portable_mirror.py` 从公共源加 Codex 文件覆盖生成；Codex 内选择的任何模型都从 `.agents/skills` 消费同一份内容，并使用同一套原生插件。
 - reviewer-heavy skill 的默认 reviewer 契约：
   - 首轮：`spawn_agent`
   - 续接：`send_input`

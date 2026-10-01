@@ -3,7 +3,7 @@
 Parity contract with skills/skills-codex (see tests/test_codex_skill_mirror.py):
 
 - same skill-name set and same shared-reference name set;
-- the 24 portable business skills + 9 portable shared references are
+- the 28 portable business skills + 13 portable shared references are
   byte-for-byte identical to canonical skills/ (same source set as
   tools/sync_business_portable_mirror.py);
 - non-portable files carry no Codex residue (the generator refuses to emit
@@ -103,22 +103,22 @@ def test_kimi_skill_set_matches_codex_line() -> None:
     main_names = skill_names(MAIN_SKILLS)
     codex_names = skill_names(CODEX_SKILLS)
     kimi_names = skill_names(KIMI_SKILLS)
-    assert len(main_names) == 107
+    assert len(main_names) == 110
     assert kimi_names == codex_names == main_names
 
 
 def test_kimi_shared_reference_set_matches_codex_line() -> None:
     codex_refs = {p.name for p in (CODEX_SKILLS / "shared-references").glob("*.md")}
     kimi_refs = {p.name for p in (KIMI_SKILLS / "shared-references").glob("*.md")}
-    assert len(codex_refs) == 42
+    assert len(codex_refs) == 44
     assert kimi_refs == codex_refs
 
 
 def test_kimi_portable_set_is_byte_identical_to_canonical() -> None:
     """The portable business suite must not diverge between canonical,
     skills-codex, and skills-kimi — all three are byte-for-byte copies."""
-    assert len(PORTABLE_SKILLS) == 25
-    assert len(PORTABLE_REFERENCES) == 11
+    assert len(PORTABLE_SKILLS) == 28
+    assert len(PORTABLE_REFERENCES) == 13
     for name in PORTABLE_SKILLS:
         assert included_files(MAIN_SKILLS / name) == included_files(KIMI_SKILLS / name), name
     for name in PORTABLE_REFERENCES:
@@ -136,7 +136,7 @@ def test_kimi_package_regeneration_is_idempotent() -> None:
         check=False,
     )
     assert result.returncode == 0, result.stderr
-    assert "107 skills" in result.stdout
+    assert "110 skills" in result.stdout
 
 
 def test_kimi_no_codex_leaks_in_non_portable_files() -> None:
@@ -297,4 +297,4 @@ def test_kimi_readme_positions_the_package() -> None:
     assert "install_aris_kimi.sh" in readme
     assert "installed-skills-kimi.txt" in readme
     assert "~/.kimi-code/skills/" in readme
-    assert "`106`" in readme
+    assert "`110`" in readme

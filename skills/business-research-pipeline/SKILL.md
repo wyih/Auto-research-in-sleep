@@ -1,6 +1,6 @@
 ---
 name: business-research-pipeline
-description: Complete end-to-end business, accounting, finance, management, and economics research workflow for Codex or Kimi Code CLI. Use when the user wants one entry point that routes literature review, verified fulltext and method synthesis, idea and novelty, empirical design, WRDS, kimi-datasource, or CSMAR/CNRDS acquisition, analysis, evidence audits, paper planning, writing, rebuttal, or resubmission, regardless of which model is selected in the host CLI.
+description: Complete end-to-end business, accounting, finance, management, and economics research workflow for Codex, Kimi Code CLI, or Claude Code. Use when the user wants one entry point that routes literature review, verified fulltext and method synthesis, idea and novelty, empirical design, WRDS, kimi-datasource, or CSMAR/CNRDS acquisition, analysis, evidence audits, paper planning, writing, rebuttal, or resubmission, regardless of which model is selected in the host CLI.
 ---
 
 # Business Research Pipeline
@@ -54,7 +54,9 @@ business-run-passport
      -> wrds-query-bridge for WRDS (R/Postgres default)
         -> wrds-sas-cloud only after a recorded escalation or explicit SAS request
      -> cn-data-bridge for CSMAR/CNRDS gaps
+     -> business-public-data for requested SEC or official macro extracts
   -> data-analysis-bridge
+     -> business-text-measures when text-variable construction is needed
      -> r-analysis-bridge when R is the backend
      -> stata-analysis-bridge when Stata or .dta is the backend
      -> results-to-docx for a standalone academic results document
@@ -68,7 +70,7 @@ business-run-passport
      -> revisions route back to the owning stage skills, then audits and pre-review rerun
 ```
 
-Use `business-rebuttal` after reviews arrive. Use `resubmit-pipeline` for text-only cross-venue resubmission of an already polished paper.
+Use `business-research-talk` when a presentation, discussion, or speaker script is requested; it is a conditional output rather than an added gate on manuscript completion. Use `business-rebuttal` after reviews arrive. Use `resubmit-pipeline` for text-only cross-venue resubmission of an already polished paper.
 
 ## Stages
 
@@ -158,10 +160,11 @@ Do not proceed when the named branch is already mathematically unable to pass. S
 
 Resolve every required source in `empirical-design/DATA_PLAN.md` before estimation:
 
+- Run `business-public-data` for SEC filings/XBRL and official macro series when those sources are named. Preserve filing/period dates, series definitions, and relevant information vintages.
 - Run `wrds-query-bridge` for WRDS. Use its R/Postgres path by default.
 - Run `wrds-sas-cloud` only when the R path has a recorded timeout, OOM, hard failure, authentication blocker after retries, or the user explicitly requires SAS.
 - Under Kimi Code CLI, resolve covered data needs through the `kimi-datasource` plugin before escalating to an authenticated browser: Chinese macro and provincial series via `china_nbs`, global macro via `fred`/`imf`/`world_bank_open_data`, A-share/HK financials and intraday series via `wind`, US filings and fundamentals via `sec_edgar`/`sp_data`, Chinese corporate registry via `tianyancha`, financial news and announcements via `xhcj`/`caixin`. Parameter names come from the live `get_data_source_desc` documentation of each source — never infer them across sources (`china_nbs` takes `filepath`, `wind` takes `file_path`). Independent desc/call pairs for different data sources may be issued in parallel; do not re-fetch a desc already read in the same session, and keep a one-line list of descs already read in `DATA_PLAN.md` or `DATA_MANIFEST.md`. Record one datasource receipt per call (`data_source_name`, `api_name`, verbatim `params`, landed CSV path, hash, request id, and `field_mapping` for localized returned columns) per `DATASOURCE_RECEIPT.json` in `../shared-references/business-handoff-schemas.md`, and link it from `DATA_MANIFEST.md`. `kimi-datasource` does not replace WRDS, CSMAR/CNRDS portal exports, or paywalled fulltext; keep those on their existing routes.
-- Run `cn-data-bridge` for minimal CSMAR/CNRDS exports. Route protected portal actions through `browser-session-bridge` and the host CLI's native browser control (Codex native Chrome plugin under Codex, Kimi WebBridge under Kimi Code CLI). Keep browser mutations serialized against the user's browser profile; parallelize public search and local analysis instead.
+- Run `cn-data-bridge` for minimal CSMAR/CNRDS exports. Route protected portal actions through `browser-session-bridge` and the host CLI's native browser control (Codex native Chrome plugin under Codex, Kimi WebBridge under Kimi Code CLI, Claude in Chrome under Claude Code). Keep browser mutations serialized against the user's browser profile; parallelize public search and local analysis instead.
 - Case-study primary evidence (interviews, field notes, internal documents) does not route through WRDS, `kimi-datasource`, or `cn-data-bridge`; it lands as project-managed files under the case protocol's evidence-chain rules. Use the bridges only for supplementary archival evidence the design names.
 
 Output:
@@ -176,7 +179,7 @@ A login page, portal preview, successful query submission, or download toast is 
 
 ### Stage 7: Data Analysis and Results Packaging
 
-Run `data-analysis-bridge` when data or a working dataset exists.
+Run `data-analysis-bridge` when data or a working dataset exists. If the design requires a text construct, use `business-text-measures` for extraction/scoring and validation before merging its measure into the regression sample.
 
 Output:
 

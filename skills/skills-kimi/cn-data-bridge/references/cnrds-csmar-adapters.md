@@ -11,7 +11,7 @@ Companion to `cn-data-bridge`. Describes how to obtain **on-demand** extracts us
 5. **Provenance** — every landed file gets a MANIFEST row with hash and filters.
 6. **Platform-agnostic** — do not hard-code one university VPN product, lab host, or portal skin as required.
 7. **Out of scope** — CNKI fulltext/PDF harvest; WRDS (use `wrds-query-bridge`).
-8. **One Codex route** — every model selected inside Codex uses the native Chrome plugin through `browser-session-bridge`. Do not substitute another browser backend or Agent runtime.
+8. **One route per host** — the host CLI, not the selected model, fixes the browser binding through `browser-session-bridge`: native Chrome under Codex, WebBridge under Kimi Code, Claude in Chrome under Claude Code. Do not substitute another browser backend or Agent runtime.
 9. **Browser execution stays bounded** — browser state and portal mutations go through the bridge; local helpers may wait, copy, hash, inspect archives, and verify rows. Acceptance depends on the fresh artifact and receipt, not on one-by-one interactive tool calls.
 10. **Soft timeout is recoverable state, not proven logout** — when the recipe below identifies a dismissible inactivity overlay, close it, refresh once, and inspect before login or `data_access_gap`.
 

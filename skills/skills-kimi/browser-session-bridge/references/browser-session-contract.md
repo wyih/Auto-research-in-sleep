@@ -1,6 +1,6 @@
 # Authenticated Browser Contract
 
-This contract is host-adaptive. Exactly two bindings are trusted: `codex_native_chrome` (Codex, `client_runtime: codex`) and `kimi_webbridge` (Kimi Code, `client_runtime: kimi`). Any other browser backend — standalone Playwright, a clean profile, a third-party bridge — is forbidden regardless of host.
+This contract is host-adaptive. Exactly three bindings are trusted, one per host CLI: `codex_native_chrome` (Codex, `client_runtime: codex`), `kimi_webbridge` (Kimi Code, `client_runtime: kimi`), and `claude_in_chrome` (Claude Code, `client_runtime: claude_code`). Any other browser backend — standalone Playwright, a clean profile, a third-party bridge — is forbidden regardless of host.
 
 ## Semantic operations
 
@@ -27,7 +27,7 @@ This contract is host-adaptive. Exactly two bindings are trusted: `codex_native_
 - Re-inspect after every navigation, authentication transition, modal transition, or challenge completion.
 - Treat a CAPTCHA as active only when its rendered box intersects the viewport and blocks the intended action.
 - Keep site selectors and business filters in the calling skill's recipe, not in this bridge.
-- Credential entry and hard CAPTCHA or challenge completion require user handoff. A user-authorized single submit of already populated fields is the only automated login transition.
+- Credential entry and hard CAPTCHA or challenge completion require user handoff. A user-authorized single submit of already populated fields is the only automated login transition; under Claude Code, login submission also goes to the user.
 - Access denial is a documented gap, not a reason to bypass controls.
 
 ## Download fallback

@@ -44,6 +44,8 @@ class ReplaceLinkTest(unittest.TestCase):
         self.environment["ARIS_OFFICE_AUTHOR_FILE"] = str(
             self.tmp / "user-config" / "office-author"
         )
+        # install_aris.sh writes $HOME/.aris/repo; keep it in the test directory.
+        self.environment["HOME"] = str(self.tmp / "home")
 
     def tearDown(self):
         shutil.rmtree(self.tmp, ignore_errors=True)

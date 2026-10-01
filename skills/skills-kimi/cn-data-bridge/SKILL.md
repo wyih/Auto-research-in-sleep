@@ -1,6 +1,6 @@
 ---
 name: cn-data-bridge
-description: Resolve and export minimal Chinese firm or market datasets from CNRDS and CSMAR through the host CLI (Codex or Kimi Code) and the user's authorized browser session. Use for table/field resolution, DOWNLOAD_SPEC execution, verified raw extracts, browser-session receipts, and DATA_MANIFEST provenance, regardless of which model is selected inside the host CLI. Not for CNKI fulltext.
+description: Resolve and export minimal Chinese firm or market datasets from CNRDS and CSMAR through the host CLI (Codex, Kimi Code, or Claude Code) and the user's authorized browser session. Use for table/field resolution, DOWNLOAD_SPEC execution, verified raw extracts, browser-session receipts, and DATA_MANIFEST provenance, regardless of which model is selected inside the host CLI. Not for CNKI fulltext.
 ---
 
 # CN Data Bridge
@@ -215,7 +215,7 @@ Principles:
 CNRDS:
 
 - Prefer reusing an existing logged-in browser session.
-- When the user has authorized it and Chrome has already filled the login form, the bridge may click the ordinary login button once without inspecting or typing the credential fields; verify the post-login state immediately.
+- When the user has authorized it and Chrome has already filled the login form, the bridge may click the ordinary login button once without inspecting or typing the credential fields; verify the post-login state immediately. Under Claude Code, hand the login to the user instead.
 - Portal search and its suggestion list are discovery only. After choosing a candidate, enter the candidate module/table and verify exact dataset identity, row grain, coverage, and required fields against the `DOWNLOAD_SPEC`; clicking **搜索** or a suggestion is not progress evidence and never a pass.
 - Navigate module → exact indicator/table → filter → preview → export. If a candidate is only an aggregate proxy (for example annual guarantee counts when event-level guarantee records are required), record the semantic mismatch and continue searching rather than exporting the wrong grain.
 - If the fields are empty, the saved submit fails, or MFA/account choice/hard CAPTCHA is required, ask the user to complete login once, then continue.
@@ -236,7 +236,7 @@ For each landed file:
 1. Run `skills/browser-session-bridge/scripts/verify_download.py` for csv/xlsx/zip (or `any` for a vendor format not yet supported); reject HTML, empty, corrupt, or partial files.
 2. Record path, size, detected format, SHA-256, and approximate n_rows/n_cols when cheap to inspect.
 3. Spot-check identity fields, requested variable fields, row grain, and date span against the `DOWNLOAD_SPEC`.
-4. Save the redacted browser receipt; for protected-session acceptance its `client_runtime`/`adapter` pair must be one of the trusted combinations currently approved by `browser-session-bridge` (`codex` + `codex_native_chrome`, or `kimi` + `kimi_webbridge`).
+4. Save the redacted browser receipt; for protected-session acceptance its `client_runtime`/`adapter` pair must be one of the trusted combinations currently approved by `browser-session-bridge` (`codex` + `codex_native_chrome`, `kimi` + `kimi_webbridge`, or `claude_code` + `claude_in_chrome`).
 5. Update `Data/DATA_MANIFEST.md` (create if missing); optionally mirror a short entry under `Data/raw/<source>/MANIFEST.md`.
 6. Update `BUSINESS_RUN_PASSPORT.md` through `business-run-passport` when writing is allowed (materials, data access level, artifact index, decision log for definition choices).
 
@@ -271,7 +271,7 @@ Use this shape in `Data/DATA_MANIFEST.md` (extend columns if needed; keep requir
 ## Extracts
 | extract_id | source | module_or_db | table_or_dataset | fields_or_query | local_path | format | n_rows | n_cols | content_hash | pulled_at | filters | gap_ids | adapter | receipt_path | status | notes |
 |---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|
-| | cnrds \| csmar | | | | Data/raw/... | | | | sha256:... | | | | codex_native_chrome \| kimi_webbridge | | complete \| partial \| failed \| blocked | |
+| | cnrds \| csmar | | | | Data/raw/... | | | | sha256:... | | | | codex_native_chrome \| kimi_webbridge \| claude_in_chrome | | complete \| partial \| failed \| blocked | |
 
 ## Definition Decisions
 | gap_id | research_name | chosen_definition | decided_by | decided_at |

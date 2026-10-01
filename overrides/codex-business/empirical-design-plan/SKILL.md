@@ -80,6 +80,8 @@ Common designs:
 - textual or disclosure measure validation
 - survey or experiment with business outcomes
 
+Read [design-specific diagnostics](../shared-references/business-empirical-diagnostics.md) when selecting estimands, comparison groups, or inference for DiD, IV, RD, or finance event studies. Plan only the diagnostics that can resolve a material design question. For text constructs, route scoring and validation to `business-text-measures`.
+
 ### Phase 3: Benchmark And Calibrate Feasibility
 
 Use this phase for a full design, costly acquisition, new hard gate, or a change affecting feasibility. Reuse still-applicable calibration for local revisions.

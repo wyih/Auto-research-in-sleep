@@ -21,8 +21,8 @@ from tools import sync_business_portable_mirror as mirror
 
 
 def test_portable_business_mirror_matches_sources_and_overrides() -> None:
-    assert len(PORTABLE_SKILLS) == 25
-    assert len(PORTABLE_REFERENCES) == 11
+    assert len(PORTABLE_SKILLS) == 28
+    assert len(PORTABLE_REFERENCES) == 13
     assert check() == []
 
 
@@ -85,7 +85,7 @@ def test_portable_business_mirror_check_is_cli_runnable() -> None:
         check=False,
     )
     assert result.returncode == 0, result.stderr
-    assert "25 skills, 11 references" in result.stdout
+    assert "28 skills, 13 references" in result.stdout
 
 
 def test_business_research_catalog_group_is_exact_portable_set() -> None:
@@ -182,3 +182,67 @@ def test_business_group_install_is_exact_and_does_not_write_global_pointer(
     for name in PORTABLE_SKILLS:
         assert (installed_root / name).is_symlink()
         assert (installed_root / name).resolve() == PACKAGE_ROOT / name
+
+
+def test_claude_code_business_install_resolves_project_helpers(tmp_path: Path) -> None:
+    project = tmp_path / "project"
+    fake_home = tmp_path / "home"
+    project.mkdir()
+    personal_copy = fake_home / ".claude" / "skills" / "business-research-suite"
+    personal_copy.mkdir(parents=True)
+    (personal_copy / "SKILL.md").write_text("---\nname: business-research-suite\n---\n", encoding="utf-8")
+    env = os.environ.copy()
+    env["HOME"] = str(fake_home)
+    env.pop("ARIS_REPO", None)
+    env.pop("ARIS_OFFICE_AUTHOR_FILE", None)
+    env.pop("CLAUDE_CONFIG_DIR", None)
+
+    result = subprocess.run(
+        [
+            "bash",
+            str(REPO_ROOT / "tools" / "install_aris.sh"),
+            str(project),
+            "--platform",
+            "claude",
+            "--aris-repo",
+            str(REPO_ROOT),
+            "--groups",
+            "business-research",
+            "--quiet",
+            "--office-author",
+            "Portable Test Author",
+            "--no-doc",
+        ],
+        cwd=REPO_ROOT,
+        env=env,
+        text=True,
+        capture_output=True,
+        check=False,
+    )
+
+    assert result.returncode == 0, result.stdout + result.stderr
+    # Claude Code prefers a same-named personal skill, so the installer must say so.
+    assert "1 selected skill(s) also exist in" in result.stderr
+    assert "business-research-suite" in result.stderr
+    installed_root = project / ".claude" / "skills"
+    assert {
+        entry.name for entry in installed_root.iterdir() if entry.name != "shared-references"
+    } == set(PORTABLE_SKILLS)
+    assert (installed_root / "shared-references").resolve() == REPO_ROOT / "skills" / "shared-references"
+
+    # The documented resolver must pick the project's Claude Code install,
+    # not fall through to the Codex package via the global pointer.
+    doc = (REPO_ROOT / "skills" / "shared-references" / "business-helper-resolution.md").read_text(
+        encoding="utf-8"
+    )
+    resolver = doc.split("```bash\n", 1)[1].split("```", 1)[0]
+    probe = subprocess.run(
+        ["bash", "-c", resolver + "\nresolve_business_skill_dir browser-session-bridge"],
+        cwd=project,
+        env=env,
+        text=True,
+        capture_output=True,
+        check=False,
+    )
+    assert probe.returncode == 0, probe.stderr
+    assert probe.stdout.strip() == ".claude/skills/browser-session-bridge"

@@ -10,7 +10,7 @@ repro_lock:
   generated_at: "YYYY-MM-DDTHH:MM:SSZ"
   artifact: "path/to/output.md"
   producing_skill: "business-paper-writing"
-  model: "current Codex model or user-specified model"
+  model: "current host CLI model or user-specified model"
   source_material_hash:
     BUSINESS_RUN_PASSPORT.md: "sha256:..."
     RESULTS_SUMMARY.md: "sha256:..."

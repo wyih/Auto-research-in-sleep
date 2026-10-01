@@ -5,10 +5,10 @@ sibling of `skills/skills-codex/`.
 
 ## Scope
 
-- Base mirror coverage: all `106` mainline skills under `skills/`
-- Support directory: `shared-references/`, with all `40/40` mainline reference
+- Base mirror coverage: all `110` mainline skills under `skills/`
+- Support directory: `shared-references/`, with all `44/44` mainline reference
   names mirrored
-- The 24 business portable skills and 9 portable shared references are
+- The 28 business portable skills and 13 portable shared references are
   byte-for-byte copies of the canonical `skills/` tree (the same source set as
   `tools/sync_business_portable_mirror.py`). Everything else is converted from
   `skills/skills-codex/` by `tools/build_skills_kimi.py`; regeneration is

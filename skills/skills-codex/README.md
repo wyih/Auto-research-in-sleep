@@ -4,9 +4,9 @@ Codex-native mirror and adaptation layer for the main ARIS `skills/` package.
 
 ## Scope
 
-- Base mirror coverage: all `107` mainline skills under `skills/`
-- Support directory: `shared-references/`, with all `40/40` mainline reference names mirrored
-- The 25 business empirical-research skills are generated from shared sources plus file-level Codex overrides by `tools/sync_business_portable_mirror.py`. Every model selected inside Codex consumes the same package through `.agents/skills` and the same native plugin surface.
+- Base mirror coverage: all `110` mainline skills under `skills/`
+- Support directory: `shared-references/`, with all `44/44` mainline reference names mirrored
+- The 28 business empirical-research skills are generated from shared sources plus file-level Codex overrides by `tools/sync_business_portable_mirror.py`. Every model selected inside Codex consumes the same package through `.agents/skills` and the same native plugin surface.
 - Default reviewer contract for reviewer-heavy skills:
   - round 1: `spawn_agent`
   - follow-up: `send_input`
@@ -82,7 +82,7 @@ bash ~/aris_repo/tools/install_aris_codex.sh ~/your-project --uninstall
 
 Publish or select an immutable release tag, then clone that exact tag on every
 machine. Install the `business-research` group rather than copying only the
-pipeline entry point; the group is the exact 24-skill portable suite plus its
+pipeline entry point; the group is the exact 28-skill portable suite plus its
 shared references.
 
 The supported runtime/install combinations are distinct:

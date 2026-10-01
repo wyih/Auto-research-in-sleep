@@ -25,7 +25,7 @@ Use the current authorized network without recording raw IP addresses. If access
 
 ## Existing Browser Session
 
-Invoke `browser-session-bridge` when an authorized publisher session is explicitly requested, or when local/public routes cannot satisfy the artifact role. Record `browser_required_reason: authenticated_session | entitled_download | active_challenge`. Reuse the authorized Chrome state and keep credentials inside the browser. Any model selected inside Codex uses the same native Chrome route and receipt contract.
+Invoke `browser-session-bridge` when an authorized publisher session is explicitly requested, or when local/public routes cannot satisfy the artifact role. Record `browser_required_reason: authenticated_session | entitled_download | active_challenge`. Reuse the authorized Chrome state and keep credentials inside the browser. Any model selected inside the host CLI uses that host's browser route and receipt contract.
 
 ## Human Handoff
 

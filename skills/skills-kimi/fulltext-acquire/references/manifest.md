@@ -18,7 +18,7 @@ Maintain `literature/FULLTEXT_MANIFEST.md` when project writes are allowed.
 - Record concrete `identity_evidence` for the work, version, and artifact role. Include DOI/source ID when available.
 - Record paths relative to the project when practical.
 - Record the actual acquisition timestamp and SHA-256.
-- For protected sites, use only a trusted adapter from the bridge receipt: `codex_native_chrome` under Codex or `kimi_webbridge` under Kimi Code. The model selected inside the host CLI does not create a separate runtime identity.
+- For protected sites, use only a trusted adapter from the bridge receipt: `codex_native_chrome` under Codex, `kimi_webbridge` under Kimi Code, or `claude_in_chrome` under Claude Code. The model selected inside the host CLI does not create a separate runtime identity.
 - For protected sites, `browser_receipt` is required and must point to the host browser-session acquisition receipt; use `not_applicable` for non-browser channels.
 - Never include account names, cookies, tokens, auth headers, session identifiers, or raw IP addresses.
 - Keep licensed binaries out of public git by default.

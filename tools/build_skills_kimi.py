@@ -4,7 +4,7 @@
 The Kimi package is the third ARIS release line, sibling of
 ``skills/skills-codex/``.  Sources:
 
-- The 24 portable business skills and 9 portable shared references are copied
+- The 28 portable business skills and 13 portable shared references are copied
   byte-for-byte from the canonical ``skills/`` tree (exactly the same source
   set as ``tools/sync_business_portable_mirror.py`` — the two generators never
   write divergent content for the portable set).
@@ -202,10 +202,10 @@ sibling of `skills/skills-codex/`.
 
 ## Scope
 
-- Base mirror coverage: all `106` mainline skills under `skills/`
-- Support directory: `shared-references/`, with all `40/40` mainline reference
+- Base mirror coverage: all `110` mainline skills under `skills/`
+- Support directory: `shared-references/`, with all `44/44` mainline reference
   names mirrored
-- The 24 business portable skills and 9 portable shared references are
+- The 28 business portable skills and 13 portable shared references are
   byte-for-byte copies of the canonical `skills/` tree (the same source set as
   `tools/sync_business_portable_mirror.py`). Everything else is converted from
   `skills/skills-codex/` by `tools/build_skills_kimi.py`; regeneration is
@@ -288,8 +288,8 @@ README_CN_MD = """# `skills-kimi`
 ARIS skill 集合的 Kimi Code CLI 原生包 —— 第三条发行线，与
 `skills/skills-codex/` 平级。完整说明见 [README.md](README.md)。
 
-- 覆盖 `skills/` 主线全部 `106` 个 skill 与 `40/40` 个 shared-references。
-- 24 个 business portable skill 与 9 个 portable reference 与 canonical
+- 覆盖 `skills/` 主线全部 `110` 个 skill 与 `44/44` 个 shared-references。
+- 28 个 business portable skill 与 13 个 portable reference 与 canonical
   `skills/` 字节一致；其余内容由 `tools/build_skills_kimi.py` 从
   `skills/skills-codex/` 机械转换（幂等，`--check` 校验）。
 - 默认审稿契约:Kimi Code `Agent` 工具子代理（首轮 `kimi_subagent`，续轮

@@ -40,7 +40,9 @@ Use the most specific mode:
 - WRDS data through the default R/Postgres path: `wrds-query-bridge`
 - WRDS SAS Cloud after a recorded escalation condition or explicit SAS request: `wrds-sas-cloud`
 - CSMAR or CNRDS variable resolution and minimal portal export: `cn-data-bridge`
-- backend-neutral analysis coordination: `data-analysis-bridge`
+- public SEC filings/XBRL or official macro series: `business-public-data`
+- financial/disclosure text measure construction and validation: `business-text-measures`
+- backend-neutral analysis coordination or empirical figures: `data-analysis-bridge`
 - R analysis: `r-analysis-bridge`
 - Stata analysis: `stata-analysis-bridge`
 - standalone academic results Word document: `results-to-docx`
@@ -52,6 +54,7 @@ Use the most specific mode:
 - author voice calibration: `business-author-style-profile`
 - paper drafting or revision: `business-paper-writing`
 - pre-review of a draft before defense or journal submission — thesis mode (committee voice, MPAcc/master rubric) or journal mode (referee report + target-journal fit), both with a routed revision plan: `business-prereview`
+- research presentations, discussant decks, or speaker scripts: `business-research-talk`
 - response to reviewers: `business-rebuttal`
 - staged end-to-end run: `business-research-pipeline`
 

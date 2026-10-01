@@ -26,7 +26,7 @@ from pathlib import Path, PurePosixPath
 from typing import Any, Literal, Mapping, Sequence
 
 
-Runtime = Literal["codex", "kimi"]
+Runtime = Literal["codex", "kimi", "claude_code"]
 Site = Literal["cnrds", "csmar"]
 
 SCHEMA_VERSION = "aris.cn-data-bridge.extract-verification.v1"
@@ -42,9 +42,16 @@ KIMI_BINDINGS: Mapping[str, str] = {
     "implementation": "kimi_webbridge",
     "profile_mode": "user_browser",
 }
+CLAUDE_ADAPTER = "claude_in_chrome"
+CLAUDE_BINDINGS: Mapping[str, str] = {
+    "mcp_server": "claude-in-chrome",
+    "implementation": "claude_in_chrome_extension",
+    "profile_mode": "existing_user_chrome",
+}
 TRUSTED_ADAPTERS: Mapping[Runtime, tuple[str, Mapping[str, str]]] = {
     "codex": (CODEX_ADAPTER, CODEX_BINDINGS),
     "kimi": (KIMI_ADAPTER, KIMI_BINDINGS),
+    "claude_code": (CLAUDE_ADAPTER, CLAUDE_BINDINGS),
 }
 MAX_ARCHIVE_MEMBERS = 100
 MAX_ARCHIVE_BYTES = 64 * 1024 * 1024
@@ -912,7 +919,7 @@ def parse_args(argv: Sequence[str]) -> argparse.Namespace:
     parser.add_argument("--receipt", required=True, type=Path)
     parser.add_argument("--repo-root", required=True, type=Path)
     parser.add_argument("--run-dir", required=True, type=Path)
-    parser.add_argument("--runtime", default="codex", choices=("codex", "kimi"))
+    parser.add_argument("--runtime", default="codex", choices=tuple(TRUSTED_ADAPTERS))
     return parser.parse_args(argv)
 
 
