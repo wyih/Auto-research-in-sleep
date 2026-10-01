@@ -10,6 +10,7 @@ import pytest
 
 REPO_ROOT = Path(__file__).resolve().parents[1]
 INSTALL_PS1 = REPO_ROOT / "tools" / "install_aris.ps1"
+INVOKING_HOME = Path.home()
 
 
 def resolve_powershell() -> str | None:
@@ -25,6 +26,18 @@ pytestmark = pytest.mark.skipif(
     os.name != "nt" or PS_EXE is None,
     reason="install_aris.ps1 manages Windows junctions via Windows PowerShell",
 )
+
+
+@pytest.fixture(autouse=True)
+def isolated_home(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> Path:
+    # install_aris.ps1 writes $HOME\.aris\repo. PowerShell sets $HOME from
+    # USERPROFILE on Windows and HOME elsewhere, so each test gets its own.
+    home = tmp_path / "user-home"
+    home.mkdir()
+    monkeypatch.setenv("USERPROFILE", str(home))
+    monkeypatch.setenv("HOME", str(home))
+    monkeypatch.delenv("ARIS_OFFICE_AUTHOR_FILE", raising=False)
+    return home
 
 
 def run_ps(
@@ -221,12 +234,22 @@ def test_install_aris_ps1_requires_and_stores_explicit_office_author(
     assert not (installed_project / ".aris" / "office-author").exists()
 
 
-def test_install_aris_ps1_codex_apply_reconcile_and_uninstall(tmp_path: Path) -> None:
+def test_install_aris_ps1_codex_apply_reconcile_and_uninstall(
+    tmp_path: Path, isolated_home: Path
+) -> None:
+    invoking_pointer = INVOKING_HOME / ".aris" / "repo"
+    invoking_before = invoking_pointer.read_bytes() if invoking_pointer.exists() else None
     repo = make_minimal_repo(tmp_path)
     project = tmp_path / "project"
     project.mkdir()
 
     run_ps([str(project), "-Platform", "codex", "-ArisRepo", str(repo)])
+
+    # The install still writes its global pointer, but only inside the test HOME.
+    pointer = Path((isolated_home / ".aris" / "repo").read_text(encoding="utf-8").strip())
+    assert pointer.resolve() == repo.resolve()
+    invoking_after = invoking_pointer.read_bytes() if invoking_pointer.exists() else None
+    assert invoking_after == invoking_before
 
     manifest = project / ".aris" / "installed-skills-codex.txt"
     assert manifest.exists()
