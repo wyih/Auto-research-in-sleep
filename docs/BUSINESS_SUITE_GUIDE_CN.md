@@ -42,7 +42,7 @@
 # 1. 克隆仓库并切到本 release
 git clone https://github.com/wyih/Auto-research-in-sleep.git
 cd Auto-research-in-sleep
-git checkout business-research-suite-v0.9.0
+git checkout business-research-suite-v0.9.1
 ```
 
 **Kimi Code 用户:**
@@ -136,11 +136,11 @@ kimi        # Kimi Code 用户;Codex 用户用 codex;Claude Code 用户用 claud
 | 拿数据 | 「帮我把数据拉下来」 | 按来源走路由:公开数据走数据源插件;WRDS 走 R/Postgres;CSMAR/CNRDS 走你浏览器登录态导出 | 数据文件 + 来源清单(`DATASOURCE_RECEIPT.json`) |
 | 公开数据 | 「获取这些公司的 10-K、XBRL，或这些 FRED 指标」 | 校验 CIK、申报／事件日期、单位、频率和历史版本；走可用连接器或官方 API | 核验后的数据文件 + 定义与来源记录 |
 | 文本指标 | 「从年报构建语调／不确定性／披露指标」 | 定义构念、分段评分、验证标签并汇总至研究单位 | 指标数据、代码与验证说明 |
-| 分析 | 「按设计跑回归」 | 用 R / Stata / Python 跑分析,脚本和输出都可复现 | 回归表、描述统计、图 |
+| 分析 | 「按设计跑回归」 | 新分析默认用 R/fixest，已有项目按原有 R / Stata / Python 路线执行；脚本和输出都可复现 | 回归表、描述统计、图 |
 | 结果打包 | 「把结果做成 Word」 | 生成独立学术风格 Word 结果包 | `results.docx` |
 | 审计 | 「核一遍数字和引用」 | 逐项核对文稿数字 vs 分析输出、来源 vs 主张;裁定每个结论的证据上限 | 审计报告 |
 | 写作 | 「按设计写初稿」 | 基于证据和(可选的)目标期刊/作者风格约束写作 | 论文初稿 |
-| **预审** | 「帮我预审这篇初稿」/「这篇要投《XX》,帮我审一遍」 | 学位论文:按 MPAcc/硕士评审标准打分、写委员会式评语、给送审结论;期刊稿件:写审稿人报告(主要/次要意见)+ 目标期刊适配判断 | `THESIS_PREREVIEW.md` / `JOURNAL_PREREVIEW.md` |
+| **预审** | 「帮我预审这篇初稿」/「这篇要投《XX》,帮我审一遍」 | 学位论文:按 MPAcc/硕士评审标准评价、写委员会式评语、给送审结论;期刊稿件:写可核查的审稿意见和目标期刊适配判断；用户或评审表要求时评分 | `THESIS_PREREVIEW.md` / `JOURNAL_PREREVIEW.md` |
 | 修改 | 按预审的 P0/P1/P2 逐条改 | 每条修改路由回负责的 skill(数据问题回分析、主张越界回审计……) | 修改后的稿子 |
 | 研究报告 | 「把这篇论文做成研讨会报告／讨论人幻灯片」 | 组织论点、精简表格、核验数字；按需要生成计时讲稿 | 可编辑报告、预览与所需讲稿 |
 | 回复审稿 | 「帮我回复这些审稿意见」 | 解析意见、规划修订、写回复信 | 回复信 + 修订稿 |
@@ -163,18 +163,18 @@ kimi        # Kimi Code 用户;Codex 用户用 codex;Claude Code 用户用 claud
 
 **学位论文(答辩/送审前):**
 
-1. 它先读你的初稿和过程材料,按 MPAcc 评审标准(非 MPAcc 用通用硕士标准)逐维度打分,明确标出哪些地方证据不足;
+1. 它先读你的初稿和相关材料,按 MPAcc 评审标准(非 MPAcc 用通用硕士标准)评价,对影响判断的实际证据缺口作出说明；用户或评审表要求时评分;
 2. 输出 `THESIS_PREREVIEW.md`:委员会式评语(证据 → 判断 → 修改动作)+ 送审结论(可送审 / 大修后送审 / 暂不建议送审);
 3. 评语里每条问题都带 P0(必须改)/ P1(应该改)/ P2(可选)优先级,并指明该回哪个 skill 去修。
 
 **期刊稿件(投稿前自查):**
 
 1. 说「这篇要投《XX期刊》,帮我按审稿人标准审一遍」——它会以审稿人口径写 `JOURNAL_PREREVIEW.md`:一段论文摘要、逐条主要意见(问题 → 为什么威胁结论 → 需要什么证据或分析才能解决)、次要意见;
-2. 增量贡献不和作者自己说的一致,而是对着查新报告核;
-3. 给出投稿建议(可投 / 小修后投 / 大修后投 / 暂不适合该刊),并附期刊适配判断:这篇是否进入目标刊近三五年的对话,不合适的话哪一两个刊物更合适;
-4. 修改项同样按 P0/P1/P2 路由回对应 skill。
+2. 将作者宣称的贡献与设计、结果和最近邻文献支持的贡献作比较，并检查相关领域的构念、信息时点和推断问题；已有查新材料可用时一并核对;
+3. 给出投稿建议(可投 / 小修后投 / 大修后投 / 暂不适合该刊),并判断论文与目标刊相关文献的关系；你要求择刊时再推荐其他期刊;
+4. 实质问题与文字问题分开呈现。每条意见标明位置、证据状态、修改和解决条件；完整修改计划按 P0/P1/P2 路由回对应 skill，并说明有实际影响的先后依赖。
 
-**修改后复审(两种稿件通用):** 改完说「重新预审」,它会先重跑数字审计和来源审计,再重新评分——P0 没清完,这个循环不关闭。
+**修改后复审(两种稿件通用):** 改完说「重新预审」,它会核对修改项及受影响的结论；解决实际问题或项目流程需要时，再运行独立的数字或来源审计。仍有 P0 问题时会在送审／投稿判断中指出；用户或评审表要求时评分。
 
 ---
 
@@ -190,7 +190,7 @@ bash tools/smart_update_kimi.sh --apply --project ~/my-thesis
 ```bash
 cd Auto-research-in-sleep
 git fetch origin --tags
-git checkout business-research-suite-v0.9.0
+git checkout business-research-suite-v0.9.1
 
 # Codex 线:
 bash tools/install_aris_codex.sh ~/my-thesis --groups business-research --reconcile --office-author "你的名字"
@@ -224,4 +224,6 @@ bash tools/install_aris.sh ~/my-thesis --platform claude --uninstall
 
 ## 近期技能增补
 
-v0.9.0 新增公开数据、文本指标与研究报告三个技能，并加强计量诊断、Python 面板、实证图表和经济量级说明。本版提供 28 个商科技能,支持 Codex、Kimi Code 与 Claude Code,包括 Claude Pro 订阅登录及 Claude in Chrome 浏览器适配。[比较与吸收说明](BARRIOS_BUSINESS_SUITE_COMPARISON_CN.md)。
+v0.9.1 补充 Cochrane/McCloskey/Shapiro 写作传统的可选全稿指南、学术文本编辑方法，以及会计和金融领域的预审检查。你可以说「按 Cochrane 风格修改这一节」或「清理套话并保留原有论证和证据强度」；已有稿件按你的要求保留组织与声音。分析继续以 R/fixest 为新项目默认，Python 文本预处理也可接回 R 估计。文献检索沿用现有来源、全文获取与综合流程。
+
+v0.9.0 新增公开数据、文本指标与研究报告三个技能，并加强计量诊断、Python 面板、实证图表和经济量级说明。当前版本提供 28 个商科技能,支持 Codex、Kimi Code 与 Claude Code,包括 Claude Pro 订阅登录及 Claude in Chrome 浏览器适配。[比较与吸收说明](BARRIOS_BUSINESS_SUITE_COMPARISON_CN.md)。

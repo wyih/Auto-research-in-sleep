@@ -1,6 +1,6 @@
 # Python empirical panels
 
-Use this reference when Python is the selected backend. Retain R/Stata for projects whose replication workflow uses those languages.
+Use this reference only when Python is the selected estimation backend. R with `fixest` remains the default for a new analysis and the preferred route for an existing R project. Python parsing or text scoring can export inputs to R without changing the estimator. Retain Stata for projects whose replication workflow uses it.
 
 ## Select an implementation
 

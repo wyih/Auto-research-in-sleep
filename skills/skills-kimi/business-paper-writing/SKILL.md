@@ -1,6 +1,6 @@
 ---
 name: business-paper-writing
-description: Draft or revise journal-style business, accounting, finance, management, and economics papers from a business paper plan, empirical design, and table outputs. Use when writing a manuscript, Introduction, hypothesis section, research design, results narrative, or adapting paper-writing to business-school journals.
+description: Draft or revise business, accounting, finance, management, and economics papers or individual sections. Use for manuscript writing, Cochrane/McCloskey/Shapiro-style guidance, and academic prose cleanup or humanizing while preserving evidence and author voice.
 ---
 
 # Business Paper Writing
@@ -47,7 +47,11 @@ If `AUTHOR_STYLE_PROFILE.md` exists, apply it after claim ceilings are set. Jour
 
 ### Step 2: Apply Style Profile
 
-When style calibration is requested and `AUTHOR_STYLE_PROFILE.md` is missing, route to `business-author-style-profile`. Apply only style choices that preserve clarity, evidence strength, and journal norms.
+For style learned from supplied writing samples, route to `business-author-style-profile` when the requested profile is missing. Apply only style choices that preserve clarity, evidence strength, and journal norms.
+
+When the user selects Cochrane, McCloskey, or Shapiro guidance, or requests an economics-style first draft or alternative structure, read [economics writing craft](references/economics-writing-craft.md). This optional framework covers the whole manuscript; apply the requested parts without requiring a style-profile file or restructuring an existing paper unless asked.
+
+For requested humanizing or prose cleanup, or a concrete recurring style issue, read [academic prose editing](references/academic-prose-editing.md), adapted from `econ-humanizer` and `econ-humanizer-plus`. Preserve meaning, uncertainty, numbers, citations, and the author's voice; inspect patterns in context rather than applying word or punctuation bans.
 
 ### Step 3: Draft by Section
 

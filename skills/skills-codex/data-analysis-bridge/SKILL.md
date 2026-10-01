@@ -29,9 +29,9 @@ An explicit mode name is optional. These modes are available on request or when 
 
 - Use `r-analysis-bridge` when the project already uses `.R`, `.Rmd`, `.qmd`, `.rds`, tidyverse, `fixest`, or the user asks for R. Prefer R when the project has no existing language.
 - Use `stata-analysis-bridge` when the project already uses `.do` files, `.dta` files, Stata table shells, or the user asks for Stata.
-- Use Python when the project is already Python-based or the analysis depends on Python-specific parsing.
+- Use Python estimation when the project already estimates in Python or the user selects it. Python-specific parsing or text preprocessing can feed the existing R analysis; it does not justify migrating estimation away from `fixest`.
 
-For ordinary implementation, read [Python panels](references/python-panel.md) when Python is selected, [empirical figures](references/empirical-figures.md) when producing a research figure, and the selected section of [design-specific diagnostics](../shared-references/business-empirical-diagnostics.md) when the analysis uses DiD, IV, RD, or a finance event study. Route text-variable construction to `business-text-measures` when its measurement workflow is needed.
+For ordinary implementation, read [Python panels](references/python-panel.md) when Python estimation is selected, [empirical figures](references/empirical-figures.md) when producing a research figure, and the selected section of [design-specific diagnostics](../shared-references/business-empirical-diagnostics.md) when the analysis uses DiD, IV, RD, or a finance event study. Route text-variable construction to `business-text-measures` when its measurement workflow is needed.
 
 ## Inputs
 

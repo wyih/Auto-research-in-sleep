@@ -20,7 +20,7 @@ Never fabricate evidence, citations, or conclusions. Not a substitute for the of
 
 ## Inputs
 
-Read what exists; mark anything missing as `EVIDENCE_GAP` and lower confidence instead of guessing:
+Read available materials or their project equivalents. Mark a missing item `EVIDENCE_GAP` only when its evidence is needed for the requested judgment; missing suite artifact names alone do not lower the paper's assessment:
 
 1. manuscript files under `paper/` or the project's main document
 2. `BUSINESS_RUN_PASSPORT.md` — stage state, gate registry, decision cards
@@ -50,7 +50,9 @@ Use numerical scores only when the user requests them or a supplied review form 
 
 **Thesis mode**: evaluate with `references/mpacc_rubric.md` for MPAcc and accounting-adjacent theses; otherwise use the generic master's rubric in `references/evaluation_framework.md`.
 
-**Journal mode**: evaluate with `references/journal_referee_rubric.md` — contribution and incremental novelty (checked against the novelty artifacts, not the author's claims), theory and hypothesis development, research design and identification, execution and robustness, exposition and structure, and fit to the target journal's aims and current conversation.
+**Journal mode**: evaluate with `references/journal_referee_rubric.md` — contribution and incremental novelty checked against the actual nearest literature, theory and hypothesis development, research design and identification, execution and robustness, exposition and structure, and journal fit when requested or part of an agreed submission review.
+
+Read [field referee checks](references/field-referee-checks.md) for journal review or a concrete accounting/finance issue in a thesis. Compare the contribution the author claims with what the design, exhibits, and closest studies establish. Use the relevant accounting, corporate-finance, asset-pricing, banking, or text-measure checks; recommend additional analysis only when it resolves a substantive issue.
 
 Report the strengths and problems supported by the manuscript, with evidence locations. Do not require a fixed count for each dimension; distinguish an absent problem from insufficient evidence to assess it.
 
@@ -64,11 +66,15 @@ Method-aware evaluation (both modes):
 
 **Thesis mode**: draft committee-style comments using `references/comment_patterns.md`: evidence → judgment → revision action → expected improvement. Cover overall evaluation, strengths, weaknesses, revision requests, and a submission recommendation (可送审 / 大修后送审 / 暂不建议送审). Chinese comments by default for Chinese programs; keep the tone strict but non-emotional.
 
-**Journal mode**: draft a referee report — one-paragraph summary of the paper as the referee understands it, then major comments (each: issue → why it threatens the conclusion → what evidence or analysis would resolve it), then minor comments. End with a pre-submission recommendation: ready to submit / minor revision before submission / major revision before submission / not ready for this journal. Add a journal-fit note: does the paper join the target journal's current conversation, and if not, which venue fits better. Match the working language of the manuscript.
+**Journal mode**: for a full referee report, give a short summary of the question, claimed contribution, and supported finding, then major comments and minor comments. Each substantive comment names the location, observed issue, supporting evidence, effect on the conclusion or contribution, and what correction or verification would resolve it. Distinguish verified failures from questions requiring verification. Keep substantive and editorial comments separate within the requested report; a separate editing file is optional. Match the working language of the manuscript.
+
+When submission readiness is requested, state a supported recommendation: ready to submit / minor revision before submission / major revision before submission / not ready for this journal. Assess journal fit when requested or part of the agreed submission review; suggest alternative venues only when asked.
 
 ### Step 4: Routed Revision Plan
 
-Convert findings into a P0/P1/P2 plan. Every item names its target location, what to change, why it matters, how to verify completion, and the owning suite skill:
+For a full review or requested revision plan, convert findings into a P0/P1/P2 plan. Every item names its target location, what to change, why it matters, how to verify completion, and the owning suite skill. Record dependencies when one correction changes another: verify the information date before rebuilding a variable, rerun the affected model, then revise its interpretation.
+
+Route actual findings:
 
 - wrong or inconsistent numbers, specification mismatches → `business-number-audit` fix path
 - claims above the evidence ceiling, hedged or overclaimed language → `evidence-to-claim`

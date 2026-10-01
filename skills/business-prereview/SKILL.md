@@ -13,14 +13,14 @@ Run a reviewer-side pre-review of a draft using the suite's own verified artifac
 
 Two modes, picked at intake:
 
-- **Thesis mode** — master's theses (committee voice, degree-rubric scoring, 送审 verdict).
+- **Thesis mode** — master's theses (committee voice, degree-rubric evaluation, 送审 verdict).
 - **Journal mode** — papers aimed at a journal (referee voice, referee-report structure, target-journal fit and recommendation).
 
 Never fabricate evidence, citations, or conclusions. Not a substitute for the official degree review or the journal's own peer review.
 
 ## Inputs
 
-Read what exists; mark anything missing as `EVIDENCE_GAP` and lower confidence instead of guessing:
+Read available materials or their project equivalents. Mark a missing item `EVIDENCE_GAP` only when its evidence is needed for the requested judgment; missing suite artifact names alone do not lower the paper's assessment:
 
 1. manuscript files under `paper/` or the project's main document
 2. `BUSINESS_RUN_PASSPORT.md` — stage state, gate registry, decision cards
@@ -35,7 +35,7 @@ Read what exists; mark anything missing as `EVIDENCE_GAP` and lower confidence i
 
 ### Step 1: Scope And Intake
 
-Fix the review frame before scoring:
+Establish the review frame:
 
 - **mode**: degree thesis or journal manuscript; if unclear from the materials, ask one question (degree or journal? which program / which target journal?)
 - paper form: quantitative empirical / case or qualitative / interdisciplinary applied
@@ -44,29 +44,37 @@ Fix the review frame before scoring:
 - material completeness: full text, abstract, references, key tables, appendix
 - the suite state: unresolved audit blockers and pending decision cards from the passport stay visible in the review
 
-### Step 2: Dimension Scoring
+### Step 2: Evidence-Based Evaluation
 
-**Thesis mode**: score with `references/mpacc_rubric.md` for MPAcc and accounting-adjacent theses; otherwise fall back to the generic master's rubric in `references/evaluation_framework.md`.
+Use numerical scores only when the user requests them or a supplied review form requires them. Otherwise use the rubric's substantive criteria for written judgments.
 
-**Journal mode**: score with `references/journal_referee_rubric.md` — contribution and incremental novelty (checked against the novelty artifacts, not the author's claims), theory and hypothesis development, research design and identification, execution and robustness, exposition and structure, and fit to the target journal's aims and current conversation.
+**Thesis mode**: evaluate with `references/mpacc_rubric.md` for MPAcc and accounting-adjacent theses; otherwise use the generic master's rubric in `references/evaluation_framework.md`.
 
-For each dimension record at least one evidence pointer, one strength, and one or two problems, each with a confidence level.
+**Journal mode**: evaluate with `references/journal_referee_rubric.md` — contribution and incremental novelty checked against the actual nearest literature, theory and hypothesis development, research design and identification, execution and robustness, exposition and structure, and journal fit when requested or part of an agreed submission review.
 
-Method-aware scoring (both modes):
+Read [field referee checks](references/field-referee-checks.md) for journal review or a concrete accounting/finance issue in a thesis. Compare the contribution the author claims with what the design, exhibits, and closest studies establish. Use the relevant accounting, corporate-finance, asset-pricing, banking, or text-measure checks; recommend additional analysis only when it resolves a substantive issue.
+
+Report the strengths and problems supported by the manuscript, with evidence locations. Do not require a fixed count for each dimension; distinguish an absent problem from insufficient evidence to assess it.
+
+Method-aware evaluation (both modes):
 
 - archival/quantitative papers: identification strategy, variable construction, robustness coverage, and number-audit consistency
 - case-study papers: judge against the case claim ceilings — within-case explanatory inference only, triangulation per claim, predeclared replication logic, evidence chain from conclusions to case material; do not demand statistical representativeness
-- a claim exceeding its `CLAIMS_FROM_EVIDENCE.md` ceiling is a scoring deduction, not a writing preference
+- a claim exceeding its evidence ceiling is a substantive issue; use `CLAIMS_FROM_EVIDENCE.md` when available
 
 ### Step 3: Review Comments
 
 **Thesis mode**: draft committee-style comments using `references/comment_patterns.md`: evidence → judgment → revision action → expected improvement. Cover overall evaluation, strengths, weaknesses, revision requests, and a submission recommendation (可送审 / 大修后送审 / 暂不建议送审). Chinese comments by default for Chinese programs; keep the tone strict but non-emotional.
 
-**Journal mode**: draft a referee report — one-paragraph summary of the paper as the referee understands it, then major comments (each: issue → why it threatens the conclusion → what evidence or analysis would resolve it), then minor comments. End with a pre-submission recommendation: ready to submit / minor revision before submission / major revision before submission / not ready for this journal. Add a journal-fit note: does the paper join the target journal's current conversation, and if not, which venue fits better. Match the working language of the manuscript.
+**Journal mode**: for a full referee report, give a short summary of the question, claimed contribution, and supported finding, then major comments and minor comments. Each substantive comment names the location, observed issue, supporting evidence, effect on the conclusion or contribution, and what correction or verification would resolve it. Distinguish verified failures from questions requiring verification. Keep substantive and editorial comments separate within the requested report; a separate editing file is optional. Match the working language of the manuscript.
+
+When submission readiness is requested, state a supported recommendation: ready to submit / minor revision before submission / major revision before submission / not ready for this journal. Assess journal fit when requested or part of the agreed submission review; suggest alternative venues only when asked.
 
 ### Step 4: Routed Revision Plan
 
-Convert findings into a P0/P1/P2 plan. Every item names its target location, what to change, why it matters, how to verify completion, and the owning suite skill:
+For a full review or requested revision plan, convert findings into a P0/P1/P2 plan. Every item names its target location, what to change, why it matters, how to verify completion, and the owning suite skill. Record dependencies when one correction changes another: verify the information date before rebuilding a variable, rerun the affected model, then revise its interpretation.
+
+Route actual findings:
 
 - wrong or inconsistent numbers, specification mismatches → `business-number-audit` fix path
 - claims above the evidence ceiling, hedged or overclaimed language → `evidence-to-claim`
@@ -81,11 +89,11 @@ P0 = must fix before submission; P1 = strong quality improvements; P2 = polish a
 
 ### Step 5: Verdict And Re-Review Loop
 
-State the recommendation with its conditions. After the author revises, rerun `business-number-audit` and `business-claim-source-audit` first, then rerun this pre-review; update the passport's Audit Status and Decision Cards. Do not mark the loop complete while a P0 item is open.
+State the recommendation with its conditions. When re-review is requested, check the revised issues and affected claims; run separate number or source audits when needed to resolve those issues or required by the project's workflow. Update the passport's Audit Status and Decision Cards when the project already maintains them. Unresolved P0 issues prevent a submission-ready verdict.
 
 ## Output
 
-Thesis mode writes `THESIS_PREREVIEW.md`; journal mode writes `JOURNAL_PREREVIEW.md` when writing is allowed:
+Match the requested deliverable. A full thesis review may use `THESIS_PREREVIEW.md`; a full journal review may use `JOURNAL_PREREVIEW.md`. Omit score sections unless scoring was requested or required by the supplied form:
 
 ```markdown
 # Thesis / Journal Pre-Review
