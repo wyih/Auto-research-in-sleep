@@ -30,6 +30,18 @@ Search by combinations:
 
 Prefer precise queries over broad field labels.
 
+For passage-specific matching, follow [reference-match.md](reference-match.md). Select query families from the claims and retain null/contrary findings through nondirectional queries.
+
+## Journal Requirements
+
+Treat explicit eligibility conditions as hard filters and preferred outlets as quality preferences. Preserve the user's scope, including permission to cite working papers; there is no automatic SSCI or journal-only restriction.
+
+Apply joint conditions as an intersection and alternative conditions as a union, preserving grouped requirements such as `(SSCI and JCR Q1/Q2) or AJG 3+`. Ask only when ambiguous wording would change eligibility. An article passing an allowed alternative is eligible even when another branch fails.
+
+Record the source, edition/year, and relevant subject category for an SSCI, JCR, AJG/ABS, FT50, UTD24, whitelist, or blacklist check. Use authorized lists or traceable official records and label a user's list as user-provided. Unknown ranking status remains unverified; discovery-index membership does not establish journal eligibility. Keep papers with unverified required eligibility outside the confirmed eligible list.
+
+Among similarly supported eligible matches, prefer the user's quality targets. A useful match outside a preference needs a concrete evidence advantage; papers failing hard filters may remain discovery leads. Journal reputation cannot compensate for a failed claim match.
+
 ## Status Labels
 
 Use:
@@ -47,6 +59,9 @@ Use:
 - Keep working-paper metadata when it includes an accessible PDF, appendix, or newer version.
 - Track title changes and merged working-paper versions explicitly.
 - Treat missing full text as a search gap **and** as a `fulltext_status` value (see below).
+- For a promising working paper, check its original record, exact title/authors, title variants, and author/publisher pages for a journal version. Confirm the version relationship using explicit links or corroborating study details, then verify the formal record. A missing version link is not evidence of non-publication.
+- Tie every quoted passage, page, and finding to the version actually read. Before citing journal metadata for evidence read in a working paper, verify that the journal text retains that evidence. If access blocks the check, its support remains `UNVERIFIABLE_ACCESS`; cite the verified working-paper version only when the user's scope permits it.
+- Record an unresolved journal-version search with the routes checked and date. Preserve online-first publication, accepted/forthcoming status, and working-paper status as documented. Deduplicate repeated publication records by DOI or strong title-author evidence while retaining distinct version identities.
 
 ## Fulltext Status (Map Layer)
 

@@ -43,6 +43,8 @@ Before writing, establish the claim ceiling from the supplied design and results
 
 If `SOURCE_CLAIM_AUDIT.md` exists, fix or avoid any claim marked `MAJOR_DISTORTION`, `UNVERIFIABLE`, or `UNVERIFIABLE_ACCESS`. Otherwise verify the relevant claims against their sources while writing. Missing support is a substantive gap; a missing audit file alone is not. Produce separate source or number audits only when requested or required by the project's submission workflow. Route unresolved source verification to `business-claim-source-audit` when its focused workflow is needed.
 
+When a passage needs supporting references, use `business-lit-review` in `reference_match` mode. Apply the shared `Literature Claim Matching` rules in `../shared-references/business-claim-source-audit.md` to the proposed citation and reuse verified matches without raising the project's claim ceiling.
+
 If `AUTHOR_STYLE_PROFILE.md` exists, apply it after claim ceilings are set. Journal and discipline norms override personal style.
 
 ### Step 2: Apply Style Profile

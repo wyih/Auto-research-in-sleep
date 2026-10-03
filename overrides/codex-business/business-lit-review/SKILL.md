@@ -1,6 +1,6 @@
 ---
 name: business-lit-review
-description: Discover and synthesize literature for business, accounting, finance, management, economics, and empirical social-science papers. Use when finding related work, building a literature map, checking journal positioning, comparing working papers, deciding where an idea fits, or turning verified fulltext method cards into a source-grounded cross-paper evidence matrix and narrative review with construct depth, measurement provenance, unit/dependence, numeric-audit, mediation, and claim-ceiling checks.
+description: Discover and synthesize literature for business, accounting, finance, management, economics, and empirical social-science papers. Use when matching manuscript passages to supporting references, finding related work, building a literature map, checking journal positioning, comparing working papers, deciding where an idea fits, or turning verified fulltext method cards into a source-grounded cross-paper evidence matrix and narrative review with construct depth, measurement provenance, unit/dependence, numeric-audit, mediation, and claim-ceiling checks.
 ---
 
 # Business Lit Review
@@ -11,7 +11,7 @@ Research topic: $ARGUMENTS
 
 Use this skill for business-school research where the unit of evaluation is a journal-style empirical or theory paper rather than an ML benchmark paper.
 
-This skill is knowledge-base-first and journal-aware. It supports a discovery map and a later fulltext synthesis. Search the user's own library first, then working-paper sources, then journal and publisher sources, then broad web.
+This skill is knowledge-base-first and journal-aware. It supports passage-specific reference matching, a discovery map, and a later fulltext synthesis. Search the user's own library first, then working-paper sources, then journal and publisher sources, then broad web.
 
 ## References
 
@@ -21,6 +21,7 @@ Load only the reference needed for the current task:
 - `references/venue-tiering.md` for accounting, finance, management, and economics venue tiers.
 - `references/domain-taxonomy.md` for topic grouping and trigger boundaries.
 - `references/output-template.md` for the default literature table and synthesis structure.
+- `references/reference-match.md` when finding supporting references for a specific manuscript sentence or paragraph.
 - `references/fulltext-synthesis.md` when verified PDFs or method cards are available and the task needs a literature evidence matrix or review prose.
 - `references/sciencedirect-discovery.md` when discovery is intentionally scoped to ScienceDirect search, article metadata, journal issues, or citation export.
 - `../shared-references/business-handoff-schemas.md` for the required `BUSINESS_LIT_REVIEW.md` fields when this review feeds a pipeline.
@@ -28,8 +29,9 @@ Load only the reference needed for the current task:
 
 ## Select Mode
 
-Use `map` by default when the corpus is still being discovered. Use `fulltext_synthesis` when the request asks what papers actually do, how constructs are measured, how variables are calculated, why findings differ, or when verified method cards already exist.
+Use `reference_match` when the task is to find references for a specific manuscript passage. Use `map` by default when the corpus is still being discovered. Use `fulltext_synthesis` when the request asks what papers actually do, how constructs are measured, how variables are calculated, why findings differ, or when verified method cards already exist.
 
+- `reference_match`: decompose the passage, find claim-matched sources, verify their evidence and versions, and return usable citation wording. Follow `references/reference-match.md` and the matching output template, then stop when that request is complete. The map/fulltext-synthesis workflow and artifact requirements below apply to their respective modes.
 - `map`: discover, deduplicate, position, and assign `fulltext_status`.
 - `fulltext_synthesis`: consume verified `METHOD_CARD` artifacts, spot-check material claims against local PDFs, and produce a cross-paper evidence matrix plus grounded synthesis.
 
@@ -169,6 +171,8 @@ When the user needs sample construction, identification, variable definitions, o
 ## Output
 
 Use the table and synthesis shape in `references/output-template.md`.
+
+In `reference_match` mode, return the compact claim map and reference-match table in that template. Keep citation role separate from verification verdict. Produce a standalone file only when requested or needed by an existing project consumer.
 
 In `map` mode, include:
 

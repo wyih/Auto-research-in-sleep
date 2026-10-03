@@ -1,4 +1,6 @@
-# Source attribution for the Barrios adaptation
+# Source attribution for business research adaptations
+
+## Barrios skills
 
 Reviewed source: [Barrios88/barrios-skills](https://github.com/Barrios88/barrios-skills/tree/d50afc62f4c67535a1949d029dfa0462feb906fd), commit `d50afc62f4c67535a1949d029dfa0462feb906fd`, reviewed 2026-09-30 and rechecked 2026-10-02.
 
@@ -15,12 +17,19 @@ The suite selectively adapts research workflow guidance, with rewritten instruct
 
 Barrios's `econ-write` and `econ-slides` credit [Lu Han's econ-writing-skill](https://github.com/hanlulong/econ-writing-skill) and [econ-slides-skill](https://github.com/hanlulong/econ-slides-skill), respectively, under the MIT license. Other listed materials are credited to the Barrios collection and their named contributors in the source. No upstream MCP implementation, model weights, or general library manual is bundled by this adaptation.
 
+## Reference matching
+
+Reviewed source: [mimaowang/econ-reference-matcher](https://github.com/mimaowang/econ-reference-matcher/tree/84678b07922e09e96e26666aac33bba1c4a7b399), commit `84678b07922e09e96e26666aac33bba1c4a7b399`, reviewed 2026-10-03.
+
+The suite adapts passage-level claim decomposition, citation roles, source-version verification, and journal-filter handling into `business-lit-review`'s `reference_match` mode and the shared claim-source audit rules. The instructions are rewritten around the suite's existing discovery, fulltext, method-harvest, and audit contracts. The upstream helper scripts and benchmark fixtures are not bundled.
+
 ## Retained MIT notice
 
 MIT License
 
 Copyright (c) 2026 John Barrios
 Copyright (c) 2026 Lu Han
+Copyright (c) 2026 econ-reference-matcher contributors
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal

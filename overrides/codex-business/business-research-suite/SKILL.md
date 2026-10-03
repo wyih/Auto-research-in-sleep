@@ -11,6 +11,7 @@ Identify the user's material state and requested outcome, then load the focused 
 
 - Topic or research question: `business-idea-creator`
 - Literature discovery or cross-paper synthesis: `business-lit-review`
+- Supporting references for a specific manuscript sentence or paragraph: `business-lit-review` in `reference_match` mode
 - Missing paper or publisher access: `fulltext-acquire`
 - Method, measure, sample, or identification extraction: `method-harvest`
 - Novelty and closest-paper comparison: `business-novelty-check`

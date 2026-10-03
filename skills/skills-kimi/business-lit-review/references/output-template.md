@@ -2,12 +2,32 @@
 
 ## Literature Table
 
-Use this table by default:
+Use this table in `map` mode:
 
 | Paper | Status | Venue/Source | Field | Question | Data/Setting | Design | Main Finding | Limitation | Delta for Us | fulltext_status |
 |---|---|---|---|---|---|---|---|---|---|---|
 
 `fulltext_status` values: `local` | `open` | `institutional_ip` | `browser_session` | `bot_challenge_passed` | `abstract_only` | `missing` | `gap` | `needs_verification`. When method detail requires full text, point next work to `method-harvest` rather than expanding this table into PDF harvest.
+
+## Reference-Match Output
+
+For `reference_match`, preserve the target passage and its manuscript location, then provide a compact claim map:
+
+| Claim ID | Assertion Needing Support | Claim Type | Intended Citation Role |
+|---|---|---|---|
+
+Use one row per claim-paper pair in the match table:
+
+| Claim ID | Paper / Cited Version | Citation Role | Verdict | Evidence / Source Location | Usable Citation Wording |
+|---|---|---|---|---|---|
+
+Use the roles and verdicts in [shared claim matching](../../shared-references/business-claim-source-audit.md#literature-claim-matching). Identify the version read, source depth, DOI/source link, and any material journal-filter evidence beside the row when they would make the table too wide. A short excerpt or precise paraphrase must explain the match; title similarity alone does not.
+
+Keep verified usable references distinct from access-pending or topic-adjacent candidates. Include rejected examples only when they explain a material choice. State unsupported claims or necessary wording changes explicitly, with a concise account of the searches that exhausted accessible useful routes when relevant.
+
+For English manuscripts or requested citation wording, include sentences that preserve the evidence's population, setting, direction, and inference strength. Contribution wording must follow the user's actual study and the verified prior finding. Supply APA/BibTeX only when requested or needed by the manuscript, using verified metadata and the cited version.
+
+Return this result in chat for a standalone request; update an existing project artifact or save a separate file only when requested or needed by its consumer. The literature-map count, closest-paper table, and fulltext-synthesis matrix do not apply to this mode.
 
 ## Fulltext Evidence Matrix
 

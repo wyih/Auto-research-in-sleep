@@ -32,6 +32,7 @@ Use the most specific mode:
 
 - broad topic or uncertain RQ: `business-idea-creator`
 - literature discovery map or verified-card cross-paper synthesis: `business-lit-review`
+- supporting references for a specific manuscript sentence or paragraph: `business-lit-review` in `reference_match` mode
 - missing paper PDF or protected publisher access: `fulltext-acquire`
 - method, measure, sample, or identification extraction from verified PDFs: `method-harvest`
 - novelty and closest-paper delta: `business-novelty-check`
@@ -59,6 +60,8 @@ Use the most specific mode:
 - staged end-to-end run: `business-research-pipeline`
 
 ## Workflow
+
+For a standalone reference-match request, run the focused mode and return its result; a passport or full-pipeline artifact set is not required.
 
 1. Identify the user's current material state: topic, literature, idea, design, data, results, draft, reviews.
 2. Select the single next stage and load one focused skill body. Use `browser-session-bridge` only as the internal transport for a protected-site skill; do not route a research request there when a more specific producer owns the artifact.

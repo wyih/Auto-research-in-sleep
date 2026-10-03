@@ -43,6 +43,8 @@ Before writing, check `CLAIMS_FROM_EVIDENCE.md`. Match verbs to evidence:
 
 If `SOURCE_CLAIM_AUDIT.md` exists, fix or avoid any claim marked `MAJOR_DISTORTION`, `UNVERIFIABLE`, or `UNVERIFIABLE_ACCESS`. If it does not exist and the draft relies on literature, institutional facts, or citation-supported claims, route through `business-claim-source-audit` before submission-facing prose.
 
+When a passage needs supporting references, use `business-lit-review` in `reference_match` mode. Apply the shared `Literature Claim Matching` rules in `../shared-references/business-claim-source-audit.md` to the proposed citation and reuse verified matches without raising the project's claim ceiling.
+
 If `AUTHOR_STYLE_PROFILE.md` exists, apply it after claim ceilings are set. Journal and discipline norms override personal style.
 
 ### Step 2: Apply Style Profile

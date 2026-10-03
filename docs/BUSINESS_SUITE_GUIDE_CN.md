@@ -42,7 +42,7 @@
 # 1. 克隆仓库并切到本 release
 git clone https://github.com/wyih/Auto-research-in-sleep.git
 cd Auto-research-in-sleep
-git checkout business-research-suite-v0.9.1
+git checkout business-research-suite-v0.9.2
 ```
 
 **Kimi Code 用户:**
@@ -132,6 +132,7 @@ kimi        # Kimi Code 用户;Codex 用户用 codex;Claude Code 用户用 claud
 | 选题 | 「帮我围绕 X 生成选题」 | 生成多个研究问题,给出理论路径和数据可得性评估 | 选题清单与排序 |
 | 查新 | 「这个选题有人做过吗」 | 对 SSRN/NBER/期刊/工作论文找最近邻,判断增量与风险 | 查新报告 |
 | 文献综述 | 「帮我梳理 X 领域的文献」 | 画文献版图、找核心对话;需要全文时走授权渠道获取并逐篇验证 | 综述 + 方法卡 |
+| 引用匹配 | 「给引言这段话找支持文献,只从这些候选论文里选」 | 将段落拆成可核对的主张,按直接支持、理论支持和文献对话匹配,记录来源版本及证据位置 | 主张地图 + 引用匹配表 + 可用措辞 |
 | 研究设计 | 「帮我设计实证方案」 | 先分流方法(档案/实验/问卷/实地/案例/设计科学/规范),再做样本、变量、识别策略、模型、表壳和可行性检查 | 设计文档(案例研究会产出 `CASE_PROTOCOL.md`) |
 | 拿数据 | 「帮我把数据拉下来」 | 按来源走路由:公开数据走数据源插件;WRDS 走 R/Postgres;CSMAR/CNRDS 走你浏览器登录态导出 | 数据文件 + 来源清单(`DATASOURCE_RECEIPT.json`) |
 | 公开数据 | 「获取这些公司的 10-K、XBRL，或这些 FRED 指标」 | 校验 CIK、申报／事件日期、单位、频率和历史版本；走可用连接器或官方 API | 核验后的数据文件 + 定义与来源记录 |
@@ -190,7 +191,7 @@ bash tools/smart_update_kimi.sh --apply --project ~/my-thesis
 ```bash
 cd Auto-research-in-sleep
 git fetch origin --tags
-git checkout business-research-suite-v0.9.1
+git checkout business-research-suite-v0.9.2
 
 # Codex 线:
 bash tools/install_aris_codex.sh ~/my-thesis --groups business-research --reconcile --office-author "你的名字"
@@ -223,6 +224,8 @@ bash tools/install_aris.sh ~/my-thesis --platform claude --uninstall
 - **想知道审稿意见可信吗** → 审阅类 skill 默认是同族模型互审,结果诚实标注 `same-family / provisional`;需要跨族复审时,按 `docs/KIMI_ADAPTATION.md` 注册 `mcp-servers/llm-chat`。
 
 ## 近期技能增补
+
+v0.9.2 为 `business-lit-review` 增加 `reference_match` 模式,用于给具体句子或段落匹配文献。你可以说「给引言第二段找引用,优先近五年的会计期刊」或「只在我提供的论文里找支持这两句话的证据」。输出逐项对应主张、引用角色、核验结论、来源版本和证据位置,并提供可用的引用措辞；具体方法和机制陈述按需要核对全文。已有引用的准确性由 `business-claim-source-audit` 使用同一套规则核验。
 
 v0.9.1 补充 Cochrane/McCloskey/Shapiro 写作传统的可选全稿指南、学术文本编辑方法，以及会计和金融领域的预审检查。你可以说「按 Cochrane 风格修改这一节」或「清理套话并保留原有论证和证据强度」；已有稿件按你的要求保留组织与声音。分析继续以 R/fixest 为新项目默认，Python 文本预处理也可接回 R 估计。文献检索沿用现有来源、全文获取与综合流程。
 

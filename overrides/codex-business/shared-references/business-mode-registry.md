@@ -8,6 +8,7 @@ Named outputs describe full-stage artifacts. Standalone requests may use existin
 |---|---|---|---|
 | `scope` | Broad topic, unclear RQ, early business idea | `business-idea-creator` | candidate RQs |
 | `lit-review` | Need field map, closest papers, journal conversation | `business-lit-review` | `BUSINESS_LIT_REVIEW.md` |
+| `reference-match` | Need supporting literature for a specific manuscript sentence or paragraph | `business-lit-review` (`reference_match`) | claim map + verified reference matches and usable wording |
 | `fulltext` | Need a verified local PDF from OA, CNKI, ScienceDirect, or another authorized channel | `fulltext-acquire` | `FULLTEXT_MANIFEST.md` + PDF/gap |
 | `method` | Need sample, variables, measures, identification, or merge keys from verified fulltext | `method-harvest` | `*_METHOD_CARD.md` |
 | `novelty` | Need closest-paper delta and risk framing | `business-novelty-check` | `BUSINESS_NOVELTY_CHECK.md` |
@@ -39,6 +40,7 @@ Named outputs describe full-stage artifacts. Standalone requests may use existin
 ## Routing Rules
 
 - When the user has only a broad topic, start with `scope` or `lit-review`.
+- When a passage needs supporting references, use `reference-match`. Checking existing citations uses `source-claim-audit`; a missing citation can return to `reference-match`. Standalone matching does not require the map/synthesis artifact set.
 - When a design claim depends on a paper's method, route `fulltext` then `method`; metadata alone is insufficient.
 - Before freezing a numerical gate, starting high-cost acquisition, or declaring STOP, route `feasibility-gates` and apply `business-feasibility-gates.md`.
 - When a data plan names WRDS, route `wrds` first and use `wrds-sas` only after its escalation gate. Route CSMAR/CNRDS to `cn-data`.

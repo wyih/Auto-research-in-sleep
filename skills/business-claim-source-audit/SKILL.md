@@ -41,6 +41,8 @@ Extract claims that need support:
 - headline empirical interpretations
 - case-study projects: case facts, event dates and sequences, quoted material, stage divisions, and cross-case comparative claims
 
+For literature citations, use the shared reference's `Literature Claim Matching` rules to split compound claims and record the intended citation role separately from the verification verdict.
+
 ### Step 2: Verify Support
 
 For each claim, check the cited source or project artifact. Assign:
@@ -67,7 +69,7 @@ Compare causal and mechanism language against `CLAIMS_FROM_EVIDENCE.md`. A suppo
 
 - Fix wording when support exists but the prose overstates it.
 - Add `SOURCE_NEEDED` when support is missing.
-- Return to `business-lit-review` or source collection when literature support is absent.
+- Return to `business-lit-review` in `reference_match` mode when a manuscript passage needs supporting literature; use source collection for non-literature facts.
 - Return to `evidence-to-claim` when empirical wording is too strong.
 
 ## Output
@@ -84,7 +86,7 @@ GATE2: PASS | REOPEN_TEXT | REOPEN_SOURCES | REOPEN_ANALYSIS
 | Claim ID | Location | Claim Type | Claim Text | Cited Support |
 
 ## Source Support Table
-| Claim ID | Source Checked | Verdict | Evidence | Required Fix |
+| Claim ID | Source Checked / Version | Citation Role | Verdict | Evidence / Location | Required Fix |
 
 ## Unverified Or Distorted Claims
 ## Citation Repairs
