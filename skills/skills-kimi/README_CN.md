@@ -3,7 +3,7 @@
 ARIS skill 集合的 Kimi Code CLI 原生包 —— 第三条发行线，与
 `skills/skills-codex/` 平级。完整说明见 [README.md](README.md)。
 
-- 覆盖 `skills/` 主线全部 `110` 个 skill 与 `44/44` 个 shared-references。
+- 覆盖 `skills/` 主线全部 `111` 个 skill 与 `44/44` 个 shared-references。
 - 28 个 business portable skill 与 13 个 portable reference 与 canonical
   `skills/` 字节一致；其余内容由 `tools/build_skills_kimi.py` 从
   `skills/skills-codex/` 机械转换（幂等，`--check` 校验）。

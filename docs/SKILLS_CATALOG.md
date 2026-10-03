@@ -1,6 +1,6 @@
 # ARIS Skills Catalog
 
-Every skill that ships with ARIS, grouped by role. **110 skills** as of the
+Every skill that ships with ARIS, grouped by role. **111 skills** as of the
 latest update; new skills land via PR and get added to the table below.
 
 - Each `Skill` link goes to the canonical `SKILL.md` (the LLM-readable spec).
@@ -90,7 +90,7 @@ Paper retrieval, summarization, novelty verification.
 | [`/web-debug-search`](../skills/web-debug-search/SKILL.md) | Multi-source debugging search across GitHub, Stack Exchange, Chinese technical communities, and general web — routing, compatibility, and discovery-only results | None |
 | [`/openalex`](../skills/openalex/SKILL.md) | OpenAlex API search — 250M+ open citation graph, institutional affiliations, funding data | `pip install requests` |
 | [`/gemini-search`](../skills/gemini-search/SKILL.md) | Gemini-driven literature discovery — decomposes topics into sub-problems, aliases, variants | `gemini-cli` v0.40+ |
-| [`/alphaxiv`](../skills/alphaxiv/SKILL.md) | Quick single-paper lookup via [AlphaXiv](https://alphaxiv.org) — three-tier fallback (overview → markdown → LaTeX source) | None |
+| [`/alphaxiv`](../skills/alphaxiv/SKILL.md) | Quick single-paper lookup via [AlphaXiv](https://www.alphaxiv.org) — three-tier fallback (overview → markdown → LaTeX source) | None |
 | [`/comm-lit-review`](../skills/comm-lit-review/SKILL.md) | Communications-domain literature review with Claude-style knowledge-base-first retrieval — wireless / networking / satellite / Wi-Fi / cellular | None |
 | [`/novelty-check`](../skills/novelty-check/SKILL.md) | Verify a research idea is novel against recent literature — multi-source search + cross-model verification + closest-prior-work table | Codex MCP |
 
@@ -120,6 +120,7 @@ GPU job submission, scheduling, monitoring, profiling.
 
 | Skill | Role | Requires |
 |---|---|---|
+| [`/research-implement-feature`](../skills/research-implement-feature/SKILL.md) | Build from a plain "implement X" request — runnable spine first, then one feature per rung; every under-determined decision declared in an assumption ledger before the code depends on it, plus a cross-model sweep for the ones that slipped through undeclared | Codex MCP |
 | [`/run-experiment`](../skills/run-experiment/SKILL.md) | Deploy experiments to local / remote / Vast.ai / Modal GPU | GPU (configurable) |
 | [`/monitor-experiment`](../skills/monitor-experiment/SKILL.md) | Monitor running experiments, check progress, collect results | None |
 | [`/analyze-results`](../skills/analyze-results/SKILL.md) | Compute statistics, generate comparison tables, surface insights from experiment results | None |

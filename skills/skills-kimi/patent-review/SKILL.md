@@ -19,7 +19,7 @@ Adapted from `/research-review`. The reviewer persona is a patent examiner, not 
 
 ## Prerequisites
 
-- A reviewer channel: the default is a fresh Kimi Code subagent (no setup); for a cross-family accepted route, register the `llm-chat` MCP server in your Kimi Code configuration (see the MCP registry in SETUP_GUIDE.md §3.2).
+- Kimi Code Agent tool available for fresh reviewer subagents.
 
 ## Inputs
 

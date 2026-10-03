@@ -29,7 +29,7 @@ SHARED_REF = REPO_ROOT / "skills" / "shared-references" / "business-confident-pr
 
 # sha256 of the upstream block as last synced. Bump this constant together
 # with a content refresh of business-confident-prose.md.
-UPSTREAM_BLOCK_SHA256 = "ca17bd19079f3f1f750648f6d6717bdd059c6941affbde8a50bf8aa8bd930ebb"
+UPSTREAM_BLOCK_SHA256 = "efedae748a34478c57a3bdffe2a6e8221e7798708ed464bd06159b0c29d7de22"
 
 
 def upstream_confident_prose_block() -> str:

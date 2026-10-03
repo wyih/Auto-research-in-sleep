@@ -55,7 +55,7 @@ LEAK_PATTERNS = {
     "reasoning_effort": r"reasoning_effort",
     "xhigh effort": r"\bxhigh\b",
     "ultra effort": r"\bultra\b",
-    "gpt-5.x model name": r"(?i)gpt-5",
+    "GPT reviewer model name": r"(?i)gpt-[56]",
     "skills-codex": r"skills-codex",
     "installed-skills-codex.txt": r"installed-skills-codex",
     "installed-skills.txt": r"installed-skills\.txt",
@@ -103,7 +103,7 @@ def test_kimi_skill_set_matches_codex_line() -> None:
     main_names = skill_names(MAIN_SKILLS)
     codex_names = skill_names(CODEX_SKILLS)
     kimi_names = skill_names(KIMI_SKILLS)
-    assert len(main_names) == 110
+    assert len(main_names) == 111
     assert kimi_names == codex_names == main_names
 
 
@@ -136,7 +136,7 @@ def test_kimi_package_regeneration_is_idempotent() -> None:
         check=False,
     )
     assert result.returncode == 0, result.stderr
-    assert "110 skills" in result.stdout
+    assert "111 skills" in result.stdout
 
 
 def test_kimi_no_codex_leaks_in_non_portable_files() -> None:
@@ -297,4 +297,4 @@ def test_kimi_readme_positions_the_package() -> None:
     assert "install_aris_kimi.sh" in readme
     assert "installed-skills-kimi.txt" in readme
     assert "~/.kimi-code/skills/" in readme
-    assert "`110`" in readme
+    assert "`111`" in readme

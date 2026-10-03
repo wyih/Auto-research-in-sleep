@@ -2,7 +2,8 @@
 
 The anti-defensive-writing contract for the business suite. It tracks the
 `CONFIDENT PROSE, HONEST LIMITS` block in `skills/paper-write/SKILL.md`
-(upstream ARIS #423/#424). `tests/test_confident_prose_sync.py` watches that
+(upstream ARIS #423/#424 and its September 2026 update), adapted to empirical
+business research. `tests/test_confident_prose_sync.py` watches that
 upstream block and fails when it changes — re-sync this file at that point
 instead of letting the business line drift stale.
 
@@ -44,6 +45,28 @@ Tone edits under this contract never upgrade claims.
 8. One argument spine: gap -> question -> design -> evidence -> implication.
    Every section advances it. Front-load the contribution; never narrate the
    drafting or revision process.
+9. Organize the paper around its economic question, strongest supported
+   finding, and incremental contribution. Explain what the evidence adds to
+   the closest studies. When the original prediction is not supported,
+   revise the argument around what the results establish.
+10. Make the relevant comparison explicit: the population, outcome,
+    condition, and benchmark under which the finding holds. Keep definitions,
+    units, aggregation, and time windows comparable. Preserve null, adverse,
+    and mixed findings in the results and their substantive interpretation;
+    explain tradeoffs only when the evidence supports them. Do not select a
+    favorable outcome after seeing the results or relabel a weakness as an
+    advantage.
+11. Give each empirical test an argumentative purpose: estimate the main
+    relationship, assess the proposed mechanism, establish a substantive
+    boundary, or address a plausible alternative explanation. Shorten, move,
+    or redesign tests that do not inform the economic argument, while
+    preserving results material to the conclusion.
+12. State the economic significance of the finding directly: where it holds,
+    what mechanism the evidence supports, and what it changes in the existing
+    explanation. Lead the abstract and introduction with the question, gap,
+    finding, and contribution. The conclusion states what the study
+    establishes and why it matters, with material limits attached to the
+    conclusions they qualify.
 
 ## Scan items for review passes
 

@@ -202,7 +202,7 @@ sibling of `skills/skills-codex/`.
 
 ## Scope
 
-- Base mirror coverage: all `110` mainline skills under `skills/`
+- Base mirror coverage: all `111` mainline skills under `skills/`
 - Support directory: `shared-references/`, with all `44/44` mainline reference
   names mirrored
 - The 28 business portable skills and 13 portable shared references are
@@ -288,7 +288,7 @@ README_CN_MD = """# `skills-kimi`
 ARIS skill 集合的 Kimi Code CLI 原生包 —— 第三条发行线，与
 `skills/skills-codex/` 平级。完整说明见 [README.md](README.md)。
 
-- 覆盖 `skills/` 主线全部 `110` 个 skill 与 `44/44` 个 shared-references。
+- 覆盖 `skills/` 主线全部 `111` 个 skill 与 `44/44` 个 shared-references。
 - 28 个 business portable skill 与 13 个 portable reference 与 canonical
   `skills/` 字节一致；其余内容由 `tools/build_skills_kimi.py` 从
   `skills/skills-codex/` 机械转换（幂等，`--check` 校验）。
@@ -455,6 +455,23 @@ REPLACEMENTS_A: list[tuple[str, str]] = [
     (
         "- ALWAYS use `reasoning_effort: xhigh` for maximum reasoning depth",
         "- ALWAYS delegate reviews at the host's strongest reasoning configuration",
+    ),
+    (
+        "- ALWAYS pin `model: gpt-5.6-sol` + `reasoning_effort: xhigh` on the first spawn of every reviewer. "
+        "`xhigh` is this loop's **regular tier** per [`reviewer-routing.md`](../shared-references/reviewer-routing.md), "
+        "not the maximum — `ultra` belongs to the one-shot deep-audit skills and is slower and costlier per round. "
+        "Do not raise this loop's tier; follow-ups through `send_input` inherit the pair. "
+        "Follow the capability-fallback chain only for explicit capability errors.",
+        "- ALWAYS delegate reviews to a fresh Kimi Code subagent at the host's strongest reasoning configuration "
+        "per [`reviewer-routing.md`](../shared-references/reviewer-routing.md). "
+        "Follow-up reviews resume the saved subagent through `kimi_subagent_continue`. "
+        "The Agent tool exposes no model or reasoning-effort override.",
+    ),
+    (
+        "- Codex MCP Server configured:\n  ```bash\n  "
+        "claude mcp add codex -s user -- python3 \"$HOME/aris_repo/mcp-servers/codex-exec/server.py\""
+        "   # your ARIS clone's path\n  ```",
+        "- Kimi Code Agent tool available for fresh reviewer subagents.",
     ),
     (
         "Invoke `spawn_agent` with `model: gpt-5.6-sol`, `reasoning_effort: xhigh`, and a fresh thread. "
@@ -888,6 +905,9 @@ def _rewrite_send_block(match: re.Match[str]) -> str:
 
 
 def transform_text(text: str) -> str:
+    # Both upstream reviewer defaults map to the same Kimi subagent contract.
+    # Normalize the new name before applying the existing mechanical rules.
+    text = text.replace("gpt-6-astra", "gpt-5.6-sol").replace("GPT-6-Astra", "GPT-5.6-Sol")
     # REPLACEMENTS_A runs on the raw source so its patterns can name protected
     # tokens; the protection pass then shields both surviving source mentions
     # and any protected token an A-rule emitted.
@@ -918,7 +938,7 @@ FORBIDDEN_PATTERNS: list[tuple[str, str]] = [
     ("mcp__codex*", r"mcp__codex"),
     ("chrome:control-chrome", r"chrome:control-chrome"),
     ("codex_native_chrome", r"codex_native_chrome"),
-    ("gpt-5.x model name", r"(?i)gpt-5"),
+    ("GPT reviewer model name", r"(?i)gpt-[56]"),
     ("xhigh effort", r"\bxhigh\b"),
     ("ultra effort", r"\bultra\b"),
     ("skills-codex", r"skills-codex"),

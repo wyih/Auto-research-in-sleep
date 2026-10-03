@@ -211,6 +211,16 @@ mcp__claude-review__review_start:
     claim"), instruction confessions ("we do not address X"), and generic caveats
     outside Limitations as writing defects to remove. Tone fixes must never alter
     facts, negation, modality, scope, comparison direction, or numbers.
+    Also flag narrative defects: a progress-report structure ("we first tried
+    A, then B"), a story built on a metric the method loses, results narrated
+    as defeats ("underperforms", "fails to surpass") instead of explained as a
+    goal difference or tradeoff, experiments with no argumentative duty, an
+    abstract or introduction that opens on background or implementation
+    instead of problem -> gap -> idea -> strongest result, and a conclusion
+    that ends on new self-negation. The fix is reframing and cutting where
+    the evidence supports the reframing; a genuine weakness is stated
+    neutrally and kept in Limitations. Never delete unfavorable numbers from
+    tables, and never dress a weakness as a tradeoff.
 
     ## Paper Files:
     - LaTeX source: [list all section .tex files]
@@ -237,6 +247,12 @@ mcp__claude-review__review_start:
 
     Focus on: theoretical rigor, claims vs evidence alignment, writing clarity,
     self-containedness, notation consistency, AND visual presentation quality.
+    For prose findings, check manufactured "not X, but Y" contrasts and repeated
+    background -> gap -> contribution -> generic implication scaffolds. Keep a
+    contrast when it marks a real evidentiary or conceptual boundary. Otherwise,
+    quote the exact sentence or paragraph, identify the unsupported rhetorical
+    move, and propose a content-bearing rewrite rather than generic advice to
+    "vary structure."
 ```
 
 After this start call, immediately save the returned `jobId` and poll `mcp__claude-review__review_status` with a bounded `waitSeconds` until `done=true`. Treat the completed status payload's `response` as the reviewer output, and save the completed `threadId` for any follow-up round.
@@ -267,6 +283,12 @@ Parse user response same as `/auto-review-loop`: approve / custom instructions /
 
 Parse the review and implement fixes by severity:
 
+Before implementing prose fixes, read `../shared-references/writing-principles.md`.
+Remove manufactured setup clauses when the affirmative claim stands alone, and
+rebuild repeated rhetorical scaffolds from the paper's actual claim and evidence.
+Do not replace one stock phrase with another or delete a contrast that defines a
+real claim boundary.
+
 **Priority order:**
 1. CRITICAL fixes (assumption mismatches, internal contradictions)
 2. MAJOR fixes (overclaims, missing content, notation issues)
@@ -286,13 +308,15 @@ never manuscript content; tone edits never change what the paper knows.
 | Genuine overclaim | Narrow the claim itself to the supported scope/modality — never substitute a softer-sounding synonym for fixing scope, comparison, or aggregation |
 | Supported claim wrapped in caution | Remove the redundant hedges; keep any scope qualifier that makes the claim true |
 | Scattered generic caveats | Consolidate into Limitations and delete the duplicates |
+| Story built on a losing metric, or results narrated as defeats | Reframe around the contest the paper wins; explain the gap as a goal difference or tradeoff when the evidence supports that, otherwise state it neutrally and narrow the claim; keep every number in the table |
+| Experiment with no argumentative duty | Cut, shorten, move to the appendix, or redesign it so it proves the method, the mechanism, the target-scenario value, or rules out an alternative |
 | Missing metrics | Add quantitative table with honest parameter counts and caveats |
 | Theorem not self-contained | Add "Interpretation" paragraph listing all dependencies |
 | Notation confusion | Rename conflicting symbols globally, add Notation paragraph |
 | Missing references | Add to `references.bib`, cite in appropriate locations |
 | Theory-practice gap | Explicitly frame theory as idealized; add synthetic validation subsection |
 | Proof gap (theory papers) | Run `/proof-checker` if PROOF_AUDIT.md doesn't exist yet; fix FATAL/CRITICAL issues |
-| Writing clutter / passive voice | Apply sciwrite 5-pass audit: clutter extraction → active voice → sentence architecture → keyword consistency → numerical integrity. See `paper-write` Step 5 |
+| Writing clutter, manufactured contrast, or repeated prose template | Apply the sciwrite 5-pass audit plus the de-AI rhetoric checks in `writing-principles.md`. See `paper-write` Step 5 |
 | Number mismatch (paper vs results) | Run `/paper-claim-audit` if PAPER_CLAIM_AUDIT.md doesn't exist; fix any `number_mismatch` or `aggregation_mismatch` claims |
 | Keyword inconsistency | The "Banana Rule": if Methods says "obese group", Results must not say "heavier group". Extract key terms, verify consistency across all sections |
 
@@ -353,6 +377,16 @@ mcp__claude-review__review_start:
     claim"), instruction confessions ("we do not address X"), and generic caveats
     outside Limitations as writing defects to remove. Tone fixes must never alter
     facts, negation, modality, scope, comparison direction, or numbers.
+    Also flag narrative defects: a progress-report structure ("we first tried
+    A, then B"), a story built on a metric the method loses, results narrated
+    as defeats ("underperforms", "fails to surpass") instead of explained as a
+    goal difference or tradeoff, experiments with no argumentative duty, an
+    abstract or introduction that opens on background or implementation
+    instead of problem -> gap -> idea -> strongest result, and a conclusion
+    that ends on new self-negation. The fix is reframing and cutting where
+    the evidence supports the reframing; a genuine weakness is stated
+    neutrally and kept in Limitations. Never delete unfavorable numbers from
+    tables, and never dress a weakness as a tradeoff.
     Ignore any prior review rounds, prior fix lists, or executor explanations.
     Judge the paper only from the current LaTeX source and compiled PDF.
 
@@ -381,6 +415,12 @@ mcp__claude-review__review_start:
 
     Focus on: theoretical rigor, claims vs evidence alignment, writing clarity,
     self-containedness, notation consistency, and visual presentation quality.
+    For prose findings, check manufactured "not X, but Y" contrasts and repeated
+    background -> gap -> contribution -> generic implication scaffolds. Keep a
+    contrast when it marks a real evidentiary or conceptual boundary. Otherwise,
+    quote the exact sentence or paragraph, identify the unsupported rhetorical
+    move, and propose a content-bearing rewrite rather than generic advice to
+    "vary structure."
 ```
 
 After this start call, immediately save the returned `jobId` and poll `mcp__claude-review__review_status` with a bounded `waitSeconds` until `done=true`. Treat the completed status payload's `response` as the reviewer output, and save the completed `threadId` for any follow-up round.

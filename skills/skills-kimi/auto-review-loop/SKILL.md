@@ -414,7 +414,7 @@ When loop ends (positive assessment or max rounds):
 
 - **Large file handling**: If the Write tool fails due to file size, immediately retry using Bash (`cat << 'EOF' > file`) to write in chunks. Do NOT ask the user for permission — just do it silently.
 
-- ALWAYS delegate reviews at the host's strongest reasoning configuration
+- ALWAYS delegate reviews to a fresh Kimi Code subagent at the host's strongest reasoning configuration per [`reviewer-routing.md`](../shared-references/reviewer-routing.md). Follow-up reviews resume the saved subagent through `kimi_subagent_continue`. The Agent tool exposes no model or reasoning-effort override.
 - Save the agent id from the first call, use Agent-tool `resume` for subsequent rounds
 - Be honest — include negative results and failed experiments
 - Do NOT hide weaknesses to game a positive score
