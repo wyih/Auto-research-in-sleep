@@ -71,6 +71,7 @@ Compare causal and mechanism language against `CLAIMS_FROM_EVIDENCE.md`. A suppo
 - Add `SOURCE_NEEDED` when support is missing.
 - Return to `business-lit-review` in `reference_match` mode when a manuscript passage needs supporting literature; use source collection for non-literature facts.
 - Return to `evidence-to-claim` when empirical wording is too strong.
+- For a concrete `.bib` metadata discrepancy or a requested independent field audit, use the optional `citation-crosscheck` branch and reuse its field-level evidence in this audit.
 
 ## Output
 

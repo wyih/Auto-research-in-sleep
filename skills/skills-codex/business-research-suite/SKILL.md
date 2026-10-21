@@ -32,10 +32,13 @@ Identify the user's material state and requested outcome, then load the focused 
 - Research presentations, discussant decks, or speaker scripts: `business-research-talk`
 - Pre-review or response to reviewers: `business-prereview` or `business-rebuttal`
 - Requested number/source audits: `business-number-audit` or `business-claim-source-audit`
+- Requested `.bib` author, year, venue, or identifier verification: optional `citation-crosscheck`
 - Project continuity: `business-run-passport`
 - Explicit end-to-end work: `business-research-pipeline`
 
 Use `implement-feature` for a requested tool such as an annual-report parser, entity matcher, or variable-construction module. Use the supplied research design for sample, measurement, and identification choices; resolve missing definitions that change a result's meaning before coding. Ordinary estimation and figures use the analysis bridges. Complete this branch when the requested tool runs on representative inputs, its relevant checks pass, and consequential implementation choices are recorded.
+
+Use `citation-crosscheck` for requested bibliographic field checks or a concrete metadata discrepancy. Compare the local `.bib` against independently retrieved records and retain the field-level evidence. Use publisher, Crossref, or verified working-paper records for business research, distinguishing working-paper and published versions. Evaluate whether a citation supports the manuscript claim through `business-claim-source-audit`. This is an optional branch; complete it when the requested entries have verified comparisons or specific access gaps.
 
 Check that the focused skill is available before routing. If a listed skill is absent, complete the requested standalone work with available capabilities when possible; do not pretend the missing workflow ran. Report the specific gap only when a required method, access path, or downstream contract cannot be satisfied. Read [the mode registry](../shared-references/business-mode-registry.md) only when selection remains unclear.
 

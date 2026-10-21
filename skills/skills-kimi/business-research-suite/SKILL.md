@@ -52,6 +52,7 @@ Use the most specific mode:
 - project spine and reproducibility state: `business-run-passport`
 - manuscript number QA: `business-number-audit`
 - source and citation claim QA: `business-claim-source-audit`
+- requested `.bib` author, year, venue, or identifier verification: optional `citation-crosscheck`
 - paper architecture: `business-paper-plan`
 - author voice calibration: `business-author-style-profile`
 - paper drafting or revision: `business-paper-writing`
@@ -61,6 +62,8 @@ Use the most specific mode:
 - staged end-to-end run: `business-research-pipeline`
 
 Use `implement-feature` for a requested tool such as an annual-report parser, entity matcher, or variable-construction module. Use the supplied research design for sample, measurement, and identification choices; resolve missing definitions that change a result's meaning before coding. Ordinary estimation and figures use the analysis bridges. Complete this branch when the requested tool runs on representative inputs, its relevant checks pass, and consequential implementation choices are recorded.
+
+Use `citation-crosscheck` for requested bibliographic field checks or a concrete metadata discrepancy. Compare the local `.bib` against independently retrieved records and retain the field-level evidence. Use publisher, Crossref, or verified working-paper records for business research, distinguishing working-paper and published versions. Evaluate whether a citation supports the manuscript claim through `business-claim-source-audit`. This is an optional branch; complete it when the requested entries have verified comparisons or specific access gaps.
 
 ## Workflow
 

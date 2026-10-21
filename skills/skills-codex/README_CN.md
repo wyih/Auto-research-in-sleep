@@ -82,6 +82,10 @@ bash ~/aris_repo/tools/install_aris_codex.sh ~/your-project --uninstall
 `--skills research-implement-feature`（PowerShell：`-Skills research-implement-feature`）。
 已有受管安装可用 `--reconcile --skills research-implement-feature --skip-new` 添加。
 
+可选的参考文献字段核对入口使用 `citation-crosscheck`，已有受管安装可用
+`--reconcile --skills citation-crosscheck --skip-new` 添加
+（PowerShell：`-Skills citation-crosscheck`）。请求字段核对或发现具体元数据差异时才运行。
+
 四种运行环境需要分别处理：
 
 | 运行环境 | 安装器 | 仓库和项目应放在 | 受管链接 | 受保护浏览器路径 |

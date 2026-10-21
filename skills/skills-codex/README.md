@@ -85,6 +85,11 @@ To enable the suite's optional research-tool implementation route, add
 `-Skills research-implement-feature`). Existing managed installs can add it
 with `--reconcile --skills research-implement-feature --skip-new`.
 
+The optional bibliography-field verification route uses `citation-crosscheck`.
+Add it with `--reconcile --skills citation-crosscheck --skip-new`
+(PowerShell: `-Skills citation-crosscheck`). It runs for a requested field audit
+or a concrete metadata discrepancy, rather than every literature task.
+
 The supported runtime/install combinations are distinct:
 
 | Runtime | Installer | Keep the checkout and project in | Managed links | Protected-browser mode |

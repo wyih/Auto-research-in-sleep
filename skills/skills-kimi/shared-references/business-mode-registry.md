@@ -26,6 +26,7 @@ Use this registry for the `business-research-suite` router and for staged pipeli
 | `claims` | Need result interpretation and claim ceiling | `evidence-to-claim` | `CLAIMS_FROM_EVIDENCE.md` |
 | `number-audit` | Need prose numbers checked against outputs | `business-number-audit` | `BUSINESS_NUMBER_AUDIT.md` |
 | `source-claim-audit` | Need prose/citation claims checked against sources | `business-claim-source-audit` | `SOURCE_CLAIM_AUDIT.md` |
+| `citation-crosscheck` | Requested `.bib` author, year, venue, DOI, or other identifier verification | `citation-crosscheck` | independent record comparisons, field discrepancies, and evidence |
 | `paper-plan` | Need journal paper architecture | `business-paper-plan` | `BUSINESS_PAPER_PLAN.md` |
 | `style-profile` | Need writing sample calibration | `business-author-style-profile` | `AUTHOR_STYLE_PROFILE.md` |
 | `write` | Need manuscript section or full paper drafting | `business-paper-writing` | paper text |
