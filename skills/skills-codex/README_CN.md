@@ -79,7 +79,11 @@ bash ~/aris_repo/tools/install_aris_codex.sh ~/your-project --uninstall
 
 先发布或选定一个不可变的 release tag，然后每台机器都克隆这个固定版本。
 应安装整个 `business-research` 分组，而不是只复制总 Pipeline；该分组是精确的
-24 个便携 Skill 加共享契约。
+28 个便携 Skill 加共享契约。
+
+要启用套件中的可选研究工具开发入口，安装时追加
+`--skills research-implement-feature`（PowerShell：`-Skills research-implement-feature`）。
+已有受管安装可用 `--reconcile --skills research-implement-feature --skip-new` 添加。
 
 四种运行环境需要分别处理：
 

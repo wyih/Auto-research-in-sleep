@@ -85,6 +85,11 @@ machine. Install the `business-research` group rather than copying only the
 pipeline entry point; the group is the exact 28-skill portable suite plus its
 shared references.
 
+To enable the suite's optional research-tool implementation route, add
+`--skills research-implement-feature` to the installer command (PowerShell:
+`-Skills research-implement-feature`). Existing managed installs can add it
+with `--reconcile --skills research-implement-feature --skip-new`.
+
 The supported runtime/install combinations are distinct:
 
 | Runtime | Installer | Keep the checkout and project in | Managed links | Protected-browser mode |

@@ -21,6 +21,7 @@ Named outputs describe full-stage artifacts. Standalone requests may use existin
 | `text-measures` | Need financial/disclosure text scores and construct validation | `business-text-measures` | score dataset, code, and validation notes |
 | `figures` | Need publication figures from data or saved estimates | `data-analysis-bridge` | reproducible figures and source outputs |
 | `analysis` | Need R/Stata/Python analysis execution | `data-analysis-bridge` | `RESULTS_SUMMARY.md` |
+| `implement-feature` | Need to build or extend a research utility from a capability request | `research-implement-feature` | runnable tool, acceptance checks, and declared implementation assumptions |
 | `explain-change` | Need to understand a code revision's effects on sample, estimates, and claims | `data-analysis-bridge` (`explain-change`) | evidence-backed before/after explanation |
 | `audit-code` | Need an independent correctness audit of empirical code | `data-analysis-bridge` (`audit-code`) | confirmed findings and unresolved checks |
 | `independent-check` | Need a separate implementation of a key analysis from its specification | `data-analysis-bridge` (`independent-check`) | separate code and aligned output comparison |
@@ -50,3 +51,4 @@ Named outputs describe full-stage artifacts. Standalone requests may use existin
 - Route Word packaging to `results-docx` only after reproducible tidy outputs exist.
 - Verify submission-facing numbers and source support. Run separate `number-audit` and `source-claim-audit` workflows when requested, required by the project's submission workflow, or needed to resolve a substantive verification gap.
 - When the user asks for "which skill should I use", start with this registry and choose one mode.
+- Use `implement-feature` for requested research-tool development. Keep sample, measurement, and identification definitions tied to the supplied design; resolve missing result-defining choices before building. Ordinary estimation and figures use the analysis bridges.

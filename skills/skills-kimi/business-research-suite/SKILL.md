@@ -44,6 +44,7 @@ Use the most specific mode:
 - public SEC filings/XBRL or official macro series: `business-public-data`
 - financial/disclosure text measure construction and validation: `business-text-measures`
 - backend-neutral analysis coordination or empirical figures: `data-analysis-bridge`
+- build or extend a research utility: `research-implement-feature` in the optional `implement-feature` branch
 - R analysis: `r-analysis-bridge`
 - Stata analysis: `stata-analysis-bridge`
 - standalone academic results Word document: `results-to-docx`
@@ -58,6 +59,8 @@ Use the most specific mode:
 - research presentations, discussant decks, or speaker scripts: `business-research-talk`
 - response to reviewers: `business-rebuttal`
 - staged end-to-end run: `business-research-pipeline`
+
+Use `implement-feature` for a requested tool such as an annual-report parser, entity matcher, or variable-construction module. Use the supplied research design for sample, measurement, and identification choices; resolve missing definitions that change a result's meaning before coding. Ordinary estimation and figures use the analysis bridges. Complete this branch when the requested tool runs on representative inputs, its relevant checks pass, and consequential implementation choices are recorded.
 
 ## Workflow
 

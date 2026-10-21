@@ -22,6 +22,7 @@ Identify the user's material state and requested outcome, then load the focused 
 - Public SEC filings/XBRL or official macro series: `business-public-data`
 - Financial/disclosure text measures and construct validation: `business-text-measures`
 - Analysis or empirical figures: `data-analysis-bridge`, `r-analysis-bridge`, or `stata-analysis-bridge`
+- Build or extend a research utility: `research-implement-feature` in the optional `implement-feature` branch
 - Explain how an analysis change affects samples and results: `data-analysis-bridge` in `explain-change` mode
 - Independently audit empirical code for correctness: `data-analysis-bridge` in `audit-code` mode
 - Independently reimplement a key analysis from its specification: `data-analysis-bridge` in `independent-check` mode
@@ -33,6 +34,8 @@ Identify the user's material state and requested outcome, then load the focused 
 - Requested number/source audits: `business-number-audit` or `business-claim-source-audit`
 - Project continuity: `business-run-passport`
 - Explicit end-to-end work: `business-research-pipeline`
+
+Use `implement-feature` for a requested tool such as an annual-report parser, entity matcher, or variable-construction module. Use the supplied research design for sample, measurement, and identification choices; resolve missing definitions that change a result's meaning before coding. Ordinary estimation and figures use the analysis bridges. Complete this branch when the requested tool runs on representative inputs, its relevant checks pass, and consequential implementation choices are recorded.
 
 Check that the focused skill is available before routing. If a listed skill is absent, complete the requested standalone work with available capabilities when possible; do not pretend the missing workflow ran. Report the specific gap only when a required method, access path, or downstream contract cannot be satisfied. Read [the mode registry](../shared-references/business-mode-registry.md) only when selection remains unclear.
 

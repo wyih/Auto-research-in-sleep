@@ -19,6 +19,7 @@ Use this registry for the `business-research-suite` router and for staged pipeli
 | `text-measures` | Need financial/disclosure text scores and construct validation | `business-text-measures` | score dataset, code, and validation notes |
 | `figures` | Need publication figures from data or saved estimates | `data-analysis-bridge` | reproducible figures and source outputs |
 | `analysis` | Need R/Stata/Python analysis execution | `data-analysis-bridge` | `RESULTS_SUMMARY.md` |
+| `implement-feature` | Need to build or extend a research utility from a capability request | `research-implement-feature` | runnable tool, acceptance checks, and declared implementation assumptions |
 | `r-analysis` | R, Quarto, Rmd, fixest, tidyverse workflow | `r-analysis-bridge` | R outputs |
 | `stata-analysis` | Stata, do-files, dta workflow | `stata-analysis-bridge` | Stata outputs |
 | `results-docx` | Need standalone academic regression/descriptive tables in Word | `results-to-docx` | verified results `.docx` + manifest |
@@ -44,3 +45,4 @@ Use this registry for the `business-research-suite` router and for staged pipeli
 - Route Word packaging to `results-docx` only after reproducible tidy outputs exist.
 - Before submission-ready writing, run `number-audit` and `source-claim-audit`.
 - When the user asks for "which skill should I use", start with this registry and choose one mode.
+- Use `implement-feature` for requested research-tool development. Keep sample, measurement, and identification definitions tied to the supplied design; resolve missing result-defining choices before building. Ordinary estimation and figures use the analysis bridges.
