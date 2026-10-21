@@ -2,10 +2,19 @@
 name: specification-writing
 description: "Write the full patent specification from claims and invention disclosure. Use when user says \"撰写说明书\", \"write specification\", \"写说明书\", \"patent description\", or wants to draft the complete patent specification."
 argument-hint: "[claims-path]"
-allowed-tools: Bash(*), Read, Write, Edit, Grep, Glob, Skill, WebSearch, WebFetch
+allowed-tools: Bash(*), Read, Write, Edit, Grep, Glob, Skill, WebSearch, WebFetch, mcp__antigravity__antigravity, mcp__antigravity__antigravity-reply, mcp__grok__grok, mcp__grok__grok-reply, mcp__claude-review__review, mcp__claude-review__review_reply, mcp__claude-review__review_start, mcp__claude-review__review_reply_start, mcp__claude-review__review_status
 ---
 
 # Specification Writing: Section-by-Section Patent Description
+
+> **Before each reviewer slot**, follow [Kimi reviewer routing](../shared-references/reviewer-routing.md).
+> Use a fresh Kimi Code Agent-tool subagent at the host's strongest reasoning
+> configuration. The Agent tool exposes no model or reasoning-effort override.
+> For an explicitly selected cross-family review, use the configured `llm-chat`
+> route and its own call contract. Preserve fresh contexts, evidence, working
+> directory, review scope, and deterministic checks; record the actual reviewer
+> identity and classify acceptance from the completed review.
+
 
 Write the patent specification based on: **$ARGUMENTS**
 
@@ -153,6 +162,8 @@ If any element lacks support, add the necessary description before proceeding.
 ### Step 10: Fresh-Agent Review (same-family provisional by default)
 
 Call `REVIEWER_MODEL` via a fresh Kimi Code reviewer subagent at the host's strongest reasoning configuration:
+
+> Resolve this reviewer slot through `reviewer-routing.md`; the following uses the default Kimi Code Agent tool.
 
 ```text
 kimi_subagent:

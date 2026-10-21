@@ -5,6 +5,15 @@ description: "Draft a structured grant proposal from research ideas and literatu
 
 # Grant Proposal: From Research Ideas to Fundable Application
 
+> **Before each reviewer slot**, follow [Kimi reviewer routing](../shared-references/reviewer-routing.md).
+> Use a fresh Kimi Code Agent-tool subagent at the host's strongest reasoning
+> configuration. The Agent tool exposes no model or reasoning-effort override.
+> For an explicitly selected cross-family review, use the configured `llm-chat`
+> route and its own call contract. Preserve fresh contexts, evidence, working
+> directory, review scope, and deterministic checks; record the actual reviewer
+> identity and classify acceptance from the completed review.
+
+
 Draft a grant proposal based on: **$ARGUMENTS**
 
 ## Overview
@@ -423,11 +432,13 @@ Invoke `/research-review` on the complete draft for grant-type-specific evaluati
 - Provides ranked action items for improvement
 - All feedback saved to `grant-proposal/GRANT_REVIEW.md`
 
-> ⚠️ **External review fallback**: If reviewer agents are unavailable, skip external review. Note "External review skipped — no reviewer agent available. Consider running `/auto-review-loop-llm` separately." in `GRANT_REVIEW.md`. The proposal is still usable without external review.
+> If the selected reviewer is unavailable, record `REVIEW_UNAVAILABLE` in `GRANT_REVIEW.md`. The proposal remains an explicitly unreviewed draft; do not switch providers automatically.
 
 If `/research-review` is invoked (preferred), it handles the external review internally. If you run the reviewer directly, use `kimi_subagent` for Round 1 and `kimi_subagent_continue` for follow-up rounds.
 
 #### Round 1 (full draft review):
+
+> Resolve this reviewer slot through `reviewer-routing.md`; the following uses the default Kimi Code Agent tool.
 
 ```text
 kimi_subagent:
@@ -459,6 +470,8 @@ Save the returned reviewer agent id in `GRANT_STATE.json` if you want to continu
 #### Round 2+ (after revisions):
 
 If MAX_REVIEW_ROUNDS > 1 and revisions were applied:
+
+> Resolve this reviewer slot through `reviewer-routing.md`; the following uses the default Kimi Code Agent tool.
 
 ```text
 kimi_subagent_continue:

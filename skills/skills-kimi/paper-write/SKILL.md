@@ -5,6 +5,15 @@ description: "Draft LaTeX paper section by section from an outline. Use when use
 
 # Paper Write: Section-by-Section LaTeX Generation
 
+> **Before each reviewer slot**, follow [Kimi reviewer routing](../shared-references/reviewer-routing.md).
+> Use a fresh Kimi Code Agent-tool subagent at the host's strongest reasoning
+> configuration. The Agent tool exposes no model or reasoning-effort override.
+> For an explicitly selected cross-family review, use the configured `llm-chat`
+> route and its own call contract. Preserve fresh contexts, evidence, working
+> directory, review scope, and deterministic checks; record the actual reviewer
+> identity and classify acceptance from the completed review.
+
+
 Draft a LaTeX paper based on: **$ARGUMENTS**
 
 ## Constants
@@ -318,6 +327,8 @@ First apply the sentence-level clarity rules from `../shared-references/writing-
 ### Step 6: Cross-Review with REVIEWER_MODEL
 
 Send the complete draft to host-strongest subagent:
+
+> Resolve this reviewer slot through `reviewer-routing.md`; the following uses the default Kimi Code Agent tool.
 
 ```text
 kimi_subagent:

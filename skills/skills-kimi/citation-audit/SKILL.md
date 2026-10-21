@@ -2,14 +2,23 @@
 name: citation-audit
 description: "Zero-context verification that every bibliographic entry in the paper is real, correctly attributed, and used in a context the cited paper actually supports — catching hallucinated authors, wrong years, fabricated venues, version mismatches, and wrong-context citations. Use when user says \"审查引用\", \"check citations\", \"citation audit\", \"verify references\", \"引用核对\", or before submission to ensure bibliography integrity."
 argument-hint: "[paper-directory-or-bib-file] [--uncited] [— soft-only]"
-allowed-tools: Bash(*), Read, Grep, Glob, Edit, Write, WebSearch, WebFetch
+allowed-tools: Bash(*), Read, Grep, Glob, Edit, Write, WebSearch, WebFetch, mcp__antigravity__antigravity, mcp__antigravity__antigravity-reply, mcp__grok__grok, mcp__grok__grok-reply, mcp__claude-review__review, mcp__claude-review__review_reply, mcp__claude-review__review_start, mcp__claude-review__review_reply_start, mcp__claude-review__review_status
 ---
 
 # Citation Audit
 
+> **Before each reviewer slot**, follow [Kimi reviewer routing](../shared-references/reviewer-routing.md).
+> Use a fresh Kimi Code Agent-tool subagent at the host's strongest reasoning
+> configuration. The Agent tool exposes no model or reasoning-effort override.
+> For an explicitly selected cross-family review, use the configured `llm-chat`
+> route and its own call contract. Preserve fresh contexts, evidence, working
+> directory, review scope, and deterministic checks; record the actual reviewer
+> identity and classify acceptance from the completed review.
+
+
 > **Kimi Code assurance:** base audit artifacts record
 > `review_independence: same-family` and `acceptance_status: provisional`.
-> Cross-family overlays or deterministic metadata checks may record accepted;
+> Completed positive reviews with known different families, or deterministic metadata checks, may record accepted;
 > unavailable semantic review emits BLOCKED.
 
 Verify every `\cite{...}` in a paper against three independent layers:
@@ -80,6 +89,8 @@ Save the extracted contexts to `paper/.aris/citation-audit/contexts.txt` so the 
 ### Step 3: Send each entry to a fresh reviewer (same-family provisional by default)
 
 For each **cited** bib entry — i.e., each key in `cited_keys` with at least one extracted citation context — launch a fresh Kimi Code subagent reviewer agent. Do not reuse the same reviewer across entries. Do **not** spawn an agent for entries in `bib_keys \ cited_keys`; those are detect-only and surface only when `--uncited` is explicitly enabled (see "Uncited Entry Detection" below).
+
+> Resolve this reviewer slot through `reviewer-routing.md`; the following uses the default Kimi Code Agent tool.
 
 ```text
 kimi_subagent:
@@ -291,7 +302,7 @@ If the bib file cannot be read well enough to audit even the cited entries, fall
 | `/paper-claim-audit` | Numerical claims in manuscript | Number inflation, best-seed cherry-pick, config mismatch |
 | `/citation-audit` | Bibliographic entries | Hallucinated refs, wrong-context citations, metadata errors |
 
-Together: code → result → numerical claim → cited claim. Each layer uses a fresh validator context; base Kimi Code results are same-family provisional and overlays may be cross-family accepted.
+Together: code → result → numerical claim → cited claim. Each layer uses a fresh validator context; base Kimi Code results are same-family provisional and completed positive reviews with known different model families may be cross-family accepted.
 
 ## Known Limitations
 
@@ -422,8 +433,8 @@ The artifact conforms to the schema in `shared-references/assurance-contract.md`
   "executor_family":  "openai",
   "reviewer_model":   "the host reviewer model",
   "reviewer_family":  "openai",
-  "review_independence": "same-family",
-  "acceptance_status": "provisional",
+  "review_independence": "<actual family comparison>",
+  "acceptance_status": "<actual acceptance status>",
   "reviewer_reasoning": "host-strongest",
   "generated_at":     "<UTC ISO-8601>",
   "details": {

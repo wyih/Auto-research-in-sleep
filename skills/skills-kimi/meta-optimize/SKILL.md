@@ -2,10 +2,19 @@
 name: meta-optimize
 description: "Analyze ARIS usage logs and propose optimizations to SKILL.md files, reviewer prompts, and workflow defaults. Outer-loop harness optimization inspired by Meta-Harness (Lee et al., 2026). Use when user says \"优化技能\", \"meta optimize\", \"improve skills\", \"分析使用记录\", or wants to optimize ARIS's own harness components based on accumulated experience."
 argument-hint: "[target-skill-or-all]"
-allowed-tools: Bash(*), Read, Write, Edit, Grep, Glob
+allowed-tools: Bash(*), Read, Write, Edit, Grep, Glob, mcp__antigravity__antigravity, mcp__antigravity__antigravity-reply, mcp__grok__grok, mcp__grok__grok-reply, mcp__claude-review__review, mcp__claude-review__review_reply, mcp__claude-review__review_start, mcp__claude-review__review_reply_start, mcp__claude-review__review_status
 ---
 
 # Meta-Optimize: Outer-Loop Harness Optimization for ARIS
+
+> **Before each reviewer slot**, follow [Kimi reviewer routing](../shared-references/reviewer-routing.md).
+> Use a fresh Kimi Code Agent-tool subagent at the host's strongest reasoning
+> configuration. The Agent tool exposes no model or reasoning-effort override.
+> For an explicitly selected cross-family review, use the configured `llm-chat`
+> route and its own call contract. Preserve fresh contexts, evidence, working
+> directory, review scope, and deterministic checks; record the actual reviewer
+> identity and classify acceptance from the completed review.
+
 
 Analyze accumulated usage logs and propose optimizations for: **$ARGUMENTS**
 
@@ -186,9 +195,11 @@ For each optimization target, generate a concrete diff:
   it. Warn-and-skip only when the helper cannot be resolved. See
   [`capture-antipatterns.md`](../shared-references/capture-antipatterns.md).
 
-### Step 4: Fresh-Agent Review of Patches (same-family provisional)
+### Step 4: Fresh Review of Patches (same-family stays provisional)
 
 Send each patch to host-strongest subagent for adversarial review:
+
+> Resolve this reviewer slot through `reviewer-routing.md`; the following uses the default Kimi Code Agent tool.
 
 ```text
 kimi_subagent:
@@ -295,7 +306,7 @@ If user runs `/meta-optimize apply [N]`:
 
 - **Log-driven, not speculative.** Every proposed change must cite specific data from the event log. No "I think this would be better."
 - **Minimal patches.** Change one thing at a time. Don't rewrite entire skills — the one sanctioned large edit is a scaffolding **deletion** backed by TARGET-SPECIFIC model-delta evidence (capability-specific release note, or repeated post-bump event-log behavior; a model-name change alone is never sufficient). Privilege boundaries, acceptance gates, corpus/provenance rules, output contracts, and safety checks are never deletion candidates. Deletions go through the same review + approval gates.
-- **Reviewer-gated.** Every patch goes through fresh-agent same-family provisional review before recommendation.
+- **Reviewer-gated.** Every patch goes through a fresh selected review before recommendation; same-family positives remain provisional.
 - **Reversible.** Always back up before applying. Always log what changed.
 - **User-approved.** Never auto-apply. Present, explain, let the user decide.
 - **Honest about uncertainty.** If the data is insufficient, say so. Don't optimize on noise.

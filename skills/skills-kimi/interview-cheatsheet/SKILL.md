@@ -2,12 +2,21 @@
 name: interview-cheatsheet
 description: "Generate a long-form Chinese interview-prep cheat sheet on a specific ML/LLM topic — formulas with derivations, from-scratch PyTorch code, comparison tables, and 25 高频面试题 (L1 必会 / L2 进阶 / L3 顶级 lab). Use when the user says '写面试 cheat sheet', '写一份 X 教程', '帮我准备 Y 面试题', '出一份 X 速查', or wants a 600-1000 line Chinese tutorial on a specific ML topic."
 argument-hint: '<topic> [--effort balanced|max] [--byline "Name (姓名), Affiliation"] [--commit false]'
-allowed-tools: Bash(*), Read, Write, Edit, Agent
+allowed-tools: Bash(*), Read, Write, Edit, Agent, mcp__antigravity__antigravity, mcp__antigravity__antigravity-reply, mcp__grok__grok, mcp__grok__grok-reply, mcp__claude-review__review, mcp__claude-review__review_reply, mcp__claude-review__review_start, mcp__claude-review__review_reply_start, mcp__claude-review__review_status
 ---
 
 # /interview-cheatsheet — long-form Chinese ML/LLM interview prep
 
-Generate one comprehensive Chinese cheat sheet per invocation: formulas + derivations + from-scratch code + 25 高频题. Output receives fresh-agent same-family provisional math/code review before rendering. **Detect-only by default: never auto-commits.**
+> **Before each reviewer slot**, follow [Kimi reviewer routing](../shared-references/reviewer-routing.md).
+> Use a fresh Kimi Code Agent-tool subagent at the host's strongest reasoning
+> configuration. The Agent tool exposes no model or reasoning-effort override.
+> For an explicitly selected cross-family review, use the configured `llm-chat`
+> route and its own call contract. Preserve fresh contexts, evidence, working
+> directory, review scope, and deterministic checks; record the actual reviewer
+> identity and classify acceptance from the completed review.
+
+
+Generate one comprehensive Chinese cheat sheet per invocation: formulas + derivations + from-scratch code + 25 高频题. Output receives a fresh selected math/code review before rendering; same-family positives remain provisional. **Detect-only by default: never auto-commits.**
 
 ## Inputs
 
@@ -74,7 +83,7 @@ If the topic is too broad to fit in one cheat sheet, **stop and ask the user to 
 
 Write directly to `docs/tutorials/<slug>_tutorial.md`. Follow the style guide. Length target: 600 lines (balanced) or 1000 lines (max), ±20%.
 
-### Step 3 — Fresh-agent math/code review (Kimi Code host-strongest subagent, same-family provisional)
+### Step 3 — Fresh selected math/code review (Kimi Code default host-strongest; same-family stays provisional)
 
 Invoke the Kimi Code Agent tool with a fresh subagent at the host's strongest reasoning configuration. Do not reuse prior reviewer context.
 
@@ -209,7 +218,7 @@ Suggest the row to the user but let them edit it in themselves if they want to c
 
 | Invariant | How it's enforced |
 |---|---|
-| Executor/reviewer family | Kimi Code drafts; fresh the host reviewer model reviews (math/code stage and render stage), same-family provisional |
+| Executor/reviewer family | Record actual executor/reviewer identities at both stages; same-family positives remain provisional |
 | Fresh agent per reviewer call | Step 3 + render's own gate both use fresh `kimi_subagent` calls, not `kimi_subagent_continue` |
 | Reviewer reasoning = host's strongest configuration | Hardcoded in Step 3 reviewer delegation |
 | Personal info redaction | Both math/code reviewer and render reviewer check; banlist in style guide |

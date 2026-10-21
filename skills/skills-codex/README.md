@@ -4,21 +4,16 @@ Codex-native mirror and adaptation layer for the main ARIS `skills/` package.
 
 ## Scope
 
-- Base mirror coverage: all `111` mainline skills under `skills/`
-- Support directory: `shared-references/`, with all `44/44` mainline reference names mirrored
+- Base mirror coverage: all `113` mainline skills under `skills/`
+- Support directory: `shared-references/`, with all `45/45` mainline reference names mirrored
 - The 28 business empirical-research skills are generated from shared sources plus file-level Codex overrides by `tools/sync_business_portable_mirror.py`. Every model selected inside Codex consumes the same package through `.agents/skills` and the same native plugin surface.
 - Default reviewer contract for reviewer-heavy skills:
   - round 1: `spawn_agent`
   - follow-up: `send_input`
-  - reasoning effort: `xhigh`
+  - model: `gpt-6-astra`; deep reviews: `ultra`, regular reviews: `xhigh`
   - base Codex self-review: `review_independence: same-family`,
     `acceptance_status: provisional`
-  - Claude/Gemini overlays or deterministic verification: `acceptance_status: accepted`
-- Optional overlays:
-  - `skills-codex-claude-review`
-  - `skills-codex-gemini-review`
-
-This package is still an appendage to the Claude mainline, not a separate Codex-first product line.
+  - other reviewers: select a backend in the full pack; acceptance depends on actual model identities, completed review scope, and the applicable gate
 
 ## Maintaining Business Skills
 
@@ -193,21 +188,53 @@ installer-created user file. The builder stops if all three are absent and never
 inherits the installer, maintainer, operating-system account, Git identity, or
 template author.
 
-## Optional Overlays
+## Select a Reviewer
 
-Install the base first, then choose an overlay:
+Use the complete pack with [selectable reviewers](shared-references/reviewer-backends.md).
+For one invocation, add `— reviewer: antigravity` (or `grok`, `claude-code`,
+`codex`). For a project default, create `.aris/reviewer.json` yourself:
 
-```bash
-bash ~/aris_repo/tools/install_aris_codex.sh ~/your-project --reconcile \
-  --with-claude-review-overlay --office-author "Your Name"
+```json
+{"backend": "antigravity", "model": "gemini-4-argon-high", "effort": "high"}
 ```
 
+Register the selected backend's MCP separately as described in the linked
+contract. `claude-code` uses the CLI's configured provider and accepts no effort
+override. Selecting a transport does not by itself establish cross-family review
+or acceptance. The legacy `agy` route still uses `gemini-review`; it is distinct
+from `antigravity`.
+
+## Migrate Frozen Partial Overlays
+
+`skills-codex-claude-review/` and `skills-codex-gemini-review/` are frozen legacy
+snapshots. Their directories and existing links remain available, but base skill
+changes no longer regenerate them. New installations should use the full pack.
+The old overlay install flags remain for compatibility, not ongoing feature sync.
+
+For **managed project symlinks**, first inspect `.agents/skills/<name>` with
+`readlink` and save `.aris/installed-skills-codex.txt` plus any customized source
+files. Editing a symlinked skill edits its repository target; preserve those
+changes before switching. Preview reconciliation without either overlay flag:
+
 ```bash
-bash ~/aris_repo/tools/install_aris_codex.sh ~/your-project --reconcile \
-  --with-gemini-review-overlay --office-author "Your Name"
+bash ~/aris_repo/tools/install_aris_codex.sh ~/your-project --reconcile --dry-run --office-author "Your Name"
 ```
 
-Overlays only replace reviewer routing. They do not replace the base mirror or the executor model.
+Check that the planned retargets point to `skills/skills-codex/`, then run the same
+command without `--dry-run`. Real directories are conflicts and are not replaced.
+For an unmanaged overlay link, inspect it and use `--replace-link <skill-name>`
+only for that specific link, previewing first. Keep the overlay directories;
+merge relevant personal edits into your chosen full-pack source deliberately.
+
+For **global copied skills** in `~/.codex/skills/`, back up the affected skill
+directories outside that discovery directory. Compare each installed overlay
+skill with its frozen source and the corresponding full-pack skill, preserving
+personal edits separately. Stage the full-pack replacements in a temporary
+directory, reapply those edits, and inspect the result before replacing only the
+reviewed installed directories. Do not copy an entire overlay over the full pack
+or bulk overwrite existing skills. Then set the project reviewer configuration
+and register its bridge. No migration command here writes global settings
+automatically; restart Codex after installation changes so it reloads the pack.
 
 ## Copy Install and Update
 

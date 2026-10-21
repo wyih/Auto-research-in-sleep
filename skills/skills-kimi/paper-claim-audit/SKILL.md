@@ -2,15 +2,24 @@
 name: paper-claim-audit
 description: "Zero-context verification that every number, comparison, and scope claim in the paper matches raw result files. Uses a fresh Kimi Code subagent reviewer with no prior context; base output is same-family provisional. Use when user says \"审查论文数据\", \"check paper claims\", \"verify numbers\", \"论文数字核对\", or before submission to ensure paper-to-evidence fidelity."
 argument-hint: "[paper-directory]"
-allowed-tools: Bash(*), Read, Write, Edit, Grep, Glob
+allowed-tools: Bash(*), Read, Write, Edit, Grep, Glob, mcp__antigravity__antigravity, mcp__antigravity__antigravity-reply, mcp__grok__grok, mcp__grok__grok-reply, mcp__claude-review__review, mcp__claude-review__review_reply, mcp__claude-review__review_start, mcp__claude-review__review_reply_start, mcp__claude-review__review_status
 ---
 
 # Paper Claim Audit: Zero-Context Evidence Verification
 
+> **Before each reviewer slot**, follow [Kimi reviewer routing](../shared-references/reviewer-routing.md).
+> Use a fresh Kimi Code Agent-tool subagent at the host's strongest reasoning
+> configuration. The Agent tool exposes no model or reasoning-effort override.
+> For an explicitly selected cross-family review, use the configured `llm-chat`
+> route and its own call contract. Preserve fresh contexts, evidence, working
+> directory, review scope, and deterministic checks; record the actual reviewer
+> identity and classify acceptance from the completed review.
+
+
 > **Kimi Code assurance:** write `review_independence: same-family` and
 > `acceptance_status: provisional` into base audit JSON. A fresh Kimi Code PASS may
 > advance the pipeline but cannot produce submission-ready yes. Missing/failed
-> review emits BLOCKED; overlay/deterministic acceptance uses accepted.
+> review emits BLOCKED; a completed positive known-cross-family review or deterministic acceptance uses accepted.
 
 Verify that every claim in the paper matches raw evidence for: **$ARGUMENTS**
 
@@ -84,6 +93,8 @@ Any .md file that is an executor-written summary
 ### Step 2: Fresh Reviewer Audit (the host reviewer model — NEW thread, no reply)
 
 **CRITICAL: Use a fresh reviewer agent every run.** Never reuse an old reviewer context for this audit.
+
+> Resolve this reviewer slot through `reviewer-routing.md`; the following uses the default Kimi Code Agent tool.
 
 ```text
 kimi_subagent:
@@ -259,7 +270,7 @@ Skip if `RENDER_HTML = false` is set in `AGENTS.md` / `CLAUDE.md` or passed as `
 - **Zero executor interpretation.** Only file paths. No summaries.
 - **Only raw results.** No EXPERIMENT_LOG, no AUTO_REVIEW, no human summaries.
 - **Rounding rule.** Only standard rounding to displayed precision. 84.7% → 84.7% or 85% is OK. 84.7% → 85.3% is NOT OK.
-- **Review class.** Base Kimi Code reviewer is same-family provisional; only an overlay may record cross-family accepted.
+- **Review class.** Base Kimi Code reviewer is same-family provisional; a completed positive selected review may record cross-family accepted only with known different model families.
 
 ## Review Tracing
 
@@ -293,8 +304,8 @@ The artifact conforms to the schema in `shared-references/assurance-contract.md`
   "executor_family":  "openai",
   "reviewer_model":   "the host reviewer model",
   "reviewer_family":  "openai",
-  "review_independence": "same-family",
-  "acceptance_status": "provisional",
+  "review_independence": "<actual family comparison>",
+  "acceptance_status": "<actual acceptance status>",
   "reviewer_reasoning": "host-strongest",
   "generated_at":     "<UTC ISO-8601>",
   "details": {

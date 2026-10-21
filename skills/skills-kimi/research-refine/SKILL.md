@@ -5,6 +5,15 @@ description: "Turn a vague research direction into a problem-anchored, elegant, 
 
 # Research Refine: Problem-Anchored, Elegant, Frontier-Aware Plan Refinement
 
+> **Before each reviewer slot**, follow [Kimi reviewer routing](../shared-references/reviewer-routing.md).
+> Use a fresh Kimi Code Agent-tool subagent at the host's strongest reasoning
+> configuration. The Agent tool exposes no model or reasoning-effort override.
+> For an explicitly selected cross-family review, use the configured `llm-chat`
+> route and its own call contract. Preserve fresh contexts, evidence, working
+> directory, review scope, and deterministic checks; record the actual reviewer
+> identity and classify acceptance from the completed review.
+
+
 Refine and concretize: **$ARGUMENTS**
 
 ## Overview
@@ -290,6 +299,8 @@ Use this structure:
 
 Send the full proposal to the host reviewer model for an **elegance-first, frontier-aware, method-first** review. The reviewer should spend most of the critique budget on the method itself, not on expanding the experiment menu.
 
+> Resolve this reviewer slot through `reviewer-routing.md`; the following uses the default Kimi Code Agent tool.
+
 ```text
 kimi_subagent:
   # Kimi Code Agent tool — fresh reviewer subagent at the host's
@@ -474,6 +485,8 @@ Save to `refine-logs/round-N-refinement.md`:
 ### Phase 4: Re-evaluation (Round 2+)
 
 Send the revised proposal back to the host reviewer model in the **same agent**:
+
+> Resolve this reviewer slot through `reviewer-routing.md`; the following uses the default Kimi Code Agent tool.
 
 ```text
 kimi_subagent_continue:

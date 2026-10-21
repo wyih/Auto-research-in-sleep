@@ -5,6 +5,15 @@ description: "Full end-to-end research pipeline: from a broad research direction
 
 # Full Research Pipeline: Idea → Experiments → Submission
 
+> **Before each reviewer slot**, follow [Kimi reviewer routing](../shared-references/reviewer-routing.md).
+> Use a fresh Kimi Code Agent-tool subagent at the host's strongest reasoning
+> configuration. The Agent tool exposes no model or reasoning-effort override.
+> For an explicitly selected cross-family review, use the configured `llm-chat`
+> route and its own call contract. Preserve fresh contexts, evidence, working
+> directory, review scope, and deterministic checks; record the actual reviewer
+> identity and classify acceptance from the completed review.
+
+
 > **External cadence is fire-control only.** An overnight scheduler may check
 > process/file progress, update a heartbeat, and nudge a stalled phase. It must
 > never rerun or replace a reviewer verdict. Register the state file with
@@ -13,6 +22,18 @@ description: "Full end-to-end research pipeline: from a broad research direction
 > [`external-cadence.md`](../shared-references/external-cadence.md).
 
 End-to-end autonomous research workflow for: **$ARGUMENTS**
+
+## Optional formal proof route
+
+Before creating an experimental run, route theorem-centered requests for Lean
+to [`/lean-formalize`](../lean-formalize/SKILL.md) and report its actual proof
+result. Run the experimental stages below when the task includes empirical
+research. In a mixed project, use Lean for a user-requested formal proof or a
+specific mathematical obligation whose formal verification would materially
+help; return its checked scope and remaining obligations to the research summary
+and applicable proof audit. Ordinary mathematics stays in the existing theory
+skills. Difficulty alone does not make Lean mandatory, and a formal sublemma
+does not establish an empirical claim.
 
 ## Constants
 
@@ -28,7 +49,7 @@ End-to-end autonomous research workflow for: **$ARGUMENTS**
 - **RENDER_HTML = true** — When `true` (default), auto-render `NARRATIVE_REPORT.md` to HTML at Stage 4 completion via `/render-html`. Uses `--no-review` because Stage 3 already produced a traced same-family provisional review. Set `false` to skip. Rendering failure is non-blocking.
 - **RESUMABLE = true** — Record per-stage state under `.aris/runs/` and resume
   from the first non-terminal phase. Same-family Kimi Code review produces
-  `provisional`; deterministic or overlay gates produce `accepted`.
+  `provisional`; deterministic or completed positive known-cross-family review gates produce `accepted`.
 
 > 💡 Override via argument, e.g., `/research-pipeline "topic" — AUTO_PROCEED: false, human checkpoint: true, difficulty: nightmare, code review: false, base repo: https://github.com/org/project, auto_write: true, venue: NeurIPS`.
 
@@ -87,19 +108,20 @@ WATCHDOG=""
 Warn-and-skip state tracking if `RUN_STATE` cannot be resolved; never pretend it
 was persisted. Phases are `idea-discovery,experiment-bridge,auto-review-loop,summary,paper-writing`.
 
-- New run: `python3 "$RUN_STATE" start . "$RUN_ID" --executor kimi-code --provisional-advances --phases "idea-discovery,experiment-bridge,auto-review-loop,summary,paper-writing"` (the `--provisional-advances` policy is what lets a same-family provisional verdict close a phase for resume — without it, mainline semantics apply and provisional phases stay open).
+- New run: `python3 "$RUN_STATE" start . "$RUN_ID" --executor "<actual-executor-model>" --provisional-advances --phases "idea-discovery,experiment-bridge,auto-review-loop,summary,paper-writing"` (the `--provisional-advances` policy is what lets a same-family provisional verdict close a phase for resume — without it, mainline semantics apply and provisional phases stay open).
 - Resume: `python3 "$RUN_STATE" resume . "$RUN_ID"`; restart the returned phase.
 - Each phase: mark `running`, then `done --artifact <path>`.
-- A fresh Kimi Code subagent reviewer PASS uses `mark-provisional --reviewer kimi-code
-  --verdict-id <trace-or-agent-id>`. This is terminal for resume but not accepted.
-- A cross-family overlay or deterministic verifier uses `accept`.
+- A completed positive same-family review uses `mark-provisional --reviewer
+  <actual-reviewer-model> --verdict-id <trace-or-session-id>`. This is terminal
+  for resume but not accepted; use the actual executor identity from this run.
+- A completed positive known-cross-family review or deterministic verifier uses `accept`.
 - If `AUTO_WRITE=false`, mark `paper-writing` as `skipped` after summary.
 
 | Phase | Terminal record |
 |---|---|
-| idea-discovery | base Kimi Code → provisional; overlay jury → accepted |
+| idea-discovery | base Kimi Code → provisional; completed positive known-cross-family jury → accepted |
 | experiment-bridge | deterministic job/result completion → accepted |
-| auto-review-loop | base Kimi Code positive STOP → provisional; overlay → accepted |
+| auto-review-loop | base Kimi Code positive STOP → provisional; completed positive known-cross-family review → accepted |
 | summary | deterministic file/render result → accepted |
 | paper-writing | verifier report; `overall_assurance=provisional` stays provisional |
 

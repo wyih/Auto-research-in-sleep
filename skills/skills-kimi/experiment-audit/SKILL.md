@@ -2,10 +2,19 @@
 name: experiment-audit
 description: "Audit experiment integrity before claiming results. Uses fresh-subagent review (same-family provisional in the base Kimi Code mirror) to check for fake ground truth, score normalization fraud, phantom results, and insufficient scope. Use when user says \"审计实验\", \"check experiment integrity\", \"audit results\", \"实验诚实度\", or after experiments complete before writing claims."
 argument-hint: "[experiment-dir-or-results-path]"
-allowed-tools: Bash(*), Read, Write, Edit, Grep, Glob
+allowed-tools: Bash(*), Read, Write, Edit, Grep, Glob, mcp__antigravity__antigravity, mcp__antigravity__antigravity-reply, mcp__grok__grok, mcp__grok__grok-reply, mcp__claude-review__review, mcp__claude-review__review_reply, mcp__claude-review__review_start, mcp__claude-review__review_reply_start, mcp__claude-review__review_status
 ---
 
 # Experiment Audit: Fresh-Agent Integrity Verification
+
+> **Before each reviewer slot**, follow [Kimi reviewer routing](../shared-references/reviewer-routing.md).
+> Use a fresh Kimi Code Agent-tool subagent at the host's strongest reasoning
+> configuration. The Agent tool exposes no model or reasoning-effort override.
+> For an explicitly selected cross-family review, use the configured `llm-chat`
+> route and its own call contract. Preserve fresh contexts, evidence, working
+> directory, review scope, and deterministic checks; record the actual reviewer
+> identity and classify acceptance from the completed review.
+
 
 > **Kimi Code assurance:** base semantic audit results record
 > `review_independence: same-family` and `acceptance_status: provisional`.
@@ -55,6 +64,8 @@ Scan project directory for:
 ### Step 2: Send to Reviewer (the host reviewer model via a Kimi Code subagent)
 
 Pass ONLY file paths and the audit checklist to the reviewer. The reviewer reads everything directly.
+
+> Resolve this reviewer slot through `reviewer-routing.md`; the following uses the default Kimi Code Agent tool.
 
 ```text
 kimi_subagent:
@@ -140,7 +151,8 @@ Parse the reviewer's response and write `EXPERIMENT_AUDIT.md`:
 # Experiment Audit Report
 
 **Date**: [today]
-**Auditor**: host-strongest subagent (fresh same-family agent, read-only, provisional)
+**Auditor**: [actual selected model and effort; fresh read-only session;
+actual family comparison and completion status]
 **Project**: [project name]
 
 ## Overall Verdict: [PASS | WARN | FAIL]
@@ -192,8 +204,8 @@ Also write `EXPERIMENT_AUDIT.json` for machine consumption:
   "reviewer_model": "kimi-code",
   "reviewer_family": "moonshot",
   "reviewer_reasoning": "host-strongest",
-  "review_independence": "same-family",
-  "acceptance_status": "provisional",
+  "review_independence": "<actual family comparison>",
+  "acceptance_status": "<actual acceptance status>",
   "generated_at": "2026-04-10T00:00:00Z",
   "date": "2026-04-10",
   "auditor": "kimi-code",
@@ -274,7 +286,7 @@ if EXPERIMENT_AUDIT.json exists AND integrity_status == "fail":
 - **Reviewer independence**: executor collects paths, reviewer judges. Period.
 - **Never block**: warn loudly, never halt the pipeline.
 - **File-as-switch**: no EXPERIMENT_AUDIT.md = skill was never run = zero impact on existing behavior.
-- **Review class**: base Kimi Code is same-family provisional; only an overlay may claim cross-family accepted.
+- **Review class**: base Kimi Code is same-family provisional; a completed positive selected review may claim cross-family accepted only with known different model families.
 - **Honest about limits**: the audit catches common patterns, not all possible fraud. It is a safety net, not a guarantee.
 
 ## Acknowledgements

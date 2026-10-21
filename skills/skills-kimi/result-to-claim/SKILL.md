@@ -2,14 +2,23 @@
 name: result-to-claim
 description: Use when experiments complete to judge what claims the results support, what they don't, and what evidence is still missing. A secondary Kimi Code subagent evaluates results against intended claims and routes to next action (pivot, supplement, or confirm). Use after experiments finish — before writing the paper or running ablations.
 argument-hint: "[experiment-description-or-wandb-run]"
-allowed-tools: Bash(*), Read, Grep, Glob, Write, Edit
+allowed-tools: Bash(*), Read, Grep, Glob, Write, Edit, mcp__antigravity__antigravity, mcp__antigravity__antigravity-reply, mcp__grok__grok, mcp__grok__grok-reply, mcp__claude-review__review, mcp__claude-review__review_reply, mcp__claude-review__review_start, mcp__claude-review__review_reply_start, mcp__claude-review__review_status
 ---
 
 # Result-to-Claim Gate
 
+> **Before each reviewer slot**, follow [Kimi reviewer routing](../shared-references/reviewer-routing.md).
+> Use a fresh Kimi Code Agent-tool subagent at the host's strongest reasoning
+> configuration. The Agent tool exposes no model or reasoning-effort override.
+> For an explicitly selected cross-family review, use the configured `llm-chat`
+> route and its own call contract. Preserve fresh contexts, evidence, working
+> directory, review scope, and deterministic checks; record the actual reviewer
+> identity and classify acceptance from the completed review.
+
+
 > **Kimi Code assurance:** deterministic evidence existence can be accepted, while
 > the base semantic claim judgment records `review_independence: same-family`
-> and `acceptance_status: provisional`. Cross-family overlays may record
+> and `acceptance_status: provisional`. Completed positive reviews with known different model families may record
 > accepted; reviewer failure emits BLOCKED.
 
 Experiments produce numbers; this gate decides what those numbers *mean*. Collect results from available sources, get a secondary Kimi Code judgment, then auto-route based on the verdict.
@@ -64,13 +73,16 @@ fi
 Treat `path_missing` and `value_not_found` as unsupported evidence before the
 semantic review. `verified` means only that the cited value exists; it does not
 prove the claim. Pass the pre-check JSON path to the fresh reviewer. The Kimi Code
-reviewer's positive result remains `review_independence: same-family` and
-`acceptance_status: provisional`; a deterministic evidence check never upgrades
+reviewer's positive result is classified from actual identities; a same-family
+result remains `review_independence: same-family` and
+`acceptance_status: provisional`. A deterministic evidence check never upgrades
 a semantic claim to accepted by itself.
 
 ### Step 2: Kimi Code Judgment
 
 Send the collected results to a secondary Kimi Code subagent for objective evaluation:
+
+> Resolve this reviewer slot through `reviewer-routing.md`; the following uses the default Kimi Code Agent tool.
 
 ```text
 kimi_subagent:

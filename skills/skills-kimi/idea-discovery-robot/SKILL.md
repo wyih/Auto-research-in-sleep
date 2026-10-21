@@ -5,6 +5,15 @@ description: "Workflow 1 adaptation for robotics and embodied AI. Orchestrates r
 
 # Robotics Idea Discovery Pipeline
 
+> **Before each reviewer slot**, follow [Kimi reviewer routing](../shared-references/reviewer-routing.md).
+> Use a fresh Kimi Code Agent-tool subagent at the host's strongest reasoning
+> configuration. The Agent tool exposes no model or reasoning-effort override.
+> For an explicitly selected cross-family review, use the configured `llm-chat`
+> route and its own call contract. Preserve fresh contexts, evidence, working
+> directory, review scope, and deterministic checks; record the actual reviewer
+> identity and classify acceptance from the completed review.
+
+
 Orchestrate a robotics-specific idea discovery workflow for: **$ARGUMENTS**
 
 ## Overview

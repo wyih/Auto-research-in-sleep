@@ -7,6 +7,17 @@ allowed-tools: Bash(*), Read, Write, Edit, Grep, Glob, WebSearch, WebFetch, Skil
 
 # Full Research Pipeline: Idea → Experiments → Submission
 
+> **Before each reviewer slot**, follow [Selectable Reviewers](../shared-references/reviewer-backends.md):
+> resolve invocation → `.aris/reviewer.json` → Claude Code default (Codex MCP)
+> with `reviewer_route.py` through the canonical helper resolver, preserving this
+> slot's tier, fresh contexts, source/image inputs and deterministic gates.
+> Codex examples/pins below apply only to `backend=codex`; other routes use their
+> own first-call/reply contract. Save the route and actual returned identity;
+> unavailable selections are `REVIEW_UNAVAILABLE`. Classify acceptance from actual
+> families/completion/scope. Forward invocation reviewer/model/effort overrides
+> to reviewer-bearing children. Generation workers are unchanged.
+
+
 > ⏱ **External cadence: non-judgmental heartbeat only.** An overnight `/loop` /
 > `CronCreate` heartbeat may wake, detect a **stalled** phase (no progress, dead
 > process, blocked on a freed resource) and **nudge** it forward — it may NEVER
@@ -28,6 +39,18 @@ allowed-tools: Bash(*), Read, Write, Edit, Grep, Glob, WebSearch, WebFetch, Skil
 > never a quality verdict.
 
 End-to-end autonomous research workflow for: **$ARGUMENTS**
+
+## Optional formal proof route
+
+Before creating an experimental run, route theorem-centered requests for Lean
+to [`/lean-formalize`](../lean-formalize/SKILL.md) and report its actual proof
+result. Run the experimental stages below when the task includes empirical
+research. In a mixed project, use Lean for a user-requested formal proof or a
+specific mathematical obligation whose formal verification would materially
+help; return its checked scope and remaining obligations to the research summary
+and applicable proof audit. Ordinary mathematics stays in the existing theory
+skills. Difficulty alone does not make Lean mandatory, and a formal sublemma
+does not establish an empirical claim.
 
 ## Constants
 

@@ -2,10 +2,19 @@
 name: paper-illustration-image2
 description: "Generate publication-quality academic illustrations through a local Codex app-server bridge that uses its native image generation. This is a separate experimental alternative to `paper-illustration`, intended for Claude Code users who want a GPT-image-style renderer without modifying the original skill."
 argument-hint: "[description-or-method-file]"
-allowed-tools: Bash(*), Read, Write, Edit, Grep, Glob, WebSearch, mcp__image2__generate, mcp__image2__generate_start, mcp__image2__generate_status, Agent
+allowed-tools: Bash(*), Read, Write, Edit, Grep, Glob, WebSearch, mcp__image2__generate, mcp__image2__generate_start, mcp__image2__generate_status, Agent, mcp__antigravity__antigravity, mcp__antigravity__antigravity-reply, mcp__grok__grok, mcp__grok__grok-reply, mcp__claude-review__review, mcp__claude-review__review_reply, mcp__claude-review__review_start, mcp__claude-review__review_reply_start, mcp__claude-review__review_status
 ---
 
 # Paper Illustration Image2
+
+> **Before each reviewer slot**, follow [Kimi reviewer routing](../shared-references/reviewer-routing.md).
+> Use a fresh Kimi Code Agent-tool subagent at the host's strongest reasoning
+> configuration. The Agent tool exposes no model or reasoning-effort override.
+> For an explicitly selected cross-family review, use the configured `llm-chat`
+> route and its own call contract. Preserve fresh contexts, evidence, working
+> directory, review scope, and deterministic checks; record the actual reviewer
+> identity and classify acceptance from the completed review.
+
 
 Generate publication-quality paper figures using **Claude as the planner/reviewer**
 and a **local Codex app-server MCP bridge** as the raster renderer.
@@ -227,8 +236,7 @@ layout plan:
 - arrow routing and likely collision points
 
 If `kimi_subagent` is available, you may ask it for a short second-opinion
-layout critique here, but Claude should still complete this step even without
-Kimi Code.
+layout critique here, but the executor should still complete this step without an external critic.
 
 Use Kimi Code layout critique for:
 

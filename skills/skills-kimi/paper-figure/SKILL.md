@@ -5,6 +5,15 @@ description: "Generate publication-quality figures and tables from experiment re
 
 # Paper Figure: Publication-Quality Plots from Experiment Data
 
+> **Before each reviewer slot**, follow [Kimi reviewer routing](../shared-references/reviewer-routing.md).
+> Use a fresh Kimi Code Agent-tool subagent at the host's strongest reasoning
+> configuration. The Agent tool exposes no model or reasoning-effort override.
+> For an explicitly selected cross-family review, use the configured `llm-chat`
+> route and its own call contract. Preserve fresh contexts, evidence, working
+> directory, review scope, and deterministic checks; record the actual reviewer
+> identity and classify acceptance from the completed review.
+
+
 Generate all figures and tables for a paper based on: **$ARGUMENTS**
 
 ## Scope: What This Skill Can and Cannot Do
@@ -202,6 +211,8 @@ Save all snippets to `figures/latex_includes.tex` for easy copy-paste into the p
 ### Step 7: Figure Quality Review with REVIEWER_MODEL
 
 Send figure descriptions and captions to the host reviewer model for review:
+
+> Resolve this reviewer slot through `reviewer-routing.md`; the following uses the default Kimi Code Agent tool.
 
 ```text
 kimi_subagent:

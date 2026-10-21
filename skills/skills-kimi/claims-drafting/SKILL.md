@@ -2,10 +2,19 @@
 name: claims-drafting
 description: "Draft patent claims for an invention. Use when user says \"撰写权利要求\", \"draft claims\", \"写权利要求书\", \"claim drafting\", or wants to create patent claims. The core skill of the patent pipeline."
 argument-hint: "[invention-disclosure-path]"
-allowed-tools: Bash(*), Read, Write, Edit, Grep, Glob, WebSearch, WebFetch
+allowed-tools: Bash(*), Read, Write, Edit, Grep, Glob, WebSearch, WebFetch, mcp__antigravity__antigravity, mcp__antigravity__antigravity-reply, mcp__grok__grok, mcp__grok__grok-reply, mcp__claude-review__review, mcp__claude-review__review_reply, mcp__claude-review__review_start, mcp__claude-review__review_reply_start, mcp__claude-review__review_status
 ---
 
 # Claims Drafting: The Core Patent Skill
+
+> **Before each reviewer slot**, follow [Kimi reviewer routing](../shared-references/reviewer-routing.md).
+> Use a fresh Kimi Code Agent-tool subagent at the host's strongest reasoning
+> configuration. The Agent tool exposes no model or reasoning-effort override.
+> For an explicitly selected cross-family review, use the configured `llm-chat`
+> route and its own call contract. Preserve fresh contexts, evidence, working
+> directory, review scope, and deterministic checks; record the actual reviewer
+> identity and classify acceptance from the completed review.
+
 
 Draft patent claims based on: **$ARGUMENTS**
 
@@ -134,6 +143,8 @@ If any element lacks specification support, add it to the specification requirem
 
 Start the examiner review with a dedicated Kimi Code reviewer subagent at the host's strongest reasoning configuration:
 
+> Resolve this reviewer slot through `reviewer-routing.md`; the following uses the default Kimi Code Agent tool.
+
 ```text
 kimi_subagent:
   # Kimi Code Agent tool — fresh reviewer subagent at the host's
@@ -175,6 +186,8 @@ If the examiner review identifies issues:
 3. Consider MINOR issues (antecedent basis, formatting)
 4. Re-submit to the same examiner subagent via Agent-tool `resume` using the saved agent id
 5. Repeat up to `MAX_CLAIM_REVISION_ROUNDS` times
+
+> Resolve this reviewer slot through `reviewer-routing.md`; the following uses the default Kimi Code Agent tool.
 
 ```text
 kimi_subagent_continue:

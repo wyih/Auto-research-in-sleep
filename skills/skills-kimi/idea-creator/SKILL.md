@@ -5,6 +5,15 @@ description: "Generate and rank research ideas given a broad direction. Use when
 
 # Research Idea Creator
 
+> **Before each reviewer slot**, follow [Kimi reviewer routing](../shared-references/reviewer-routing.md).
+> Use a fresh Kimi Code Agent-tool subagent at the host's strongest reasoning
+> configuration. The Agent tool exposes no model or reasoning-effort override.
+> For an explicitly selected cross-family review, use the configured `llm-chat`
+> route and its own call contract. Preserve fresh contexts, evidence, working
+> directory, review scope, and deterministic checks; record the actual reviewer
+> identity and classify acceptance from the completed review.
+
+
 Generate publishable research ideas for: $ARGUMENTS
 
 ## Overview
@@ -12,6 +21,10 @@ Generate publishable research ideas for: $ARGUMENTS
 Given a broad research direction from the user, systematically generate, validate, and rank concrete research ideas. Standalone, Phase 1's landscape survey is **inline** (WebSearch — it does not invoke `/research-lit`); Phases 4-5 invoke `/novelty-check`, `/run-experiment`, and `/monitor-experiment` for validation and pilots. For the full sub-skill pipeline (`/research-lit` → idea generation → `/novelty-check` → `/research-review`), run `/idea-discovery` (Workflow 1), which orchestrates this skill.
 
 ## Constants
+
+Reviewer overrides apply to Phase 4 and reviewer-bearing children. Phase 2
+brainstorming and native lens workers keep their existing generation model; do
+not pass a selected MCP reviewer model into a native generation call.
 
 - **PILOT_MAX_HOURS = 2** — Skip any pilot estimated to take > 2 hours per GPU. Flag as "needs manual pilot".
 - **PILOT_TIMEOUT_HOURS = 3** — Hard timeout: kill pilots exceeding 3 hours. Collect partial results if available.
@@ -27,13 +40,24 @@ Given a broad research direction from the user, systematically generate, validat
 
 ### Fan-out contract
 
-Idea generation is breadth-bound, so use one fresh `kimi_subagent` shard per
-analytic lens when delegation is available; otherwise run the same lenses
-sequentially in fresh contexts. Each shard is read-only and returns
-`{"shard_id": ..., "candidates": [{"payload": ..., "dedup_key": ...}]}`.
-Merge and mechanically deduplicate by `dedup_key`; shards must not rank, reject,
-or write shared files. The final Kimi Code jury sees the full deduped set and records
-same-family provisional, never accepted. See
+Idea generation is breadth-bound. Freeze the complete analytic-lens list before
+dispatch and partition it into `max_shards: 8` or fewer. The executor may use
+at most `max_concurrency: 4` active shards and requests `max_turns: 8`,
+read-only behavior, and `recursion: false` in every leaf-equivalent prompt.
+
+**Stock Kimi Code enforcement: prompt-only.** Standard Kimi Code `kimi_subagent` exposes
+no per-child tool allowlist, recursion flag, or child turn-cap parameter. These
+worker restrictions are prompt conventions unless the active host supplies
+structural enforcement, so stock Kimi Code does not provide the same hard tool,
+non-recursion, and turn boundary as the Claude leaf. The executor still enforces
+fixed shard and concurrency limits, no replacement workers, and the coverage
+receipt. A failed, malformed, or timed-out shard gets at most one executor-side
+**sequential fallback** and no replacement agent. Each shard returns
+`{shard_id, assigned_unit_ids, covered_unit_ids, status, candidates, errors}`.
+Before mechanical deduplication, emit a **coverage receipt** listing planned,
+completed, failed, and uncovered lens IDs plus `coverage_complete`. The final
+selected reviewer receives both the receipt and full deduped candidate set;
+record its actual identity/completion. Same-family positives remain provisional. See
 [`fan-out-pattern.md`](../shared-references/fan-out-pattern.md).
 
 ### Phase 0: Load Research Wiki (if active)
@@ -153,7 +177,7 @@ Map the research area to understand what exists and where the gaps are.
 
 ### Phase 2: Idea Generation (brainstorm with external LLM)
 
-Use a secondary Kimi Code subagent for divergent thinking:
+Use a secondary Kimi Code generation agent for divergent thinking (this is not the reviewer slot):
 
 ```text
 kimi_subagent:

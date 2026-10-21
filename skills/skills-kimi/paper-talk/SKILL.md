@@ -7,6 +7,15 @@ allowed-tools: Bash(*), Read, Write, Edit, Grep, Glob, Skill, Agent
 
 # Paper Talk: End-to-End Conference Talk Pipeline
 
+> **Before each reviewer slot**, follow [Kimi reviewer routing](../shared-references/reviewer-routing.md).
+> Use a fresh Kimi Code Agent-tool subagent at the host's strongest reasoning
+> configuration. The Agent tool exposes no model or reasoning-effort override.
+> For an explicitly selected cross-family review, use the configured `llm-chat`
+> route and its own call contract. Preserve fresh contexts, evidence, working
+> directory, review scope, and deterministic checks; record the actual reviewer
+> identity and classify acceptance from the completed review.
+
+
 Workflow: from a completed paper to a conference-ready talk artifact —
 slide outline, Beamer source, editable PPTX, speaker notes, full talk
 script, polished visuals, and assurance checks.
@@ -36,7 +45,7 @@ These are non-negotiable across all phases:
 3. **Speaker notes are byte-stable.** Polish must not change `slide.notes_slide` content. Phase 4 verifies this.
 4. **No new content anywhere in the pipeline.** All slide text, speaker notes, talk script, Q&A answers, claims, numbers, citations, URLs, author names, affiliations, anonymity placeholders, and experiment results must be either paper-grounded (extracted from `PAPER_DIR/` artefacts) or explicitly user-provided. The pipeline never invents content during outline, build, polish, audit, or export. Phase-4 anonymity scan + claim audit verify this end-to-end.
 5. **No slide reordering.** Add / drop / reorder requires explicit user flags.
-6. **Fresh-context independence.** Per-page Kimi Code calls in `/slides-polish` use fresh `kimi_subagent` calls (no `kimi_subagent_continue`) and are same-family provisional in the base package.
+6. **Fresh-context independence.** Per-page reviews in `/slides-polish` use independent fresh sessions on the selected route. The default native Kimi Code route uses `kimi_subagent` (no `kimi_subagent_continue`) and stays same-family provisional.
 7. **Anonymity fail-closed.** If any audit (or any Kimi Code fix proposal) would replace a placeholder with a real title / count / URL, the workflow halts and surfaces the proposal for human review. See `../shared-references/experiment-integrity.md`.
 8. **Style references are guidance, not text source.** A `— reference:` PDF or `— style:` preset informs visual weight and structural rhythm; never copy prose, examples, slide titles, or speaker-note text from the reference.
 9. **Final report cannot be `conference-ready` unless required audits pass.** Phase 6 verifies and downgrades verdict if audits fail.

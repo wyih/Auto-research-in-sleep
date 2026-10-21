@@ -2,10 +2,19 @@
 name: patent-review
 description: "Get an external patent examiner review of a patent application. Use when user says \"专利审查\", \"patent review\", \"审查意见\", \"examiner review\", or wants critical feedback on patent claims and specification."
 argument-hint: "[patent-directory-or-scope]"
-allowed-tools: Bash(*), Read, Grep, Glob, Write, Edit
+allowed-tools: Bash(*), Read, Grep, Glob, Write, Edit, mcp__antigravity__antigravity, mcp__antigravity__antigravity-reply, mcp__grok__grok, mcp__grok__grok-reply, mcp__claude-review__review, mcp__claude-review__review_reply, mcp__claude-review__review_start, mcp__claude-review__review_reply_start, mcp__claude-review__review_status
 ---
 
 # Patent Examiner Review via a Kimi Code subagent (host's strongest reasoning configuration)
+
+> **Before each reviewer slot**, follow [Kimi reviewer routing](../shared-references/reviewer-routing.md).
+> Use a fresh Kimi Code Agent-tool subagent at the host's strongest reasoning
+> configuration. The Agent tool exposes no model or reasoning-effort override.
+> For an explicitly selected cross-family review, use the configured `llm-chat`
+> route and its own call contract. Preserve fresh contexts, evidence, working
+> directory, review scope, and deterministic checks; record the actual reviewer
+> identity and classify acceptance from the completed review.
+
 
 Get a multi-round patent examiner review of the patent application based on: **$ARGUMENTS**
 
@@ -42,6 +51,8 @@ Before calling the external reviewer, compile a comprehensive briefing:
 ### Step 2: Round 1 — Full Examiner Review
 
 Send to `REVIEWER_MODEL` via the Kimi Code Agent tool (fresh subagent):
+
+> Resolve this reviewer slot through `reviewer-routing.md`; the following uses the default Kimi Code Agent tool.
 
 ```text
 kimi_subagent:
@@ -127,6 +138,8 @@ For each fix:
 ### Step 4: Round 2 — Follow-Up Review
 
 Resume the saved reviewer subagent from Round 1 (Agent tool `resume`):
+
+> Resolve this reviewer slot through `reviewer-routing.md`; the following uses the default Kimi Code Agent tool.
 
 ```text
 kimi_subagent_continue:

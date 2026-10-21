@@ -2,18 +2,25 @@
 name: research-implement-feature
 description: "Build a working artifact from a plain \"implement X for me\" request: a running end-to-end spine first, then one feature per rung, with every under-determined decision written to an assumption ledger BEFORE the code that depends on it and a sweep for the ones that slipped through undeclared (same-family provisional in the base Kimi Code mirror). Use when user says \"给我实现\", \"implement X\", \"帮我做一个能跑的\", \"先搭个原型再加功能\", \"build this feature\", \"prototype then extend\", or hands over a capability description rather than an experiment plan."
 argument-hint: "[what-to-build] [— effort: lite|balanced|max|beast] [— ask: never|semantic] [— base repo: <url>]"
-allowed-tools: Bash(*), Read, Write, Edit, Grep, Glob, AskUserQuestion
+allowed-tools: Bash(*), Read, Write, Edit, Grep, Glob, AskUserQuestion, mcp__antigravity__antigravity, mcp__antigravity__antigravity-reply, mcp__grok__grok, mcp__grok__grok-reply, mcp__claude-review__review, mcp__claude-review__review_reply, mcp__claude-review__review_start, mcp__claude-review__review_reply_start, mcp__claude-review__review_status
 ---
 
 # Research Implement: Feature — Kimi Code-native
 
-> **Kimi Code assurance.** The Phase 4 silent-assumption sweep is the mainline's
-> cross-family gate. In this mirror the executor and the reviewer are both GPT,
-> so the sweep records `review_independence: same-family` and
-> `acceptance_status: provisional`. **It can flag; it can never say clean.**
-> Deterministic checks (rung exit codes, the accumulated check suite) are
-> unaffected — a process is not a model family — and may be accepted outright.
-> For a cross-family acquittal, run the mainline Claude Code skill.
+> **Before each reviewer slot**, follow [Kimi reviewer routing](../shared-references/reviewer-routing.md).
+> Use a fresh Kimi Code Agent-tool subagent at the host's strongest reasoning
+> configuration. The Agent tool exposes no model or reasoning-effort override.
+> For an explicitly selected cross-family review, use the configured `llm-chat`
+> route and its own call contract. Preserve fresh contexts, evidence, working
+> directory, review scope, and deterministic checks; record the actual reviewer
+> identity and classify acceptance from the completed review.
+
+
+> **Review assurance.** A same-family Phase 4 sweep records
+> `review_independence: same-family` and `acceptance_status: provisional`;
+> it can flag but cannot independently acquit. A completed positive selected
+> review with known different model families may satisfy the cross-family gate.
+> Deterministic rung checks and the accumulated suite retain their own evidence.
 
 Build: **$ARGUMENTS**
 
@@ -116,7 +123,7 @@ Per [`shared-references/acceptance-gate.md`](../shared-references/acceptance-gat
 | "rung Fi's acceptance check passed" | **A** | that rung's command, exit code |
 | "no earlier rung regressed" | **A** | accumulated check suite, exit code |
 | "fix / sweep-round budget exhausted" | **A** | a counter |
-| "the code silently assumes something the ledger does not declare" | **B** | fresh Kimi Code subagent reviewer — **same-family, provisional** in this mirror |
+| "the code silently assumes something the ledger does not declare" | **B** | fresh selected reviewer — actual family comparison; **same-family stays provisional** |
 | "the implementation is *correct* / the method *works*" | **B** | **out of scope** — `/experiment-audit`, `/result-to-claim` |
 
 The build loop terminates on Type-A only. On a green run this skill says **"the
@@ -270,7 +277,7 @@ Every fix that required a new consequential decision gets a row. Debugging is
 where undeclared assumptions breed: "made the shapes match" is very often
 "silently chose a padding convention" — that is batch point **Bd**.
 
-## Phase 4 — Silent-assumption sweep (Type-B; same-family/provisional here)
+## Phase 4 — Silent-assumption sweep (Type-B; same-family stays provisional)
 
 The ledger records what the implementer *noticed* assuming. This phase looks for
 what it did not.
@@ -281,6 +288,8 @@ does** — your summary is written by the same process that produced the blind s
 
 Substitute the base commit recorded in `SPEC.md`; if it is `none (not a git
 repo)`, give the file list instead of a diff command.
+
+> Resolve this reviewer slot through `reviewer-routing.md`; the following uses the default Kimi Code Agent tool.
 
 ```text
 kimi_subagent:
@@ -337,8 +346,9 @@ kimi_subagent:
 ```
 
 Save the reply verbatim to `implement-stage/SILENT_ASSUMPTION_SWEEP.json`, and
-record `review_independence: same-family`, `acceptance_status: provisional`
-alongside it. Follow-up rounds continue on the same agent.
+record actual model identities, `review_independence`, and `acceptance_status`
+alongside it. Same-family positive sweeps remain provisional. Follow-up rounds
+continue on the saved selected reviewer session.
 
 **Then:** add every `undeclared` finding as a `Source: sweep` row; correct every
 `stale_row`; re-sweep up to the `EFFORT` round budget (a counter — Type-A). A
@@ -350,12 +360,13 @@ silently dropped.
 | `draft` | reported, non-blocking |
 | `submission` | **blocks the final report** until those rows are in the ledger and a re-sweep returns them resolved (or the round budget is exhausted — then the report leads with them); a same-family `clean` only ever clears it as `provisional`, see below |
 
-**Mirror limitation.** A same-family sweep may **flag**, never **acquit**. At
-`assurance: submission` a `verdict: clean` from this mirror is recorded as
-`provisional` and does not by itself clear the gate — route through the mainline
-Claude Code skill for a cross-family acquittal. If the reviewer call is
-unavailable, emit `SWEEP_UNAVAILABLE` rather than a provisional PASS, and never
-substitute a second same-model pass.
+**Review limitation.** A same-family sweep may **flag**, never independently
+**acquit**. At `assurance: submission`, its `verdict: clean` remains provisional
+and does not itself clear the gate. A completed positive selected review with
+known different model families may clear that semantic gate when its full scope
+is satisfied. If the selected call is unavailable, emit `SWEEP_UNAVAILABLE`
+(and record route status `REVIEW_UNAVAILABLE`), never a provisional PASS or an
+automatic provider switch.
 
 ## Phase 5 — Report
 
@@ -364,7 +375,7 @@ substitute a second same-model pass.
 2. **⚠️ Semantic assumptions** — every `semantic` row in full, never a count.
 3. **Ladder status** — green / blocked / deferred, deferred ones named.
 4. **Live stubs** — each with the rung that would retire it.
-5. **Sweep outcome** — verdict, counts, and its `same-family / provisional`
+5. **Sweep outcome** — verdict, counts, and its actual review/acceptance class
    status. Report the undeclared count even when it is embarrassing. If the
    sweep budget ran out before a re-sweep, say so: fixes made after the last
    sweep were verified by the executor only.
@@ -392,8 +403,8 @@ substitute a second same-model pass.
 - **Silently downgrading `ask: semantic` to `never`** because nobody answered.
 - **Treating a `user`-sourced row as exempt from Phase 4.** An answer makes a row
   declared, not correct.
-- **A same-family PASS presented as an acquittal.** In this mirror the sweep is
-  provisional by construction.
+- **A same-family PASS presented as an acquittal.** Determine the family from
+  actual identities; a same-family sweep is always provisional.
 
 ## See Also
 

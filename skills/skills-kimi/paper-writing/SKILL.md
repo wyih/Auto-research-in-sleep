@@ -2,15 +2,25 @@
 name: paper-writing
 description: "Workflow 3: Full paper writing pipeline that goes from a narrative report to a polished, submission-ready PDF. Use when user says \"写论文全流程\", \"write paper pipeline\", \"从报告到PDF\", \"paper writing\", or wants the complete paper generation workflow."
 argument-hint: "[narrative-report-path-or-topic]"
-allowed-tools: Bash(*), Read, Write, Edit, Grep, Glob, Skill
+allowed-tools: Bash(*), Read, Write, Edit, Grep, Glob, Skill, mcp__antigravity__antigravity, mcp__antigravity__antigravity-reply, mcp__grok__grok, mcp__grok__grok-reply, mcp__claude-review__review, mcp__claude-review__review_reply, mcp__claude-review__review_start, mcp__claude-review__review_reply_start, mcp__claude-review__review_status
 ---
 
 # Workflow 3: Paper Writing Pipeline
 
-> **Kimi Code assurance:** every base semantic audit is same-family provisional.
-> The pipeline still completes when all mandatory audits are green, but the
-> Final Report must say `Submission-ready: provisional`; only cross-family or
-> deterministic accepted audit coverage may say `yes`.
+> **Before each reviewer slot**, follow [Kimi reviewer routing](../shared-references/reviewer-routing.md).
+> Use a fresh Kimi Code Agent-tool subagent at the host's strongest reasoning
+> configuration. The Agent tool exposes no model or reasoning-effort override.
+> For an explicitly selected cross-family review, use the configured `llm-chat`
+> route and its own call contract. Preserve fresh contexts, evidence, working
+> directory, review scope, and deterministic checks; record the actual reviewer
+> identity and classify acceptance from the completed review.
+
+
+> **Review assurance:** same-family semantic audits remain provisional. The
+> pipeline may finish with `Submission-ready: provisional` when its mandatory
+> audits pass provisionally. Use `yes` only when the deterministic assurance
+> verifier confirms accepted coverage, including completed positive reviews
+> with known different model families where semantic review is required.
 
 Orchestrate a complete paper writing workflow for: **$ARGUMENTS**
 
@@ -435,7 +445,7 @@ After the final paper-claim-audit passes, run `/citation-audit` to verify every 
 ```
 if paper/references.bib (or paper.bib) exists and contains entries cited from sec/*.tex:
     Run /citation-audit "paper/"
-    Fresh Kimi Code subagent reviewer (`kimi_subagent`, same-family provisional) with web/DBLP/arXiv lookup
+    Fresh selected reviewer with web/DBLP/arXiv lookup (same-family stays provisional)
     verifies each entry:
       (i)   EXISTENCE — paper resolves at claimed arXiv ID / DOI / venue
       (ii)  METADATA — author names, year, venue, title match canonical sources

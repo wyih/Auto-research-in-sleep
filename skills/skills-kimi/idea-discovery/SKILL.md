@@ -5,6 +5,15 @@ description: "Workflow 1: Full idea discovery pipeline to go from a broad resear
 
 # Workflow 1: Idea Discovery Pipeline
 
+> **Before each reviewer slot**, follow [Kimi reviewer routing](../shared-references/reviewer-routing.md).
+> Use a fresh Kimi Code Agent-tool subagent at the host's strongest reasoning
+> configuration. The Agent tool exposes no model or reasoning-effort override.
+> For an explicitly selected cross-family review, use the configured `llm-chat`
+> route and its own call contract. Preserve fresh contexts, evidence, working
+> directory, review scope, and deterministic checks; record the actual reviewer
+> identity and classify acceptance from the completed review.
+
+
 Orchestrate a complete idea discovery workflow for: **$ARGUMENTS**
 
 ## Overview
@@ -87,13 +96,15 @@ check the canonical report rather than scattered scratch files:
 `novelty-check` and `research-review` are **reviewer-bearing phases**. A
 `done` status or a heading alone is not review evidence. After each phase has
 folded substantive findings into its anchored report section, first record it
-`done`, then, only after the secondary Kimi Code reviewer actually returns a
-positive, identity-bearing verdict, record its honest same-family receipt using the
-actual reviewer model and durable agent/trace id:
+`done`, then, only after the selected reviewer actually returns a positive, completed,
+identity-bearing verdict, record its actual review class. For a same-family
+review use the provisional receipt below, with the actual reviewer model and
+durable session/trace id; for a known different-family review use `accept` as
+described below:
 
 ```text
-python3 <resolved-run_state.py> mark-provisional . <run_id> novelty-check --verdict-id "<agent-or-trace-id>" --reviewer "<actual-Kimi Code-reviewer-model>"
-python3 <resolved-run_state.py> mark-provisional . <run_id> research-review --verdict-id "<agent-or-trace-id>" --reviewer "<actual-Kimi Code-reviewer-model>"
+python3 <resolved-run_state.py> mark-provisional . <run_id> novelty-check --verdict-id "<agent-or-trace-id>" --reviewer "<actual-reviewer-model>"
+python3 <resolved-run_state.py> mark-provisional . <run_id> research-review --verdict-id "<agent-or-trace-id>" --reviewer "<actual-reviewer-model>"
 ```
 
 Never invent either value and never mark a phase provisional without the
@@ -107,8 +118,8 @@ output was not folded into the report. `--provisional-advances` is required
 because these same-family receipts are explicitly provisional, not
 cross-family acceptance.
 
-If a reviewer overlay actually returns a recognized **different-family** model
-(for example Claude reviewing a Kimi Code run), use `accept` with that overlay's
+If the selected reviewer actually returns a recognized **different-family** model
+(for example Claude reviewing a Kimi Code run), use `accept` with that review's
 real model and trace id instead. Do not mislabel a cross-family receipt as
 provisional; the evidence gate validates either honest route from the recorded
 families.

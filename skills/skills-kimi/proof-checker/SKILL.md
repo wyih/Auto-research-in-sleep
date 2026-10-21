@@ -2,15 +2,24 @@
 name: proof-checker
 description: Rigorous mathematical proof verification and fixing workflow. Reads a LaTeX proof, identifies gaps via fresh-agent Kimi Code host-strongest subagent review, fixes each gap with full derivations, re-reviews, and generates an audit report. Base review is same-family provisional. Use when user says "检查证明", "verify proof", "proof check", "审证明", "check this proof", or wants rigorous mathematical verification of a theory paper.
 argument-hint: "[path-to-tex-file or proof-description]"
-allowed-tools: Bash(*), Read, Grep, Glob, Write, Edit
+allowed-tools: Bash(*), Read, Grep, Glob, Write, Edit, mcp__antigravity__antigravity, mcp__antigravity__antigravity-reply, mcp__grok__grok, mcp__grok__grok-reply, mcp__claude-review__review, mcp__claude-review__review_reply, mcp__claude-review__review_start, mcp__claude-review__review_reply_start, mcp__claude-review__review_status
 ---
 
 # Proof Checker: Rigorous Mathematical Verification & Fixing
 
+> **Before each reviewer slot**, follow [Kimi reviewer routing](../shared-references/reviewer-routing.md).
+> Use a fresh Kimi Code Agent-tool subagent at the host's strongest reasoning
+> configuration. The Agent tool exposes no model or reasoning-effort override.
+> For an explicitly selected cross-family review, use the configured `llm-chat`
+> route and its own call contract. Preserve fresh contexts, evidence, working
+> directory, review scope, and deterministic checks; record the actual reviewer
+> identity and classify acceptance from the completed review.
+
+
 > **Kimi Code assurance:** base Kimi Code proof judgments are
 > `review_independence: same-family` and `acceptance_status: provisional`.
 > Deterministic compilation/algebra checks may be accepted; a semantic proof
-> acceptance requires a cross-family overlay. Reviewer failure emits BLOCKED.
+> acceptance requires a completed positive review with known different model families. Reviewer failure emits BLOCKED.
 
 Systematically verify a mathematical proof via fresh-agent adversarial review, fix identified gaps, re-review until convergence, and generate a detailed audit report with proof-obligation accounting.
 
@@ -130,12 +139,36 @@ When the proof invokes any of the following, require explicit verification of AL
 
 ### Proof-obligation fan-out
 
-Independent sections/theorems may be extracted by fresh read-only
-`kimi_subagent` shards, with a sequential fresh-context fallback. Each shard
-returns `{"shard_id": ..., "entries": [{"payload": ..., "dedup_key":
-"<theorem-or-obligation-id>"}]}` and must not declare the proof valid. The
-parent mechanically merges obligations; the fresh Kimi Code review that evaluates
-them records `review_independence: same-family` and
+Freeze mechanically enumerable **source-unit IDs** before extraction: stable
+file spans, sections, theorem/lemma/proposition blocks, or proof environments.
+Partition the source-ordered units into `max_shards: 8` or fewer groups. The
+executor may use at most `max_concurrency: 4` active shards and requests
+`max_turns: 8`, read-only behavior, and `recursion: false` in every
+leaf-equivalent prompt.
+
+**Stock Kimi Code enforcement: prompt-only.** Standard Kimi Code `kimi_subagent` exposes
+no per-child tool allowlist, recursion flag, or child turn-cap parameter. These
+worker restrictions are prompt conventions unless the active host supplies
+structural enforcement, so stock Kimi Code does not provide the same hard tool,
+non-recursion, and turn boundary as the Claude leaf. The executor still enforces
+fixed shard and concurrency limits, no replacement workers, and the coverage
+receipt. A failed, malformed, or timed-out shard gets at most one executor-side
+sequential fallback and no replacement agent.
+
+Each shard returns
+`{shard_id, assigned_unit_ids, covered_unit_ids, status, entries, errors}`.
+Assigned and covered IDs are source-unit IDs. Obligations are discovered from
+those units and receive deterministic IDs only **after extraction**, derived
+from the source-unit ID plus a stable ordinal or anchor.
+
+Before building the global dependency DAG, emit a **coverage receipt** and
+require 100% declared source-unit coverage. The receipt proves **source-unit
+execution coverage only**; it does not prove that every relevant obligation was
+discovered or that the extracted ledger is mathematically complete. Any
+uncovered source unit makes the proof check `INCOMPLETE`/`BLOCKED`; no complete
+validity verdict may be emitted. Only after complete source-unit coverage does
+the parent mechanically merge the extracted ledger. The fresh Kimi Code review
+that evaluates it records `review_independence: same-family` and
 `acceptance_status: provisional`. See
 [`fan-out-pattern.md`](../shared-references/fan-out-pattern.md).
 
@@ -193,9 +226,23 @@ h_act = Θ(κ^α)  [as κ→0, uniform in π on compact subsets of Π_K, for fix
 ```
 Flag any statement where limit order is ambiguous or uniformity is unclear.
 
+### Optional Lean verification
+
+When the user requests Lean or a specific obligation warrants formal checking,
+delegate that obligation and its original hypotheses to
+[`/lean-formalize`](../lean-formalize/SKILL.md). Record the checked scope, exported
+declaration, statement-alignment evidence, build output and transitive-axiom
+audit, then resume this audit. A proved sublemma closes only the corresponding
+obligation. Keep the complete proof audit, acceptance decision and canonical wiki
+artifacts here; the nested Lean task returns evidence without starting another
+`proof-checker` run. Routine proof checks do not require Lean. Reviewer agreement
+and unsuccessful counterexample searches do not discharge a proof obligation.
+
 ### Phase 1: First Review (Kimi Code host-strongest subagent)
 
 Submit the **complete proof content** with the following **mandatory reviewer checklist** in the prompt:
+
+> Resolve this reviewer slot through `reviewer-routing.md`; the following uses the default Kimi Code Agent tool.
 
 ```text
 kimi_subagent:
@@ -328,6 +375,8 @@ After all fixes, verify the proof as a whole:
 
 #### Independent second review for FATAL/CRITICAL fixes
 For any fix that resolved a FATAL or CRITICAL issue, submit the **fixed section alone** (without showing the previous critique) to a **fresh Kimi Code thread**:
+
+> Resolve this reviewer slot through `reviewer-routing.md`; the following uses the default Kimi Code Agent tool.
 
 ```text
 kimi_subagent:
@@ -492,8 +541,8 @@ The artifact conforms to the schema in `shared-references/assurance-contract.md`
   "executor_family":  "openai",
   "reviewer_model":   "the host reviewer model",
   "reviewer_family":  "openai",
-  "review_independence": "same-family",
-  "acceptance_status": "provisional",
+  "review_independence": "<actual family comparison>",
+  "acceptance_status": "<actual acceptance status>",
   "reviewer_reasoning": "host-strongest",
   "generated_at":     "<UTC ISO-8601>",
   "details": {

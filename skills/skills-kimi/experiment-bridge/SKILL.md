@@ -5,6 +5,15 @@ description: "Workflow 1.5: Bridge between idea discovery and auto review. Reads
 
 # Workflow 1.5: Experiment Bridge
 
+> **Before each reviewer slot**, follow [Kimi reviewer routing](../shared-references/reviewer-routing.md).
+> Use a fresh Kimi Code Agent-tool subagent at the host's strongest reasoning
+> configuration. The Agent tool exposes no model or reasoning-effort override.
+> For an explicitly selected cross-family review, use the configured `llm-chat`
+> route and its own call contract. Preserve fresh contexts, evidence, working
+> directory, review scope, and deterministic checks; record the actual reviewer
+> identity and classify acceptance from the completed review.
+
+
 Implement and deploy experiments from plan: **$ARGUMENTS**
 
 ## Overview
@@ -112,6 +121,8 @@ For each milestone (in order), write the experiment scripts:
 Skip this step if `CODE_REVIEW` is `false`.
 
 Before deploying, send the experiment code to a secondary Kimi Code reviewer at the host's strongest reasoning configuration:
+
+> Resolve this reviewer slot through `reviewer-routing.md`; the following uses the default Kimi Code Agent tool.
 
 ```text
 kimi_subagent:

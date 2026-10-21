@@ -1,14 +1,15 @@
 ---
 name: "research-review"
-description: "Get a deep critical review of research from GPT using a secondary Kimi Code subagent. Use when user says \"review my research\", \"help me review\", \"get external review\", or wants critical feedback on research ideas, papers, or experimental results."
+description: "Get a deep critical review of research from a fresh Kimi Code subagent or a selected Gemini, Grok, or Claude Code reviewer. Use when user says \"review my research\", \"help me review\", \"get external review\", or wants critical feedback on research ideas, papers, or experimental results."
 ---
 
-# Research Review via a secondary Kimi Code subagent
+# Research Review with a Selectable Reviewer
 
 > **Kimi Code assurance:** the fresh base reviewer is same-family. Record
 > `review_independence: same-family` and `acceptance_status: provisional` in
-> traces and deliverables. An `llm-chat` cross-family route may record cross-family
-> accepted; an unavailable reviewer is BLOCKED, never a fabricated PASS.
+> traces and deliverables. A selected reviewer can record cross-family accepted
+> only after a completed, in-scope positive review with actual different model
+> families; an unavailable reviewer is BLOCKED, never a fabricated PASS.
 
 Get a multi-round critical review of research work from an external LLM with maximum reasoning depth.
 
@@ -20,8 +21,8 @@ Get a multi-round critical review of research work from an external LLM with max
 
 ## Prerequisites
 
-- Use the Kimi Code Agent tool (`kimi_subagent` / `kimi_subagent_continue`) when the user has explicitly allowed delegation or subagents.
-- If delegation is not allowed, run the same review loop locally and preserve the same deliverable structure.
+- The selected review tool must be available. Native Kimi Code uses authorized `kimi_subagent` and `kimi_subagent_continue`; MCP routes use their own first/reply tools.
+- If the selected reviewer is unavailable, record `REVIEW_UNAVAILABLE`. The executor reviewing itself does not satisfy the fresh-reviewer requirement.
 
 ## Workflow
 
@@ -32,14 +33,17 @@ Before calling the external reviewer, compile a comprehensive briefing:
 3. Identify: core claims, methodology, key results, known weaknesses
 
 ### Step 2: Initial Review (Round 1)
-Send a detailed prompt to the reviewer subagent:
+Save the resolved route and its session id/cwd. Send the following substantive
+prompt through the selected first-call tool, with primary artifact paths inside
+the review workspace. The native Kimi Code example uses the host's strongest reasoning configuration:
 
 ```text
 kimi_subagent:
   # Kimi Code Agent tool — fresh reviewer subagent at the host's
   # strongest reasoning configuration
   prompt: |
-    [Full research context + specific questions]
+    [Original research question, author claims, specific questions, and primary
+    artifact/raw-result paths. Read those files to check the claims yourself.]
     Please act as a senior ML reviewer (NeurIPS/ICML level). Start from the
     assumption that the work is broken somewhere — your job is to find where.
     Be adversarial. Trust nothing the author tells you — verify everything
@@ -77,7 +81,8 @@ kimi_subagent:
 ```
 
 ### Step 3: Iterative Dialogue (Rounds 2-N)
-Resume the returned subagent (Agent tool `resume` with the saved agent id) to continue the conversation:
+Use the selected continuation tool with the saved session id. Preserve its
+model and cwd; for native Kimi Code this is `kimi_subagent_continue`:
 
 ```text
 kimi_subagent_continue:
@@ -130,12 +135,12 @@ always wins. See
 
 ### Step 6: Review Tracing
 
-Save a trace for every `kimi_subagent`, `kimi_subagent_continue`, or `oracle-pro` review call following `../shared-references/review-tracing.md`. Record the reviewer route, saved agent id, prompt summary, raw response path, decisions, and action items. This preserves the Claude mainline Review Tracing semantics while using Kimi Code-native reviewer calls.
+Save a trace for every reviewer call following `../shared-references/review-tracing.md`. Record the resolved route, session id/cwd, requested and actual reported model/effort, prompt, raw response, decisions, and action items. Check successful completion and required file coverage before assigning a verdict. Record model-family independence and acceptance using `reviewer-backends.md`; agreement alone does not establish cross-family acceptance.
 
 ## Key Rules
 
-- ALWAYS delegate reviews to a fresh Kimi Code subagent at the host's strongest reasoning configuration (see `reviewer-routing.md`)
-- Send comprehensive context in Round 1 — the external model cannot read your files
+- Delegate the default review to a fresh Kimi Code subagent at the host's strongest reasoning configuration. Follow-ups resume that subagent; explicitly selected external reviews use their own call contract.
+- Provide comprehensive context and primary files in Round 1; require artifact-grounded verification. An unreadable file is missing evidence.
 - Be honest about weaknesses — hiding them leads to worse feedback
 - Push back on criticisms you disagree with, but accept valid ones
 - Focus on ACTIONABLE feedback — "what experiment would fix this?"

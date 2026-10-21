@@ -202,8 +202,8 @@ sibling of `skills/skills-codex/`.
 
 ## Scope
 
-- Base mirror coverage: all `111` mainline skills under `skills/`
-- Support directory: `shared-references/`, with all `44/44` mainline reference
+- Base mirror coverage: all `113` mainline skills under `skills/`
+- Support directory: `shared-references/`, with all `45/45` mainline reference
   names mirrored
 - The 28 business portable skills and 13 portable shared references are
   byte-for-byte copies of the canonical `skills/` tree (the same source set as
@@ -288,7 +288,7 @@ README_CN_MD = """# `skills-kimi`
 ARIS skill 集合的 Kimi Code CLI 原生包 —— 第三条发行线，与
 `skills/skills-codex/` 平级。完整说明见 [README.md](README.md)。
 
-- 覆盖 `skills/` 主线全部 `111` 个 skill 与 `44/44` 个 shared-references。
+- 覆盖 `skills/` 主线全部 `113` 个 skill 与 `45/45` 个 shared-references。
 - 28 个 business portable skill 与 13 个 portable reference 与 canonical
   `skills/` 字节一致；其余内容由 `tools/build_skills_kimi.py` 从
   `skills/skills-codex/` 机械转换（幂等，`--check` 校验）。
@@ -904,7 +904,58 @@ def _rewrite_send_block(match: re.Match[str]) -> str:
     return "\n".join(out)
 
 
+KIMI_REVIEWER_NOTE = """> **Before each reviewer slot**, follow [Kimi reviewer routing](../shared-references/reviewer-routing.md).
+> Use a fresh Kimi Code Agent-tool subagent at the host's strongest reasoning
+> configuration. The Agent tool exposes no model or reasoning-effort override.
+> For an explicitly selected cross-family review, use the configured `llm-chat`
+> route and its own call contract. Preserve fresh contexts, evidence, working
+> directory, review scope, and deterministic checks; record the actual reviewer
+> identity and classify acceptance from the completed review.
+"""
+
+KIMI_REVIEWER_BACKENDS = """# Kimi Reviewer Backends
+
+Use [reviewer-routing.md](reviewer-routing.md) for the native Agent-tool contract
+and the optional cross-family `llm-chat` or Oracle routes. Native reviews use a
+fresh subagent at the host's strongest reasoning configuration; model and effort
+are controlled by the host. Follow-ups resume the saved subagent.
+
+Select an external reviewer only when requested and its configured tools are
+available. Preserve the task's evidence, working directory, fresh-context rules,
+review scope, and deterministic checks. Record the returned model identity;
+same-family reviews remain provisional. A missing selected route is
+`REVIEW_UNAVAILABLE`.
+"""
+
+
 def transform_text(text: str) -> str:
+    # The shared selector has no Kimi host; retain this package's native contract.
+    text = re.sub(
+        r"(?m)^> \*\*Before each reviewer slot\*\*[^\n]*\n(?:>[^\n]*\n)*",
+        KIMI_REVIEWER_NOTE,
+        text,
+    )
+    text = text.replace(
+        "Resolve this reviewer slot first; the following is the `backend=codex` example.",
+        "Resolve this reviewer slot through `reviewer-routing.md`; the following uses the default Kimi Code Agent tool.",
+    )
+    text = re.sub(
+        r"(?m)^- For the default Codex route, (?:pin|use) [^\n]+$",
+        "- Delegate the default review to a fresh Kimi Code subagent at the host's strongest reasoning configuration. "
+        "Follow-ups resume that subagent; explicitly selected external reviews use their own call contract.",
+        text,
+    )
+    text = text.replace(
+        '"reviewer_route": {"backend": "codex", "host": "codex", "model": "gpt-6-astra", "effort": "xhigh", "transport": "native"}',
+        '"reviewer_route": {"backend": "kimi-subagent", "host": "kimi-code", "model": "host-configured", "effort": "host-strongest", "transport": "native"}',
+    )
+    text = text.replace("Codex default xhigh", "Kimi Code default host-strongest")
+    text = text.replace("The native Codex example uses ultra reasoning", "The native Kimi Code example uses the host's strongest reasoning configuration")
+    text = text.replace("the native Codex example uses ultra reasoning", "the native Kimi Code example uses the host's strongest reasoning configuration")
+    text = text.replace('"reviewer_backend": "codex"', '"reviewer_backend": "kimi-subagent"')
+    text = text.replace('"backend": "codex"', '"backend": "kimi-subagent"')
+    text = text.replace('"effort": "xhigh"', '"effort": "host-strongest"')
+    text = text.replace("--executor codex", "--executor kimi-code")
     # Both upstream reviewer defaults map to the same Kimi subagent contract.
     # Normalize the new name before applying the existing mechanical rules.
     text = text.replace("gpt-6-astra", "gpt-5.6-sol").replace("GPT-6-Astra", "GPT-5.6-Sol")
@@ -1025,6 +1076,8 @@ def expected_files() -> dict[str, bytes]:
         dest_rel = f"shared-references/{ref.name}"
         if ref.name == "reviewer-routing.md":
             converted = REVIEWER_ROUTING_MD
+        elif ref.name == "reviewer-backends.md":
+            converted = KIMI_REVIEWER_BACKENDS
         else:
             converted = transform_text(ref.read_text(encoding="utf-8"))
         problems.extend(audit_text(converted, dest_rel))

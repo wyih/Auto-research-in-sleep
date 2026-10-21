@@ -2,10 +2,19 @@
 name: rebuttal
 description: "Workflow 4: Submission rebuttal pipeline. Parses external reviews, enforces coverage and grounding, drafts a safe text-only rebuttal under venue limits, and manages follow-up rounds. Use when user says \"rebuttal\", \"reply to reviewers\", \"ICML rebuttal\", \"OpenReview response\", or wants to answer external reviews safely."
 argument-hint: "[paper-path-or-review-bundle]"
-allowed-tools: Bash(*), Read, Grep, Glob, Write, Edit, Skill
+allowed-tools: Bash(*), Read, Grep, Glob, Write, Edit, Skill, mcp__antigravity__antigravity, mcp__antigravity__antigravity-reply, mcp__grok__grok, mcp__grok__grok-reply, mcp__claude-review__review, mcp__claude-review__review_reply, mcp__claude-review__review_start, mcp__claude-review__review_reply_start, mcp__claude-review__review_status
 ---
 
 # Workflow 4: Rebuttal
+
+> **Before each reviewer slot**, follow [Kimi reviewer routing](../shared-references/reviewer-routing.md).
+> Use a fresh Kimi Code Agent-tool subagent at the host's strongest reasoning
+> configuration. The Agent tool exposes no model or reasoning-effort override.
+> For an explicitly selected cross-family review, use the configured `llm-chat`
+> route and its own call contract. Preserve fresh contexts, evidence, working
+> directory, review scope, and deterministic checks; record the actual reviewer
+> identity and classify acceptance from the completed review.
+
 
 Prepare and maintain a grounded, venue-compliant rebuttal for: **$ARGUMENTS**
 
@@ -213,6 +222,8 @@ Run all lints:
 6. **Limit** — exact character count, compress if over (redundancy → friendly → opener → wording, never drop critical answers)
 
 ### Phase 6: Kimi Code Reviewer Stress Test
+
+> Resolve this reviewer slot through `reviewer-routing.md`; the following uses the default Kimi Code Agent tool.
 
 ```text
 kimi_subagent:

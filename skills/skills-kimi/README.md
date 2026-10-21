@@ -5,8 +5,8 @@ sibling of `skills/skills-codex/`.
 
 ## Scope
 
-- Base mirror coverage: all `111` mainline skills under `skills/`
-- Support directory: `shared-references/`, with all `44/44` mainline reference
+- Base mirror coverage: all `113` mainline skills under `skills/`
+- Support directory: `shared-references/`, with all `45/45` mainline reference
   names mirrored
 - The 28 business portable skills and 13 portable shared references are
   byte-for-byte copies of the canonical `skills/` tree (the same source set as

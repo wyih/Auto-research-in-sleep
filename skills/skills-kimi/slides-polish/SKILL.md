@@ -2,10 +2,19 @@
 name: slides-polish
 description: "Per-page Kimi Code review + targeted python-pptx / Beamer fixes for academic talk slides. Use AFTER /paper-slides (or any externally generated PPTX/Beamer) when the deck looks 'mostly OK' but the user wants a final pass that aligns visual weight with a reference, bumps PPTX fonts to projector-readable size, kills italic style leaks, fixes text-frame overflow, and catches per-slide layout drift. Trigger phrases: \"polish slides\", \"slides 排版不对\", \"PPTX 字体太小\", \"和 Beamer 比一下\", \"per-page review\", \"和 Kimi 一页一页过\"."
 argument-hint: "[slides-dir-or-pptx] — reference: <ref-pdf> [— style: generic | why-rf | neurips | icml | iclr | cvpr] [— effort: lite | balanced | max | beast] [— interactive]"
-allowed-tools: Bash(*), Read, Write, Edit, Grep, Glob, Agent
+allowed-tools: Bash(*), Read, Write, Edit, Grep, Glob, Agent, mcp__antigravity__antigravity, mcp__antigravity__antigravity-reply, mcp__grok__grok, mcp__grok__grok-reply, mcp__claude-review__review, mcp__claude-review__review_reply, mcp__claude-review__review_start, mcp__claude-review__review_reply_start, mcp__claude-review__review_status
 ---
 
 # Slides Polish: Per-Page Kimi Code Review + Targeted Layout Fixes
+
+> **Before each reviewer slot**, follow [Kimi reviewer routing](../shared-references/reviewer-routing.md).
+> Use a fresh Kimi Code Agent-tool subagent at the host's strongest reasoning
+> configuration. The Agent tool exposes no model or reasoning-effort override.
+> For an explicitly selected cross-family review, use the configured `llm-chat`
+> route and its own call contract. Preserve fresh contexts, evidence, working
+> directory, review scope, and deterministic checks; record the actual reviewer
+> identity and classify acceptance from the completed review.
+
 
 Polish a generated slide deck — Beamer (`.tex` + `.pdf`) and/or PPTX — by
 running **per-page Kimi Code review** against a reference visual and applying
@@ -59,7 +68,7 @@ auto-install. Required:
 - **PDF inspection**: `pdfinfo` and either `pdftoppm` (poppler, preferred) or `mutool draw` (mupdf) for rendering slides to PNG. Required so the per-page Kimi Code call sees actual slide pixels, not text extraction alone. Render command: `pdftoppm -r 150 -png <pdf> <out-stem>` (or `mutool draw -o <out-stem>-%d.png -r 150 <pdf>`).
 - **PPTX → PDF rendering**: `soffice` (LibreOffice headless) preferred; otherwise the user must export PDF manually from PowerPoint/Keynote.
 - **LaTeX** (Beamer side only): `xelatex` (CJK) or `pdflatex`, plus `latexmk` for clean recompiles. The Beamer fix patterns in Phase 2 may require these LaTeX packages: `microtype` (letter-spacing in section labels), `array` (raggedright p-columns), `tcolorbox` (banners and callouts), `ctex` or `xeCJK` (CJK), `tikz` + `tikz-cd` (diagrams).
-- **Agent tool**: subagent delegation must be available in the current Kimi Code session. The skill aborts at Phase 0 if the Agent tool cannot be reached.
+- **Selected reviewer**: resolve the route before Phase 0. If unavailable, stop with `REVIEW_UNAVAILABLE`; do not silently select another provider. Its image/PDF input capability must satisfy the per-page visual review.
 
 Fallback rules:
 
@@ -188,6 +197,8 @@ Schema notes:
 
 #### Triage Kimi Code prompt
 
+> Resolve this reviewer slot through `reviewer-routing.md`; the following uses the default Kimi Code Agent tool.
+
 ```text
 kimi_subagent:
   # Kimi Code Agent tool — fresh reviewer subagent at the host's
@@ -221,6 +232,8 @@ recompile or save, move to next slide.
 1-2 polish rounds where single-pass batch review never converges.
 
 #### Per-page Kimi Code prompt template
+
+> Resolve this reviewer slot through `reviewer-routing.md`; the following uses the default Kimi Code Agent tool.
 
 ```text
 kimi_subagent:

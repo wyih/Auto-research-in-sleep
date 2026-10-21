@@ -2,15 +2,25 @@
 name: kill-argument
 description: "Two-thread adversarial review: a fresh reviewer constructs the strongest 200-word rejection memo, then a second fresh reviewer defends the paper point-by-point and surfaces still-unresolved critical issues. Use when user says \"kill argument\", \"adversarial review\", \"hostile review\", \"rebuttal preparation\", \"reviewer-2 simulation\", or before submitting a theory paper that has already passed standard review rounds."
 argument-hint: "[paper-directory]"
-allowed-tools: Bash(*), Read, Write, Edit, Grep, Glob, Agent
+allowed-tools: Bash(*), Read, Write, Edit, Grep, Glob, Agent, mcp__antigravity__antigravity, mcp__antigravity__antigravity-reply, mcp__grok__grok, mcp__grok__grok-reply, mcp__claude-review__review, mcp__claude-review__review_reply, mcp__claude-review__review_start, mcp__claude-review__review_reply_start, mcp__claude-review__review_status
 ---
 
 # Kill Argument Exercise: Adversarial Attack-Defense Review
 
-> **Kimi Code assurance:** both fresh agents are OpenAI-family, so the base JSON
-> records `review_independence: same-family` and
-> `acceptance_status: provisional`. The mechanical count mapping may drive the
-> next step, but it is not cross-family acceptance. Call failure emits ERROR.
+> **Before each reviewer slot**, follow [Kimi reviewer routing](../shared-references/reviewer-routing.md).
+> Use a fresh Kimi Code Agent-tool subagent at the host's strongest reasoning
+> configuration. The Agent tool exposes no model or reasoning-effort override.
+> For an explicitly selected cross-family review, use the configured `llm-chat`
+> route and its own call contract. Preserve fresh contexts, evidence, working
+> directory, review scope, and deterministic checks; record the actual reviewer
+> identity and classify acceptance from the completed review.
+
+
+> **Review assurance:** with the default native Kimi Code reviewers, record
+> `review_independence: same-family` and `acceptance_status: provisional`.
+> With another selected route, derive these fields from actual identities and
+> completed scope. Keep Attack and Defense in separate fresh sessions; the
+> mechanical count mapping grants no independent acceptance. Call failure emits ERROR.
 
 Stress-test the headline claims of a paper against the strongest possible rejection argument: **$ARGUMENTS**
 
@@ -59,8 +69,8 @@ This skill is most valuable for **theory papers** with ≥5 theorem-class enviro
 
 The attack and adjudication calls are fresh, read-only Kimi Code shards. They return
 structured per-point records with stable `dedup_key` identifiers; neither call
-writes the paper or emits cross-family acceptance. The parent computes the
-top-level mapping mechanically and records a same-family provisional verdict.
+writes the paper or decides acceptance. The parent computes the top-level
+mapping mechanically and records the review class from actual model identities.
 If `kimi_subagent` is unavailable, use fresh sequential contexts where supported;
 otherwise emit `BLOCKED` rather than inventing a verdict. See
 [`fan-out-pattern.md`](../shared-references/fan-out-pattern.md).
@@ -89,6 +99,8 @@ If a compiled PDF is missing, the skill should still run on .tex source alone, b
 ### Step 2: Attack memo (Thread 1, fresh subagent)
 
 Invoke `kimi_subagent` (NOT `kimi_subagent_continue`) with the following prompt structure. Use absolute or paper-directory-relative paths inside the prompt; do not rely on a `cwd` parameter.
+
+> Resolve this reviewer slot through `reviewer-routing.md`; the following uses the default Kimi Code Agent tool.
 
 ```text
 kimi_subagent:
@@ -147,6 +159,8 @@ Save the returned `agent_id` for the trace; do NOT pass it to Thread 2.  Save th
 ### Step 3: Adjudication memo (Thread 2, fresh subagent with attack + paper)
 
 Invoke a second `kimi_subagent` call (still NOT `kimi_subagent_continue` — Thread 2 is independent of Thread 1's Kimi Code subagent history):
+
+> Resolve this reviewer slot through `reviewer-routing.md`; the following uses the default Kimi Code Agent tool.
 
 ```text
 kimi_subagent:
@@ -282,8 +296,8 @@ ARIS Audit Artifact Schema (`shared-references/assurance-contract.md`):
   "executor_family": "moonshot",
   "reviewer_model": "kimi-code",
   "reviewer_family": "moonshot",
-  "review_independence": "same-family",
-  "acceptance_status": "provisional",
+  "review_independence": "<actual family comparison>",
+  "acceptance_status": "<actual acceptance status>",
   "reviewer_reasoning": "host-strongest",
   "generated_at": "<UTC ISO-8601>",
   "details": {

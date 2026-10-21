@@ -103,14 +103,14 @@ def test_kimi_skill_set_matches_codex_line() -> None:
     main_names = skill_names(MAIN_SKILLS)
     codex_names = skill_names(CODEX_SKILLS)
     kimi_names = skill_names(KIMI_SKILLS)
-    assert len(main_names) == 111
+    assert len(main_names) == 113
     assert kimi_names == codex_names == main_names
 
 
 def test_kimi_shared_reference_set_matches_codex_line() -> None:
     codex_refs = {p.name for p in (CODEX_SKILLS / "shared-references").glob("*.md")}
     kimi_refs = {p.name for p in (KIMI_SKILLS / "shared-references").glob("*.md")}
-    assert len(codex_refs) == 44
+    assert len(codex_refs) == 45
     assert kimi_refs == codex_refs
 
 
@@ -136,7 +136,7 @@ def test_kimi_package_regeneration_is_idempotent() -> None:
         check=False,
     )
     assert result.returncode == 0, result.stderr
-    assert "111 skills" in result.stdout
+    assert "113 skills" in result.stdout
 
 
 def test_kimi_no_codex_leaks_in_non_portable_files() -> None:
@@ -297,4 +297,4 @@ def test_kimi_readme_positions_the_package() -> None:
     assert "install_aris_kimi.sh" in readme
     assert "installed-skills-kimi.txt" in readme
     assert "~/.kimi-code/skills/" in readme
-    assert "`111`" in readme
+    assert "`113`" in readme
