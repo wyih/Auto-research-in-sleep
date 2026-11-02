@@ -144,6 +144,8 @@ Create shared math macros based on the paper's notation:
 
 ### Step 3: Write Each Section
 
+Use the Launch Mindset and Optional Writing Worker guidance in `../shared-references/writing-principles.md` for every section. Root prepares the factual brief from the plan, original sources, results, figures, and verified bibliography; a configured writer drafts substantive prose and handles same-session revisions, otherwise the executor writes. Pass any supplied `writer`, `writer-model`, and `writer-effort` independently of reviewer settings. Root checks technical accuracy and compilation while preserving the writer's good phrasing; the existing section reviews and audits still apply.
+
 Process sections in order. For each section:
 
 1. **Read the plan** — what claims, evidence, citations belong here

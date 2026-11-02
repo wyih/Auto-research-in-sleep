@@ -242,9 +242,10 @@ if research-wiki/ exists:
 - Do not inflate claims beyond what the data supports. If Kimi Code says "partial", do not round up to "yes".
 - A single positive result on one dataset does not support a general claim. Be honest about scope.
 - If `confidence` is low, treat the judgment as inconclusive and add experiments rather than committing to a claim.
-- **Fail closed if the reviewer is unavailable.** Fail closed per `reviewer-routing.md`: under Kimi Code there is no
-  model/effort fallback chain and nothing to downgrade — never retry a weaker
-  route on timeout, rate-limit, auth, transport, server, or context errors. If no allowed pair succeeds, write a
+- **Fail closed if the reviewer is unavailable.** Follow the capability fallback
+  in `reviewer-routing.md` using the host's supported subagent contract;
+  do not retry a failed review on timeout, rate-limit, auth,
+  transport, server, or context errors. If no allowed pair succeeds, write a
   traced `BLOCKED` review record with the unavailable route and evidence paths, write
   `CLAIMS_FROM_RESULTS.md` containing only `verdict: REVIEW_UNAVAILABLE`, record
   the same in findings.md, and stop. Do not emit a local PASS/WARN substitute or

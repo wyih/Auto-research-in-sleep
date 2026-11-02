@@ -202,7 +202,7 @@ sibling of `skills/skills-codex/`.
 
 ## Scope
 
-- Base mirror coverage: all `113` mainline skills under `skills/`
+- Base mirror coverage: all `115` mainline skills under `skills/`
 - Support directory: `shared-references/`, with all `45/45` mainline reference
   names mirrored
 - The 28 business portable skills and 13 portable shared references are
@@ -288,7 +288,7 @@ README_CN_MD = """# `skills-kimi`
 ARIS skill 集合的 Kimi Code CLI 原生包 —— 第三条发行线，与
 `skills/skills-codex/` 平级。完整说明见 [README.md](README.md)。
 
-- 覆盖 `skills/` 主线全部 `113` 个 skill 与 `45/45` 个 shared-references。
+- 覆盖 `skills/` 主线全部 `115` 个 skill 与 `45/45` 个 shared-references。
 - 28 个 business portable skill 与 13 个 portable reference 与 canonical
   `skills/` 字节一致；其余内容由 `tools/build_skills_kimi.py` 从
   `skills/skills-codex/` 机械转换（幂等，`--check` 校验）。
@@ -316,6 +316,7 @@ PROTECTIONS = {
     "GPT-5.5 Pro": "PROTECT_ORACLEMODELTITLE",
     "ultracode": "PROTECT_ULTRACODE",
     "Codex app-server": "PROTECT_CODEX_APPSERVER",
+    "Grok `grok-4.7` / `xhigh`": "PROTECT_GROK_WORKER_PAIR",
 }
 
 # Exact-string replacements, longest/most-specific first within each phase.
@@ -929,6 +930,19 @@ same-family reviews remain provisional. A missing selected route is
 
 
 def transform_text(text: str) -> str:
+    text = re.sub(
+        r"Then spawn the \*\*same bundle once more\*\* with `model: gpt-6\.1-sol`[\s\S]*?(?=\n\n)",
+        "Then generate the same bundle once more with a fresh Kimi Code subagent at the host's strongest reasoning configuration. "
+        "Merge the two generations by mechanical deduplication, tag each candidate with its run, and retain the first subagent for follow-ups. "
+        "If the second generation is unavailable, report that and continue with the first generation.",
+        text,
+    )
+    text = re.sub(
+        r"  in `reviewer-routing\.md` \(`gpt-6-astra` \+ `ultra`[\s\S]*?never downgrade on timeout, rate-limit, auth,",
+        "  in `reviewer-routing.md` using the host's supported subagent contract;\n  do not retry a failed review on timeout, rate-limit, auth,",
+        text,
+    )
+    text = re.sub(r"(?m)^(\s*)codex$", r"\1kimi", text)
     # The shared selector has no Kimi host; retain this package's native contract.
     text = re.sub(
         r"(?m)^> \*\*Before each reviewer slot\*\*[^\n]*\n(?:>[^\n]*\n)*",
@@ -958,7 +972,7 @@ def transform_text(text: str) -> str:
     text = text.replace("--executor codex", "--executor kimi-code")
     # Both upstream reviewer defaults map to the same Kimi subagent contract.
     # Normalize the new name before applying the existing mechanical rules.
-    text = text.replace("gpt-6-astra", "gpt-5.6-sol").replace("GPT-6-Astra", "GPT-5.6-Sol")
+    text = text.replace("gpt-6.1-sol", "gpt-5.6-sol").replace("gpt-6-astra", "gpt-5.6-sol").replace("GPT-6-Astra", "GPT-5.6-Sol")
     # REPLACEMENTS_A runs on the raw source so its patterns can name protected
     # tokens; the protection pass then shields both surviving source mentions
     # and any protected token an A-rule emitted.
@@ -1009,6 +1023,9 @@ AUDIT_WHITELIST = (
     "codex-image2",  # factual repo path of the image-generation bridge
     "gpt-5.5-pro",  # Oracle's actual model name (opt-in override route)
     "GPT-5.5 Pro",
+    "gpt-6.1-sol",  # concrete llm-chat API default, not a native Kimi model
+    "gpt-6-astra",
+    "Grok `grok-4.7` / `xhigh`",  # external model-worker settings
 )
 
 
@@ -1062,7 +1079,17 @@ def expected_files() -> dict[str, bytes]:
         for rel, data in included_files(skill_dir).items():
             dest_rel = f"{name}/{rel}"
             if rel.endswith(".md"):
-                converted = transform_text(data.decode("utf-8"))
+                source_text = data.decode("utf-8")
+                api_models = {}
+                if name == "auto-review-loop-llm" or dest_rel == "proof-orchestrator/references/deepseek-routing.md":
+                    # API examples must retain real provider model ids.
+                    for model in ("gpt-6.1-sol", "gpt-6-astra"):
+                        marker = f"PROTECT_API_MODEL_{len(api_models)}"
+                        source_text = source_text.replace(model, marker)
+                        api_models[marker] = model
+                converted = transform_text(source_text)
+                for marker, model in api_models.items():
+                    converted = converted.replace(marker, model)
                 problems.extend(audit_text(converted, dest_rel))
                 put(dest_rel, converted.encode("utf-8"))
             else:

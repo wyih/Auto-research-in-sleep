@@ -37,7 +37,7 @@ If none exist, ask the user to describe the paper's contribution in 3-5 sentence
 
 Keep the existing workflow and outputs, but use the shared references below to improve the quality of the story and outline:
 
-- Read `../shared-references/writing-principles.md` when framing the Abstract, Introduction, Related Work, or hero figure
+- Read `../shared-references/writing-principles.md` when framing the Abstract, Introduction, Related Work, or hero figure. Plan the claims-evidence matrix under its Launch Mindset: lead with the strongest supported contribution, give each experiment an argumentative role, and bind assumptions to claims rather than building a disclaimer list.
 - Read `../shared-references/venue-checklists.md` before freezing the outline for a specific venue
 - Load these references only when they help; they are support material, not a new workflow phase
 

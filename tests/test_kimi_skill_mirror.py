@@ -16,6 +16,7 @@ Parity contract with skills/skills-codex (see tests/test_codex_skill_mirror.py):
 from __future__ import annotations
 
 import importlib.util
+import json
 import re
 import subprocess
 import sys
@@ -42,6 +43,9 @@ LEAK_WHITELIST = (
     "codex-image2",
     "gpt-5.5-pro",
     "GPT-5.5 Pro",
+    "gpt-6.1-sol",
+    "gpt-6-astra",
+    "Grok `grok-4.7` / `xhigh`",
 )
 
 LEAK_PATTERNS = {
@@ -103,7 +107,7 @@ def test_kimi_skill_set_matches_codex_line() -> None:
     main_names = skill_names(MAIN_SKILLS)
     codex_names = skill_names(CODEX_SKILLS)
     kimi_names = skill_names(KIMI_SKILLS)
-    assert len(main_names) == 113
+    assert len(main_names) == 115
     assert kimi_names == codex_names == main_names
 
 
@@ -136,7 +140,18 @@ def test_kimi_package_regeneration_is_idempotent() -> None:
         check=False,
     )
     assert result.returncode == 0, result.stderr
-    assert "113 skills" in result.stdout
+    assert "115 skills" in result.stdout
+
+
+def test_kimi_external_api_request_retains_provider_model() -> None:
+    requests = []
+    for root in (CODEX_SKILLS, KIMI_SKILLS):
+        text = read(root / "auto-review-loop-llm" / "SKILL.md")
+        payloads = [json.loads(body) for body in re.findall(r"-d '(\{[\s\S]*?\})'", text)]
+        requests.append([p for p in payloads if "max_completion_tokens" in p])
+    assert requests[0]
+    assert requests[1] == requests[0]
+    assert all(p["model"].startswith("gpt-") for p in requests[1])
 
 
 def test_kimi_no_codex_leaks_in_non_portable_files() -> None:
@@ -297,4 +312,4 @@ def test_kimi_readme_positions_the_package() -> None:
     assert "install_aris_kimi.sh" in readme
     assert "installed-skills-kimi.txt" in readme
     assert "~/.kimi-code/skills/" in readme
-    assert "`113`" in readme
+    assert "`115`" in readme

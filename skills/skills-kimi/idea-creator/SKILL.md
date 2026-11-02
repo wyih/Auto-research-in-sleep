@@ -228,14 +228,7 @@ kimi_subagent:
 
 Save the agent id for follow-up.
 
-Then spawn the **same bundle once more** as a fresh reviewer subagent at the
-host's strongest reasoning configuration, and take the union — two independent
-generations fail differently, and the union keeps one run's taste from capping
-the pool. Save both agent ids; Phase 4's `kimi_subagent_continue` follow-ups go
-to the first agent. Tag each candidate with the run that produced it; merge both
-sets by mechanical dedup only — never drop a candidate for being "weak" (that is
-the Phase-4 verdict). If the second spawn errors, print one WARN line and
-continue single-run.
+Then generate the same bundle once more with a fresh Kimi Code subagent at the host's strongest reasoning configuration. Merge the two generations by mechanical deduplication, tag each candidate with its run, and retain the first subagent for follow-ups. If the second generation is unavailable, report that and continue with the first generation.
 
 Save a Review Tracing record for this `kimi_subagent` call following `../shared-references/review-tracing.md`, including the landscape summary, prompt summary, raw idea list path, reviewer route, and saved agent id.
 
