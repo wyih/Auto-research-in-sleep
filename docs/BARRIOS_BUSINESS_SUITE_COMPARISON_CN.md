@@ -1,5 +1,7 @@
 # Barrios Skills 与 Business Research Suite：比较与吸收
 
+2026-11-02 的后续核对覆盖全部已记录技能来源及新增关联仓库，见[外部来源更新核对](BUSINESS_SUITE_UPSTREAM_REVIEW.md)。下文保留最初吸收时的版本和决策。
+
 初次审阅：2026-09-30；补充比较与吸收：2026-10-02。来源为本地克隆的 [Barrios88/barrios-skills](https://github.com/Barrios88/barrios-skills/tree/d50afc62f4c67535a1949d029dfa0462feb906fd)，提交 `d50afc62f4c67535a1949d029dfa0462feb906fd`，补充审阅时远程 HEAD 仍为该提交。筛查了四个核心目录的 47 个技能入口，深入阅读与商科研究有关的数据、计量、文本、写作、预审和展示模块及相关参考文件、代码。README 的“46 core skills”与该提交实际文件数有差异，本比较按文件内容判断。
 
 ## 判断

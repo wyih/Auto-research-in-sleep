@@ -90,6 +90,10 @@ Add it with `--reconcile --skills citation-crosscheck --skip-new`
 (PowerShell: `-Skills citation-crosscheck`). It runs for a requested field audit
 or a concrete metadata discrepancy, rather than every literature task.
 
+The optional keyless public-search fallback uses `keenable-search`; add it with
+`--reconcile --skills keenable-search --skip-new`. Existing literature sources
+and authenticated fulltext routes retain their priority.
+
 The supported runtime/install combinations are distinct:
 
 | Runtime | Installer | Keep the checkout and project in | Managed links | Protected-browser mode |

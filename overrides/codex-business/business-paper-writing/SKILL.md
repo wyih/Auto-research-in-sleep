@@ -28,6 +28,8 @@ Prefer:
 
 If the user gives a specific section, load only the files needed for that section.
 
+When the user or project explicitly selects an external writing model, use the optional writing-worker contract in `../shared-references/writing-principles.md` if its tools are configured. Pass the actual source material, supported claims, and requested files; check the returned prose against the design, estimates, citations, and author's voice. Otherwise write through the existing host workflow.
+
 Read `../shared-references/business-style-calibration.md` when applying an author style profile. Read `../shared-references/writing-principles.md` before drafting or revising prose, especially when the draft feels generic, templated, or AI-shaped. Read `../shared-references/business-handoff-schemas.md` when an actual pipeline consumer requires those schemas; equivalent supplied evidence is sufficient for standalone writing.
 
 ## Workflow

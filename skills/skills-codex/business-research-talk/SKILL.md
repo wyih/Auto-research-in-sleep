@@ -19,6 +19,7 @@ Use the available presentation/artifact skill for PPTX engineering and rendering
 2. Select the evidence that carries the argument. Record source page/table/column or output file for each displayed number, sample, definition, and consequential assumption in slide notes or source comments.
 3. Give the answer early once its meaning is intelligible. Introduce the sample, outcome, treatment/exposure, and identification before detailed empirical results; introduce agents, timing, constraints, and assumptions before theoretical propositions.
 4. Read [exhibits and discussion](references/exhibits-and-discussion.md) when reducing paper tables, adapting figures, or preparing a discussant deck. Give each slide one main job and preserve uncertainty, units, and sample context.
+   For a requested explorable, interactive, or step-by-step explanation, read [explorable presentations](references/explorable-presentations.md). Use its reveal and evidence rules within the requested format and existing design.
 5. Inspect the rendered slides at presentation scale. Fix unreadable labels, dense tables, clipped content, and titles that no longer match their exhibits. Verify all displayed numbers and derived magnitudes against their sources.
 6. If a speaker script is requested, align it with slide IDs and the actual speaking allocation. Scripts preserve the evidence strength and scope of the slide claims. Separate prepared speech from backup/Q&A material.
 
@@ -26,4 +27,4 @@ Use the available presentation/artifact skill for PPTX engineering and rendering
 
 Deliver the requested editable source/deck and a rendered preview or PDF when supported, plus any requested script. Report unresolved source conflicts, missing exhibits, or unverified rendering only when they affect usability. For `.pptx`, set document and comment/revision identity to the user's configured Office author and verify after final export.
 
-Adaptation credits: [Barrios and Lu Han sources](../shared-references/business-source-attribution.md).
+Adaptation credits: [Barrios, Lu Han, and research-feedback sources](../shared-references/business-source-attribution.md).

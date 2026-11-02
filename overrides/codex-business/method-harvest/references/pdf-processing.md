@@ -82,6 +82,8 @@ Always render and visually inspect pages containing:
 - A material claim needs a paragraph, equation, table, figure, or appendix pointer.
 - Store short evidence notes or tight paraphrases, not an unbounded copy of licensed fulltext.
 - Mark unreadable or contradictory evidence `needs_verification`; do not infer a conventional formula or repair a number.
+- Keep an empty extracted table cell empty. Check the page image before assigning a zero, borrowing a neighboring value, or declaring a row absent.
+- If independent table extractions disagree, resolve the material cells against the rendered page and retain the discrepancy in the evidence note.
 
 ## Acceptance
 

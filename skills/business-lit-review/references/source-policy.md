@@ -30,6 +30,14 @@ Search by combinations:
 
 Prefer precise queries over broad field labels.
 
+For a requested public-page search or an unavailable native web-search route,
+`keenable-search` can provide an optional keyless search/fetch transport when
+installed. `firecrawl-search` is another optional transport when its access and
+credit requirements are already configured. Keep the source priorities and
+paper-version checks above: search results locate evidence, and publisher or
+author records establish the relevant claims. Protected fulltext continues
+through `fulltext-acquire` and the authorized browser session.
+
 For passage-specific matching, follow [reference-match.md](reference-match.md). Select query families from the claims and retain null/contrary findings through nondirectional queries.
 
 ## Journal Requirements

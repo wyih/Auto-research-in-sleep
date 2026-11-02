@@ -16,6 +16,16 @@ Distinguish a failure that invalidates a conclusion from a remediable omission o
 
 Three reading perspectives can help: a method reader checks the design and inference; a field reader checks construct, contribution, and economic stakes; a prose reader checks comprehension. These are lenses for judgment, not three required agents, reports, scores, or fixed comment counts.
 
+## Source fidelity and confirmed corrections
+
+For the central findings, reconcile the abstract, introduction, results, and conclusion with the actual display: outcome, treatment, reference group, sample, period, denominator, transformation, sign, and specification. Walk the relevant table or figure, including its notes, rather than checking only the sentence that cites it. Verify cross-references that the argument depends on.
+
+Before reporting a numerical contradiction, establish comparable estimands, aggregation, samples, denominators, and periods. Recompute material percentage, percentage-point, ratio, log-point, and standardized-effect claims from their stated inputs. A ratio of means and a mean of ratios are different quantities. Check adding-up identities only when the paper defines exhaustive components on the same basis.
+
+Distinguish an established internal correction, a substantive qualification of a claim, and an optional development suggestion. Rank findings by their consequence for the central conclusion and the strength of the evidence; use the existing priority scheme when needed. One comment should identify one independently fixable issue. A missing disclosure supports a request for evidence, rather than an inferred coding error or a replacement estimate.
+
+Apply identification, robustness, randomization, formal-theory, registry, and policy checks when the manuscript contains the corresponding object or claim. Verify named robustness specifications against their displays. A claim that one subgroup effect is larger needs a direct contrast or appropriately scoped descriptive wording. Prefer the smallest correction that resolves a supported problem; additional data or analyses need a substantive reason.
+
 ## Field-specific checks
 
 | Field | Checks when relevant to the paper |

@@ -86,6 +86,9 @@ bash ~/aris_repo/tools/install_aris_codex.sh ~/your-project --uninstall
 `--reconcile --skills citation-crosscheck --skip-new` 添加
 （PowerShell：`-Skills citation-crosscheck`）。请求字段核对或发现具体元数据差异时才运行。
 
+可选的免密钥公共检索备选使用 `keenable-search`，可用
+`--reconcile --skills keenable-search --skip-new` 添加；保留原有文献来源和授权全文路线的优先级。
+
 四种运行环境需要分别处理：
 
 | 运行环境 | 安装器 | 仓库和项目应放在 | 受管链接 | 受保护浏览器路径 |
