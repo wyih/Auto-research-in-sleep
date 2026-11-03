@@ -42,7 +42,7 @@
 # 1. 克隆仓库并切到本 release
 git clone https://github.com/wyih/Auto-research-in-sleep.git
 cd Auto-research-in-sleep
-git checkout business-research-suite-v0.9.2
+git checkout business-research-suite-v0.10.0
 ```
 
 **Kimi Code 用户:**
@@ -91,6 +91,14 @@ ls ~/my-thesis/.agents/skills
 ```
 
 本版安装应该看到 29 个条目,其中包括 `business-research-suite`、`business-research-pipeline`、`business-prereview` 等 28 个 skill 加一个 `shared-references`。Claude Code 线装在 `~/my-thesis/.claude/skills`,条目相同。
+
+**按需安装附加入口:** 默认商科组保留 28 个 skill。需要开发研究工具、核对参考文献字段或使用公共网页检索备选时,分别追加 `research-implement-feature`、`citation-crosscheck` 或 `keenable-search`。例如,给已安装的 Codex 项目添加公共检索:
+
+```bash
+bash tools/install_aris_codex.sh ~/my-thesis --reconcile --skills keenable-search --skip-new
+```
+
+Kimi Code 使用 `install_aris_kimi.sh`;Claude Code 使用 `install_aris.sh --platform claude`。将示例中的 skill 名称换成所需入口,多个名称用逗号分隔。PowerShell 使用 `-Skills keenable-search -Reconcile -SkipNew`。这些入口只在相应任务需要时调用。
 
 > 注意:**一个项目只装一条线**。如果这个项目之前装过 Codex 线,先 `bash tools/install_aris_codex.sh ~/my-thesis --uninstall`,再装 Kimi 线,反之亦然。两条线的卸载互不影响。Claude Code 线用 `.claude/skills` 和自己的清单 `.aris/installed-skills.txt`,不占用 `.agents/skills`;项目里已有 `.agents/` 时一定要带 `--platform claude`,否则安装器会自动转交 Codex 安装器。
 >
@@ -191,7 +199,7 @@ bash tools/smart_update_kimi.sh --apply --project ~/my-thesis
 ```bash
 cd Auto-research-in-sleep
 git fetch origin --tags
-git checkout business-research-suite-v0.9.2
+git checkout business-research-suite-v0.10.0
 
 # Codex 线:
 bash tools/install_aris_codex.sh ~/my-thesis --groups business-research --reconcile --office-author "你的名字"
@@ -224,6 +232,17 @@ bash tools/install_aris.sh ~/my-thesis --platform claude --uninstall
 - **想知道审稿意见可信吗** → 审阅类 skill 默认是同族模型互审,结果诚实标注 `same-family / provisional`;需要跨族复审时,按 `docs/KIMI_ADAPTATION.md` 注册 `mcp-servers/llm-chat`。
 
 ## 近期技能增补
+
+v0.10.0 汇总 v0.9.2 之后的上游同步和外部来源更新:
+
+- **研究工具开发:** 按需调用 `research-implement-feature`,先做出可运行的年报解析器、实体匹配器或变量计算工具,记录会影响样本和指标含义的实现选择。
+- **参考文献字段核对:** 按需调用 `citation-crosscheck`,逐项核对 `.bib` 中的作者、年份、期刊和标识符;引文是否支持正文主张继续由 `business-claim-source-audit` 核验。
+- **公共检索备选:** 增加免密钥的 `keenable-search`,保留现有学术来源、全文获取和方法提取顺序。
+- **预审与 PDF 核验:** 对齐样本、时期、分母、单位和估计口径后再比较数字;区分已核实的纠错、实质限定和可选建议;PDF 表格中的空白单元格与抽取差异回到原页核对。
+- **研究报告:** 用户要求交互式或逐步展开讲解时,加入渐进展示、统一图表口径和完整静态讲义的指导,继续使用所需的 PPTX、Beamer 或网页格式。
+- **可选外部写作模型:** 用户或项目明确选择且已配置时调用,再核对研究设计、估计结果、引文和作者声音。常规写作与默认审稿方式保留。
+
+Codex、Kimi Code 与 Claude Code 共用本发行标签。完整来源版本和采用理由见[外部来源更新核对](BUSINESS_SUITE_UPSTREAM_REVIEW.md)。
 
 v0.9.2 为 `business-lit-review` 增加 `reference_match` 模式,用于给具体句子或段落匹配文献。你可以说「给引言第二段找引用,优先近五年的会计期刊」或「只在我提供的论文里找支持这两句话的证据」。输出逐项对应主张、引用角色、核验结论、来源版本和证据位置,并提供可用的引用措辞；具体方法和机制陈述按需要核对全文。已有引用的准确性由 `business-claim-source-audit` 使用同一套规则核验。
 
