@@ -42,7 +42,7 @@
 # 1. 克隆仓库并切到本 release
 git clone https://github.com/wyih/Auto-research-in-sleep.git
 cd Auto-research-in-sleep
-git checkout business-research-suite-v0.10.1
+git checkout business-research-suite-v0.11.0
 ```
 
 **Kimi Code 用户:**
@@ -199,7 +199,7 @@ bash tools/smart_update_kimi.sh --apply --project ~/my-thesis
 ```bash
 cd Auto-research-in-sleep
 git fetch origin --tags
-git checkout business-research-suite-v0.10.1
+git checkout business-research-suite-v0.11.0
 
 # Codex / Antigravity 线:
 bash tools/install_aris_codex.sh ~/my-thesis --groups business-research --reconcile --office-author "你的名字"
@@ -233,7 +233,7 @@ bash tools/install_aris.sh ~/my-thesis --platform claude --uninstall
 
 ## 近期技能增补
 
-v0.10.1 新增 Google Antigravity 宿主适配(复用 `.agents/skills` 安装面与 `install_aris_codex.sh`),支持官方原生 `/browser`(Browser Subagent / `chrome-devtools-plugin`)浏览器路由(`antigravity_chrome`,不依赖第三方浏览器 MCP)、工作区沙箱下载与 Word 署名边界、`invoke_subagent` / `send_message` 原生隔离审稿与双盲引文核对路由。
+v0.11.0 新增 Google Antigravity 宿主适配(复用 `.agents/skills` 安装面与 `install_aris_codex.sh`),支持官方原生 `/browser`(Browser Subagent / `chrome-devtools-plugin`)浏览器路由(`antigravity_chrome`,不依赖第三方浏览器 MCP)、工作区沙箱下载与 Word 署名边界、`invoke_subagent` / `send_message` 原生隔离审稿与双盲引文核对路由。
 
 v0.10.0 汇总 v0.9.2 之后的上游同步和外部来源更新:
 
