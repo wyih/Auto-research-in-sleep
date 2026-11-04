@@ -83,7 +83,7 @@ class BusinessBrowserPortabilityTests(unittest.TestCase):
         ):
             self.assertIn(token, bridge + kimi_adapter)
         for token in (
-            "chrome-mcp",
+            "antigravity_browser_subagent",
             "client_runtime: antigravity",
             "adapter: antigravity_chrome",
             "fallback_directory_increment",
@@ -96,7 +96,7 @@ class BusinessBrowserPortabilityTests(unittest.TestCase):
             "openclaw",
             "ego-browser",
             "chrome-devtools-mcp",
-            "grok-chrome-mcp",
+            "chrome-mcp",
         ):
             self.assertNotIn(
                 forbidden,

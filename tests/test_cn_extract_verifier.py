@@ -258,7 +258,7 @@ class CNExtractVerifierTests(unittest.TestCase):
                 fixture.receipt_path, fixture.repo, fixture.run, "antigravity"
             )
             crossed = fixture.verify()  # expected runtime remains codex
-            payload["mcp_server"] = "chrome-devtools"
+            payload["mcp_server"] = "chrome-mcp"
             fixture.write_payload(payload)
             wrong_binding = verifier.verify_receipt(
                 fixture.receipt_path, fixture.repo, fixture.run, "antigravity"

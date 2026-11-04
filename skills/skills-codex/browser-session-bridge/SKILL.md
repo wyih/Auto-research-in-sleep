@@ -18,7 +18,7 @@ Exactly four adapters are trusted, one per host CLI. Choose by the host CLI, nev
 | Codex | Native Chrome through current CUA tools or legacy `chrome:control-chrome`; see the Codex adapter reference | `codex` | `codex_native_chrome` |
 | Kimi Code | `kimi-webbridge` local daemon driving the user's real browser | `kimi` | `kimi_webbridge` |
 | Claude Code | Claude in Chrome extension (`claude-in-chrome` MCP server) driving the user's signed-in Chrome | `claude_code` | `claude_in_chrome` |
-| Antigravity | Antigravity Chrome extension (`chrome-mcp` MCP server) driving the user's signed-in Chrome | `antigravity` | `antigravity_chrome` |
+| Antigravity | Native Browser Subagent (`/browser`, `browser_*` tools) / official `chrome-devtools-plugin` | `antigravity` | `antigravity_chrome` |
 
 Every other browser backend remains forbidden: standalone Playwright, a clean or automation-only profile, and any third-party browser bridge or MCP browser server. `kimi_webbridge`, `claude_in_chrome`, and `antigravity_chrome` are host-specific trusted backends, not an opening for arbitrary ones.
 

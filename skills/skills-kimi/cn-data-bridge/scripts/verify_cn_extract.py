@@ -50,8 +50,8 @@ CLAUDE_BINDINGS: Mapping[str, str] = {
 }
 ANTIGRAVITY_ADAPTER = "antigravity_chrome"
 ANTIGRAVITY_BINDINGS: Mapping[str, str] = {
-    "mcp_server": "chrome-mcp",
-    "implementation": "antigravity_chrome_extension",
+    "mcp_server": "native",
+    "implementation": "antigravity_browser_subagent",
     "profile_mode": "existing_user_chrome",
 }
 TRUSTED_ADAPTERS: Mapping[Runtime, tuple[str, Mapping[str, str]]] = {

@@ -24,7 +24,7 @@
   - Kimi Code 用户装 **Kimi WebBridge** 浏览器扩展
   - Codex 用户使用 **Computer Use 中连接到 Chrome 的原生工具**,由 `browser-session-bridge` 按当前环境路由并复用已登录的 Chrome;旧环境仍提供 `chrome:control-chrome` 时也可使用对应接口。需要浏览器的任务应在具备该工具和 Chrome 连接的 Codex 环境中运行。
   - Claude Code 用户装 **Claude in Chrome** 扩展,用 `claude --chrome` 启动,或在 `/chrome` 里选 "Enabled by default"。浏览器集成只在 `/login` 订阅登录下可用,API key、`setup-token`、Bedrock 等登录方式没有这项功能。连着多个 Chrome 时,在 `/chrome` → "Select browser…" 里选,或在请求里说明用哪个实例;扩展的站点权限对 Claude 生效,读取某个站点页面被拒时需要你在扩展里允许该站点。
-  - Antigravity 用户使用内置的 **Antigravity Chrome (`chrome-mcp`)** 集成连接已登录的 Chrome 实例。
+  - Antigravity 用户使用官方原生的 **`/browser`（Browser Subagent，`browser_*` 工具）** 与官方 Chrome DevTools 插件（`antigravity-plugins-official/plugin/chrome-devtools-plugin`），不依赖第三方浏览器 MCP 桥接。
 - **按你的数据来源,可能需要:**
   - WRDS 账号(用美股/Compustat/CRSP 数据时)
   - CSMAR / CNRDS 账号(用中国数据时,一般走学校图书馆入口)
@@ -162,7 +162,7 @@ kimi        # Kimi Code 用户;Codex 用户用 codex;Claude Code 用户用 claud
 
 1. **公开数据(最简单)**:`business-public-data` 处理 SEC EDGAR/XBRL 和官方宏观序列；支持已配置连接器与官方 API，并记录单位、频率和研究所需的历史版本。Kimi Code 下直接用官方数据源插件——Wind、S&P、SEC EDGAR、Yahoo Finance、国家统计局、FRED/IMF/世界银行、天眼查、国标法规、arXiv/Scholar、新华财经/财新。宏观、公告、标准、文献类需求优先走这里。
 2. **WRDS**:有账号就配置好 R + Postgres,套件负责抽取、缓存、链接表和来源清单;大任务超时了会自动交接 SAS Cloud 路径。
-3. **CSMAR / CNRDS / CNKI 门户**:需要你自己在浏览器里登录(套件不碰你的账号密码)。Kimi Code 用户装 Kimi WebBridge 扩展、Codex 用户通过 Computer Use 连接 Chrome、Claude Code 用户用 Claude in Chrome、Antigravity 用户用内置 `chrome-mcp` 连接 Chrome;套件借用你已登录的会话做检索和导出,下载文件会逐一校验。
+3. **CSMAR / CNRDS / CNKI 门户**:需要你自己在浏览器里登录(套件不碰你的账号密码)。Kimi Code 用户装 Kimi WebBridge 扩展、Codex 用户通过 Computer Use 连接 Chrome、Claude Code 用户用 Claude in Chrome、Antigravity 用户用官方原生 `/browser`（Browser Subagent）或官方 `chrome-devtools-plugin`;套件借用你已登录的会话做检索和导出,下载文件会逐一校验。
 
 ---
 
@@ -228,12 +228,12 @@ bash tools/install_aris.sh ~/my-thesis --platform claude --uninstall
 
 - **安装器报 CONFLICT、什么都不写** → 这个项目已被另一条线管理,先卸载那条线(见第 2 节末尾)。
 - **提示要 `--office-author`** → 你选了 `results-to-docx`,补上 `--office-author "你的名字"` 即可。
-- **数据下载失败/校验不过** → 先确认你在浏览器里已登录对应平台,且浏览器连接可用(Kimi 的 WebBridge 扩展 / Codex Computer Use 的 Chrome 连接 / Claude Code 的 `/chrome` 状态 / Antigravity 的 `chrome-mcp` 连接);仍不行就把报错原样发给宿主,它会检查下载面板、原生下载入口和实际保存的文件。
+- **数据下载失败/校验不过** → 先确认你在浏览器里已登录对应平台,且浏览器连接可用(Kimi 的 WebBridge 扩展 / Codex Computer Use 的 Chrome 连接 / Claude Code 的 `/chrome` 状态 / Antigravity 官方 `/browser` 与 `chrome-devtools-plugin`);仍不行就把报错原样发给宿主,它会检查下载面板、原生下载入口和实际保存的文件。
 - **想知道审稿意见可信吗** → 审阅类 skill 默认是同族模型互审,结果诚实标注 `same-family / provisional`;需要跨族复审时,按 `docs/KIMI_ADAPTATION.md` 注册 `mcp-servers/llm-chat`。
 
 ## 近期技能增补
 
-v0.10.1 新增 Google Antigravity 宿主适配(复用 `.agents/skills` 安装面与 `install_aris_codex.sh`),支持内置 `chrome-mcp` 浏览器会话复用(`antigravity_chrome`)、工作区沙箱下载与 Word 署名边界、`invoke_subagent` / `send_message` 原生隔离审稿与双盲引文核对路由。
+v0.10.1 新增 Google Antigravity 宿主适配(复用 `.agents/skills` 安装面与 `install_aris_codex.sh`),支持官方原生 `/browser`(Browser Subagent / `chrome-devtools-plugin`)浏览器路由(`antigravity_chrome`,不依赖第三方浏览器 MCP)、工作区沙箱下载与 Word 署名边界、`invoke_subagent` / `send_message` 原生隔离审稿与双盲引文核对路由。
 
 v0.10.0 汇总 v0.9.2 之后的上游同步和外部来源更新:
 
