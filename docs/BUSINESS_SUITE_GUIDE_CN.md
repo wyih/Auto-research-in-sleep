@@ -1,6 +1,6 @@
 # Business Research Suite 使用指南(学生版)
 
-这套件把一篇商科论文(会计、金融、管理、经济)的整个流程拆成一串 skill,你在 Kimi Code、Codex 或 Claude Code 里用大白话驱动,它逐步带你走完:
+这套件把一篇商科论文(会计、金融、管理、经济)的整个流程拆成一串 skill,你在 Kimi Code、Codex、Claude Code 或 Antigravity 里用大白话驱动,它逐步带你走完:
 
 **选题 → 查新 → 研究设计 → 拿数据 → 分析 → 审计 → 写作 → 预审 → 按意见修改**
 
@@ -15,20 +15,20 @@
 - 一台电脑,装有 `git`:
   - **macOS / Linux**:直接打开终端用下面的命令
   - **Windows**:两条路——Codex 线有原生 PowerShell 安装器(`tools/install_aris.ps1`,用 junction 链接,不需要管理员权限);Claude Code 线也可用同一个 PowerShell 安装器(`-Platform claude`);Kimi 线的安装器是 bash 脚本,请在 **WSL**(Windows 的 Linux 子系统)里运行。PowerShell 里 `git`、`cd`、`mkdir`、`ls` 命令和本文写法一致,只有安装/升级脚本要按你的线选对版本
-- 一个宿主环境,三选一:
+- 一个宿主环境,四选一:
   - **Kimi Code CLI**(推荐):<https://www.kimi.com/code> 按官方指引安装
   - **Codex CLI**:<https://github.com/openai/codex> 按官方指引安装
   - **Claude Code**:<https://code.claude.com/docs> 按官方指引安装,在 Claude Code 里用 `/login` 登录 claude.ai 账号;Pro、Max 等订阅即可使用,不需要单独的 Anthropic API key
-
-**按你的数据来源,可能需要:**
-
-- WRDS 账号(用美股/Compustat/CRSP 数据时)
-- CSMAR / CNRDS 账号(用中国数据时,一般走学校图书馆入口)
-- CNKI 可访问环境(需要中文文献全文时)
+  - **Google Antigravity**:直接打开装有 `.agents/skills` 的项目工作区即可发现并调用整套商科 skill
 - 浏览器桥(需要从 CSMAR/CNRDS/CNKI 网页导出数据时;复用你浏览器里已登录的会话,套件不会替你登录):
   - Kimi Code 用户装 **Kimi WebBridge** 浏览器扩展
   - Codex 用户使用 **Computer Use 中连接到 Chrome 的原生工具**,由 `browser-session-bridge` 按当前环境路由并复用已登录的 Chrome;旧环境仍提供 `chrome:control-chrome` 时也可使用对应接口。需要浏览器的任务应在具备该工具和 Chrome 连接的 Codex 环境中运行。
   - Claude Code 用户装 **Claude in Chrome** 扩展,用 `claude --chrome` 启动,或在 `/chrome` 里选 "Enabled by default"。浏览器集成只在 `/login` 订阅登录下可用,API key、`setup-token`、Bedrock 等登录方式没有这项功能。连着多个 Chrome 时,在 `/chrome` → "Select browser…" 里选,或在请求里说明用哪个实例;扩展的站点权限对 Claude 生效,读取某个站点页面被拒时需要你在扩展里允许该站点。
+  - Antigravity 用户使用内置的 **Antigravity Chrome (`chrome-mcp`)** 集成连接已登录的 Chrome 实例。
+- **按你的数据来源,可能需要:**
+  - WRDS 账号(用美股/Compustat/CRSP 数据时)
+  - CSMAR / CNRDS 账号(用中国数据时,一般走学校图书馆入口)
+  - CNKI 可访问环境(需要中文文献全文时)
 
 没有这些账号也能开始:选题、查新、研究设计、写作、预审都不需要数据账号。
 
@@ -42,7 +42,7 @@
 # 1. 克隆仓库并切到本 release
 git clone https://github.com/wyih/Auto-research-in-sleep.git
 cd Auto-research-in-sleep
-git checkout business-research-suite-v0.10.0
+git checkout business-research-suite-v0.10.1
 ```
 
 **Kimi Code 用户:**
@@ -53,7 +53,7 @@ mkdir -p ~/my-thesis
 bash tools/install_aris_kimi.sh ~/my-thesis --groups business-research --office-author "你的名字"
 ```
 
-**Codex 用户:**
+**Codex / Antigravity 用户:**
 
 ```bash
 mkdir -p ~/my-thesis
@@ -162,7 +162,7 @@ kimi        # Kimi Code 用户;Codex 用户用 codex;Claude Code 用户用 claud
 
 1. **公开数据(最简单)**:`business-public-data` 处理 SEC EDGAR/XBRL 和官方宏观序列；支持已配置连接器与官方 API，并记录单位、频率和研究所需的历史版本。Kimi Code 下直接用官方数据源插件——Wind、S&P、SEC EDGAR、Yahoo Finance、国家统计局、FRED/IMF/世界银行、天眼查、国标法规、arXiv/Scholar、新华财经/财新。宏观、公告、标准、文献类需求优先走这里。
 2. **WRDS**:有账号就配置好 R + Postgres,套件负责抽取、缓存、链接表和来源清单;大任务超时了会自动交接 SAS Cloud 路径。
-3. **CSMAR / CNRDS / CNKI 门户**:需要你自己在浏览器里登录(套件不碰你的账号密码)。Kimi Code 用户装 Kimi WebBridge 扩展、Codex 用户通过 Computer Use 连接 Chrome、Claude Code 用户用 Claude in Chrome;套件借用你已登录的会话做检索和导出,下载文件会逐一校验。
+3. **CSMAR / CNRDS / CNKI 门户**:需要你自己在浏览器里登录(套件不碰你的账号密码)。Kimi Code 用户装 Kimi WebBridge 扩展、Codex 用户通过 Computer Use 连接 Chrome、Claude Code 用户用 Claude in Chrome、Antigravity 用户用内置 `chrome-mcp` 连接 Chrome;套件借用你已登录的会话做检索和导出,下载文件会逐一校验。
 
 ---
 
@@ -199,9 +199,9 @@ bash tools/smart_update_kimi.sh --apply --project ~/my-thesis
 ```bash
 cd Auto-research-in-sleep
 git fetch origin --tags
-git checkout business-research-suite-v0.10.0
+git checkout business-research-suite-v0.10.1
 
-# Codex 线:
+# Codex / Antigravity 线:
 bash tools/install_aris_codex.sh ~/my-thesis --groups business-research --reconcile --office-author "你的名字"
 
 # Claude Code 线:
@@ -228,10 +228,12 @@ bash tools/install_aris.sh ~/my-thesis --platform claude --uninstall
 
 - **安装器报 CONFLICT、什么都不写** → 这个项目已被另一条线管理,先卸载那条线(见第 2 节末尾)。
 - **提示要 `--office-author`** → 你选了 `results-to-docx`,补上 `--office-author "你的名字"` 即可。
-- **数据下载失败/校验不过** → 先确认你在浏览器里已登录对应平台,且浏览器连接可用(Kimi 的 WebBridge 扩展 / Codex Computer Use 的 Chrome 连接 / Claude Code 的 `/chrome` 状态);仍不行就把报错原样发给宿主,它会检查下载面板、原生下载入口和实际保存的文件。
+- **数据下载失败/校验不过** → 先确认你在浏览器里已登录对应平台,且浏览器连接可用(Kimi 的 WebBridge 扩展 / Codex Computer Use 的 Chrome 连接 / Claude Code 的 `/chrome` 状态 / Antigravity 的 `chrome-mcp` 连接);仍不行就把报错原样发给宿主,它会检查下载面板、原生下载入口和实际保存的文件。
 - **想知道审稿意见可信吗** → 审阅类 skill 默认是同族模型互审,结果诚实标注 `same-family / provisional`;需要跨族复审时,按 `docs/KIMI_ADAPTATION.md` 注册 `mcp-servers/llm-chat`。
 
 ## 近期技能增补
+
+v0.10.1 新增 Google Antigravity 宿主适配(复用 `.agents/skills` 安装面与 `install_aris_codex.sh`),支持内置 `chrome-mcp` 浏览器会话复用(`antigravity_chrome`)、工作区沙箱下载与 Word 署名边界、`invoke_subagent` / `send_message` 原生隔离审稿与双盲引文核对路由。
 
 v0.10.0 汇总 v0.9.2 之后的上游同步和外部来源更新:
 
@@ -242,7 +244,7 @@ v0.10.0 汇总 v0.9.2 之后的上游同步和外部来源更新:
 - **研究报告:** 用户要求交互式或逐步展开讲解时,加入渐进展示、统一图表口径和完整静态讲义的指导,继续使用所需的 PPTX、Beamer 或网页格式。
 - **可选外部写作模型:** 用户或项目明确选择且已配置时调用,再核对研究设计、估计结果、引文和作者声音。常规写作与默认审稿方式保留。
 
-Codex、Kimi Code 与 Claude Code 共用本发行标签。完整来源版本和采用理由见[外部来源更新核对](BUSINESS_SUITE_UPSTREAM_REVIEW.md)。
+Codex、Kimi Code、Claude Code 与 Antigravity 共用本发行标签。完整来源版本和采用理由见[外部来源更新核对](BUSINESS_SUITE_UPSTREAM_REVIEW.md)。
 
 v0.9.2 为 `business-lit-review` 增加 `reference_match` 模式,用于给具体句子或段落匹配文献。你可以说「给引言第二段找引用,优先近五年的会计期刊」或「只在我提供的论文里找支持这两句话的证据」。输出逐项对应主张、引用角色、核验结论、来源版本和证据位置,并提供可用的引用措辞；具体方法和机制陈述按需要核对全文。已有引用的准确性由 `business-claim-source-audit` 使用同一套规则核验。
 

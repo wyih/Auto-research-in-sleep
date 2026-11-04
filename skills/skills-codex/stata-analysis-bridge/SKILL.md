@@ -93,7 +93,7 @@ JOBID=$("$STATA_SUBMIT" do/04_main_results.do)
 "$STATA_SUBMIT" --wait "$JOBID"
 ```
 
-Inside Codex `exec_command` sessions, use foreground mode so the tool keeps the process alive until Stata writes its log:
+Inside Codex `exec_command` or Antigravity `run_command` sessions, use foreground mode so the tool keeps the process alive until Stata writes its log:
 
 ```bash
 "$STATA_SUBMIT" --foreground do/04_main_results.do

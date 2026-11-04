@@ -125,3 +125,20 @@ def test_bridge_defaults(tmp_path, backend, model, effort):
 def test_bridge_rejects_unsupported_effort(tmp_path, backend, effort):
     with pytest.raises(ValueError, match="reviewer effort must"):
         resolve_route(tmp_path, "codex", reviewer=backend, effort=effort)
+
+
+def test_antigravity_host_defaults_and_overrides(tmp_path):
+    route = resolve_route(tmp_path, "antigravity")
+    assert route["backend"] == "antigravity"
+    assert route["transport"] == "native"
+    assert route["source"] == "host-default"
+    assert route["model"] == "gemini-4-argon-high"
+    assert route["effort"] == "high"
+    assert route["fresh_tool"] == "invoke_subagent"
+    assert route["continuation_tool"] == "send_message"
+
+    mcp_route = resolve_route(tmp_path, "antigravity", reviewer="codex")
+    assert mcp_route["backend"] == "codex"
+    assert mcp_route["transport"] == "codex-mcp"
+    assert mcp_route["fresh_tool"] == "mcp__codex__codex"
+    assert mcp_route["continuation_tool"] == "mcp__codex__codex-reply"

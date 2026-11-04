@@ -1,6 +1,6 @@
 # Claude in Chrome Adapter
 
-Use this adapter only when the current runtime is Claude Code and its Claude in Chrome integration is connected. It drives the user's real Chrome (or another supported Chromium browser) through the Claude in Chrome extension, reusing that profile's existing sign-ins. The user's explicit browser choice remains in force. Under Codex use [codex-chrome.md](codex-chrome.md); under Kimi Code use [kimi-webbridge.md](kimi-webbridge.md). Never mix bindings in one operation.
+Use this adapter only when the current runtime is Claude Code and its Claude in Chrome integration is connected. It drives the user's real Chrome (or another supported Chromium browser) through the Claude in Chrome extension, reusing that profile's existing sign-ins. The user's explicit browser choice remains in force. Under Codex use [codex-chrome.md](codex-chrome.md); under Kimi Code use [kimi-webbridge.md](kimi-webbridge.md); under Antigravity use [antigravity-chrome.md](antigravity-chrome.md). Never mix bindings in one operation.
 
 ## Availability
 

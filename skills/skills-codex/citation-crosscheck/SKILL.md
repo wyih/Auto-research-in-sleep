@@ -21,7 +21,8 @@ allowed-tools: Bash(*), Read, Grep, Glob, Write, WebFetch, WebSearch
 > `allowed-tools`), so:
 > - **If** the host can dispatch B in a genuinely isolated context that does **not** inherit
 >   the main agent's history (which has already read the `.bib` in Step 1) — passing B only
->   the title+first-author list — B may set `blind:true` and the run certifies normally.
+>   the title+first-author list (for example via Antigravity's `invoke_subagent`, which starts
+>   an independent subagent conversation) — B may set `blind:true` and the run certifies normally.
 > - **Otherwise** (B would run in the main context, or "fresh sequential context" cannot be
 >   guaranteed to drop the parent's `.bib` view), B MUST set `blind:false`. The Step-3.5
 >   gate then **downgrades every `MATCH`/`MINOR` to `ESCALATE`**: the run still *flags*

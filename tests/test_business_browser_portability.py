@@ -65,6 +65,9 @@ class BusinessBrowserPortabilityTests(unittest.TestCase):
         claude_adapter = (
             SKILLS / "browser-session-bridge" / "references" / "claude-in-chrome.md"
         ).read_text(encoding="utf-8")
+        antigravity_adapter = (
+            SKILLS / "browser-session-bridge" / "references" / "antigravity-chrome.md"
+        ).read_text(encoding="utf-8")
         for token in (
             "chrome:control-chrome",
             "client_runtime: codex",
@@ -79,6 +82,13 @@ class BusinessBrowserPortabilityTests(unittest.TestCase):
             "fallback_directory_increment",
         ):
             self.assertIn(token, bridge + kimi_adapter)
+        for token in (
+            "chrome-mcp",
+            "client_runtime: antigravity",
+            "adapter: antigravity_chrome",
+            "fallback_directory_increment",
+        ):
+            self.assertIn(token, bridge + antigravity_adapter)
         for forbidden in (
             "grok_chrome",
             "opencode",
@@ -86,10 +96,18 @@ class BusinessBrowserPortabilityTests(unittest.TestCase):
             "openclaw",
             "ego-browser",
             "chrome-devtools-mcp",
-            "chrome-mcp",
+            "grok-chrome-mcp",
         ):
             self.assertNotIn(
-                forbidden, (bridge + adapter + kimi_adapter + claude_adapter + contract).lower()
+                forbidden,
+                (
+                    bridge
+                    + adapter
+                    + kimi_adapter
+                    + claude_adapter
+                    + antigravity_adapter
+                    + contract
+                ).lower(),
             )
 
     def test_non_codex_browser_resources_are_absent(self) -> None:

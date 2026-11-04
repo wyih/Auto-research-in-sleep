@@ -1,6 +1,6 @@
 # Portable Business Skill Helper Resolution
 
-Business skills are authored under `skills/<name>` and packaged under `skills/skills-codex/<name>`. Codex and Kimi Code normally consume project-local symlinks at `.agents/skills/<name>`; Claude Code consumes `.claude/skills/<name>`. Never assume the current working directory is the ARIS repository.
+Business skills are authored under `skills/<name>` and packaged under `skills/skills-codex/<name>`. Codex, Kimi Code, and Antigravity normally consume project-local symlinks at `.agents/skills/<name>`; Claude Code consumes `.claude/skills/<name>`. Never assume the current working directory is the ARIS repository.
 
 When the host reports the invoked skill's base directory (Claude Code shows it as the skill's base directory), validate its `SKILL.md` and use that directory. Otherwise, before invoking a bundled script, resolve and validate its skill directory:
 
@@ -14,6 +14,7 @@ resolve_business_skill_dir() {
     "${ARIS_REPO:-}/skills/skills-codex/$skill_name" \
     "${ARIS_REPO:-}/skills/$skill_name" \
     "${HOME}/.agents/skills/$skill_name" \
+    "${HOME}/.gemini/antigravity/skills/$skill_name" \
     "${HOME}/.codex/skills/$skill_name" \
     "${HOME}/.claude/skills/$skill_name"
   do

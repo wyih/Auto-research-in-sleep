@@ -114,8 +114,12 @@ python3 "$RESULTS_DOCX_SKILL_DIR/scripts/build_results_docx.py" \
 ```
 
 The normal install path has already required the user to supply an Office
-author and stored it outside the project. Add `--author "<intended author>"`
-only when this artifact should override that installed user default.
+author and stored it outside the project (`~/.aris/office-author`). Add
+`--author "<intended author>"` when this artifact should override that installed
+user default, or under a workspace-isolated sandbox (such as Antigravity) where
+`~/.aris/office-author` is outside the workspace boundary (alternatively, run
+the single `build_results_docx.py` command with `BypassSandbox: true`; never
+copy `office-author` into `.aris/` inside the project).
 
 The CLI is the reusable acceptance path. It validates tidy input types and
 within-model metadata, rejects duplicate coefficients and unsafe manuscript
@@ -277,7 +281,7 @@ env TMPDIR=/private/tmp "$PYTHON" "$DOCUMENTS_SKILL_DIR/render_docx.py" \
   --emit_pdf
 ```
 
-Without that skill (for example under Claude Code), use LibreOffice and Poppler when installed:
+Without that skill (for example under Claude Code or Antigravity), use LibreOffice and Poppler when installed:
 
 ```bash
 soffice --headless --convert-to pdf --outdir analysis/output/results_docx/rendered \

@@ -26,7 +26,7 @@ from pathlib import Path, PurePosixPath
 from typing import Any, Literal, Mapping, Sequence
 
 
-Runtime = Literal["codex", "kimi", "claude_code"]
+Runtime = Literal["codex", "kimi", "claude_code", "antigravity"]
 Site = Literal["cnrds", "csmar"]
 
 SCHEMA_VERSION = "aris.cn-data-bridge.extract-verification.v1"
@@ -48,10 +48,17 @@ CLAUDE_BINDINGS: Mapping[str, str] = {
     "implementation": "claude_in_chrome_extension",
     "profile_mode": "existing_user_chrome",
 }
+ANTIGRAVITY_ADAPTER = "antigravity_chrome"
+ANTIGRAVITY_BINDINGS: Mapping[str, str] = {
+    "mcp_server": "chrome-mcp",
+    "implementation": "antigravity_chrome_extension",
+    "profile_mode": "existing_user_chrome",
+}
 TRUSTED_ADAPTERS: Mapping[Runtime, tuple[str, Mapping[str, str]]] = {
     "codex": (CODEX_ADAPTER, CODEX_BINDINGS),
     "kimi": (KIMI_ADAPTER, KIMI_BINDINGS),
     "claude_code": (CLAUDE_ADAPTER, CLAUDE_BINDINGS),
+    "antigravity": (ANTIGRAVITY_ADAPTER, ANTIGRAVITY_BINDINGS),
 }
 MAX_ARCHIVE_MEMBERS = 100
 MAX_ARCHIVE_BYTES = 64 * 1024 * 1024

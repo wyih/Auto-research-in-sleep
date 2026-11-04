@@ -12,7 +12,7 @@ import sys
 ALIASES = {"gemini": "antigravity", "claude": "claude-code", "claude-review": "claude-code"}
 BACKENDS = {"codex", "antigravity", "grok", "claude-code"}
 LEGACY_BACKENDS = {"oracle-pro", "agy", "manual", "copilot", "copilot-native"}
-HOSTS = {"codex", "claude-code", "copilot"}
+HOSTS = {"codex", "claude-code", "copilot", "antigravity"}
 TOOLS = {
     "antigravity": ("mcp__antigravity__antigravity", "mcp__antigravity__antigravity-reply"),
     "grok": ("mcp__grok__grok", "mcp__grok__grok-reply"),
@@ -73,7 +73,11 @@ def resolve_route(
     if tier not in {"deep", "regular"}:
         raise ValueError(f"unknown review tier: {tier!r}")
     config = _config(project)
-    default = _backend(default_reviewer) if default_reviewer is not None else "codex"
+    default = (
+        _backend(default_reviewer)
+        if default_reviewer is not None
+        else ("antigravity" if host == "antigravity" else "codex")
+    )
     project_backend = config.get("backend", default)
     backend = _backend(reviewer) if reviewer is not None else project_backend
     source = "inline" if reviewer is not None else "project" if config else "host-default"
@@ -104,6 +108,9 @@ def resolve_route(
         selected_effort = selected_effort or "high"
         if selected_effort not in {"low", "medium", "high", "xhigh", "max"}:
             raise ValueError("Antigravity reviewer effort must be low, medium, high, xhigh, or max")
+        if host == "antigravity":
+            transport = "native"
+            fresh_tool, continuation_tool = "invoke_subagent", "send_message"
     elif backend == "grok":
         selected_model = selected_model or "grok-4.7"
         selected_effort = selected_effort or "xhigh"
@@ -111,7 +118,7 @@ def resolve_route(
             raise ValueError("Grok reviewer effort must be low, medium, high, or xhigh")
     elif selected_effort is not None:
         raise ValueError("claude-code bridge cannot enforce effort; omit it and use existing CLI config")
-    if backend in TOOLS:
+    if backend in TOOLS and transport == "mcp":
         fresh_tool, continuation_tool = TOOLS[backend]
     return {
         "backend": backend,

@@ -237,6 +237,41 @@ class CNExtractVerifierTests(unittest.TestCase):
             {check.name for check in wrong_binding.checks if not check.ok},
         )
 
+    def test_accepts_antigravity_chrome_receipt_and_rejects_crossed_or_wrong_binding(self) -> None:
+        with tempfile.TemporaryDirectory() as folder:
+            fixture = ExtractFixture(Path(folder), "csmar")
+            payload = fixture.payload()
+            payload["runtime"] = "antigravity"
+            payload["client_runtime"] = "antigravity"
+            payload["adapter"] = verifier.ANTIGRAVITY_ADAPTER
+            payload.update(verifier.ANTIGRAVITY_BINDINGS)
+            payload["download_transport"] = {
+                "ui_export_completed": True,
+                "ui_local_save_clicked": True,
+                "browser_download_event_observed": False,
+                "download_event": "unsupported",
+                "completion": "fallback_directory_increment",
+                "temporary_url_persisted": False,
+            }
+            fixture.write_payload(payload)
+            accepted = verifier.verify_receipt(
+                fixture.receipt_path, fixture.repo, fixture.run, "antigravity"
+            )
+            crossed = fixture.verify()  # expected runtime remains codex
+            payload["mcp_server"] = "chrome-devtools"
+            fixture.write_payload(payload)
+            wrong_binding = verifier.verify_receipt(
+                fixture.receipt_path, fixture.repo, fixture.run, "antigravity"
+            )
+
+        self.assertTrue(accepted.ok, [check for check in accepted.checks if not check.ok])
+        self.assertFalse(crossed.ok)
+        self.assertFalse(wrong_binding.ok)
+        self.assertIn(
+            "runtime adapter binding:mcp_server",
+            {check.name for check in wrong_binding.checks if not check.ok},
+        )
+
     def test_rejects_crossed_runtime_adapter_pair(self) -> None:
         with tempfile.TemporaryDirectory() as folder:
             fixture = ExtractFixture(Path(folder), "cnrds")

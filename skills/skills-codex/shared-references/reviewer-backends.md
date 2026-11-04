@@ -20,7 +20,7 @@ Supported routes:
 | Backend | Transport and default pair |
 |---|---|
 | `codex` | Codex host: fresh native reviewer agent; Claude Code host: Codex MCP. `gpt-6-astra`, deep tier `ultra`, regular tier `xhigh`. |
-| `antigravity` / `gemini` | Antigravity MCP; `gemini-4-argon-high` / `high`. To use its Claude option, explicitly select e.g. `claude-opus-5-5-high` / `high`. |
+| `antigravity` / `gemini` | Antigravity host: fresh native subagent (`invoke_subagent` / `send_message`); other hosts: Antigravity MCP; `gemini-4-argon-high` / `high`. To use its Claude option, explicitly select e.g. `claude-opus-5-5-high` / `high`. |
 | `grok` | Grok MCP; `grok-4.7` / `xhigh`. |
 | `claude-code` / `claude` / `claude-review` | Local Claude Code through `claude-review` MCP. No model override by default; it uses the CLI's configured provider, which can be DeepSeek. |
 
@@ -79,7 +79,8 @@ unsupported parameter merely because another host uses it.
 |---|---|---|
 | Codex native | `spawn_agent`: model, reasoning_effort, review task; a fresh context | `send_input` with the saved reviewer id and follow-up task |
 | Codex MCP | `mcp__codex__codex`: existing skill parameters and pinned model/effort | `mcp__codex__codex-reply`: saved thread id and prompt |
-| Antigravity | `mcp__antigravity__antigravity`: prompt, explicit cwd, model, effort | `antigravity-reply`: **only** threadId and prompt |
+| Antigravity native | `invoke_subagent`: fresh subagent context with review task and primary input paths | `send_message` with saved `Recipient` conversationId |
+| Antigravity MCP | `mcp__antigravity__antigravity`: prompt, explicit cwd, model, effort | `antigravity-reply`: **only** threadId and prompt |
 | Grok | `mcp__grok__grok`: prompt, explicit cwd, model, effort; read-only sandbox and `read_file,grep,list_dir` | `grok-reply`: **only** threadId and prompt |
 | Claude Code | `mcp__claude-review__review`: prompt, cwd, optional model; `tools: Read,Grep,Glob` for file reviews, empty tools for prompt-only reviews | `review_reply`: threadId, prompt, and repeat cwd/tools and any explicit model override |
 

@@ -94,7 +94,7 @@ JOBID=$("$R_SUBMIT" R/04_main_results.R)
 "$R_SUBMIT" --wait "$JOBID"
 ```
 
-Inside Codex `exec_command` sessions, use foreground mode so the tool keeps the process alive and verifies the exit file:
+Inside Codex `exec_command` or Antigravity `run_command` sessions, use foreground mode so the tool keeps the process alive and verifies the exit file:
 
 ```bash
 "$R_SUBMIT" --foreground R/04_main_results.R
