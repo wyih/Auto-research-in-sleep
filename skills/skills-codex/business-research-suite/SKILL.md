@@ -12,8 +12,9 @@ Identify the user's material state and requested outcome, then load the focused 
 - Topic or research question: `business-idea-creator`
 - Literature discovery or cross-paper synthesis: `business-lit-review`
 - Supporting references for a specific manuscript sentence or paragraph: `business-lit-review` in `reference_match` mode
-- Missing paper or publisher access: `fulltext-acquire`
-- Method, measure, sample, or identification extraction: `method-harvest`
+- Missing paper or publisher access: `fulltext-acquire`, then resume the requested reading or pipeline mode with the verified PDF or access gap
+- Deep-read and study an external paper: `method-harvest` in `study` mode
+- An answer about a specific table, method, measure, sample, or result: `method-harvest` in `focused_note` mode; use `method_card` when a pipeline consumer or the user requests a formal method card
 - Novelty and closest-paper comparison: `business-novelty-check`
 - Research design or feasibility: `empirical-design-plan`
 - WRDS: `wrds-query-bridge` using R/Postgres by default; `wrds-sas-cloud` only after a documented escalation or explicit SAS request
@@ -30,7 +31,8 @@ Identify the user's material state and requested outcome, then load the focused 
 - Interpretation: `evidence-to-claim`
 - Paper structure, voice, or writing: `business-paper-plan`, `business-author-style-profile`, or `business-paper-writing`
 - Research presentations, discussant decks, or speaker scripts: `business-research-talk`
-- Pre-review or response to reviewers: `business-prereview` or `business-rebuttal`
+- Pre-review before defense or submission, including a supervisor's request for a student's draft: `business-prereview`
+- Response to reviewers: `business-rebuttal`
 - Requested number/source audits: `business-number-audit` or `business-claim-source-audit`
 - Requested `.bib` author, year, venue, or identifier verification: optional `citation-crosscheck`
 - Project continuity: `business-run-passport`

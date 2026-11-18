@@ -42,7 +42,7 @@
 # 1. 克隆仓库并切到本 release
 git clone https://github.com/wyih/Auto-research-in-sleep.git
 cd Auto-research-in-sleep
-git checkout business-research-suite-v0.11.0
+git checkout business-research-suite-v0.12.0
 ```
 
 **Kimi Code 用户:**
@@ -140,6 +140,7 @@ kimi        # Kimi Code 用户;Codex 用户用 codex;Claude Code 用户用 claud
 | 选题 | 「帮我围绕 X 生成选题」 | 生成多个研究问题,给出理论路径和数据可得性评估 | 选题清单与排序 |
 | 查新 | 「这个选题有人做过吗」 | 对 SSRN/NBER/期刊/工作论文找最近邻,判断增量与风险 | 查新报告 |
 | 文献综述 | 「帮我梳理 X 领域的文献」 | 画文献版图、找核心对话;需要全文时走授权渠道获取并逐篇验证 | 综述 + 方法卡 |
+| 文献精读 | 「帮我精读这篇外部论文」/「只核对表 4 的组间差异」 | 整篇精读梳理问题、识别和测度。只问一处时直接核对相关证据 | 三段式精读笔记或针对性答复 |
 | 引用匹配 | 「给引言这段话找支持文献,只从这些候选论文里选」 | 将段落拆成可核对的主张,按直接支持、理论支持和文献对话匹配,记录来源版本及证据位置 | 主张地图 + 引用匹配表 + 可用措辞 |
 | 研究设计 | 「帮我设计实证方案」 | 先分流方法(档案/实验/问卷/实地/案例/设计科学/规范),再做样本、变量、识别策略、模型、表壳和可行性检查 | 设计文档(案例研究会产出 `CASE_PROTOCOL.md`) |
 | 拿数据 | 「帮我把数据拉下来」 | 按来源走路由:公开数据走数据源插件;WRDS 走 R/Postgres;CSMAR/CNRDS 走你浏览器登录态导出 | 数据文件 + 来源清单(`DATASOURCE_RECEIPT.json`) |
@@ -199,7 +200,7 @@ bash tools/smart_update_kimi.sh --apply --project ~/my-thesis
 ```bash
 cd Auto-research-in-sleep
 git fetch origin --tags
-git checkout business-research-suite-v0.11.0
+git checkout business-research-suite-v0.12.0
 
 # Codex / Antigravity 线:
 bash tools/install_aris_codex.sh ~/my-thesis --groups business-research --reconcile --office-author "你的名字"
@@ -232,6 +233,8 @@ bash tools/install_aris.sh ~/my-thesis --platform claude --uninstall
 - **想知道审稿意见可信吗** → 审阅类 skill 默认是同族模型互审,结果诚实标注 `same-family / provisional`;需要跨族复审时,按 `docs/KIMI_ADAPTATION.md` 注册 `mcp-servers/llm-chat`。
 
 ## 近期技能增补
+
+v0.12.0 增加外部论文精读（`paper-study`）。整篇精读还原研究问题、识别和测度，评估证据能支持的结论，并整理可复用的变量、数据与后续研究问题。只问某张表或某个变量时直接回答。只有 DOI 或论文链接时，先获取可验证的全文，再回到原请求。独立精读默认在聊天里交付，全文清单和方法卡按项目需要生成。导师也可以用原有的预审模式评阅学生稿件。
 
 v0.11.0 新增 Google Antigravity 宿主适配(复用 `.agents/skills` 安装面与 `install_aris_codex.sh`),支持官方原生 `/browser`(Browser Subagent / `chrome-devtools-plugin`)浏览器路由(`antigravity_chrome`,不依赖第三方浏览器 MCP)、工作区沙箱下载与 Word 署名边界、`invoke_subagent` / `send_message` 原生隔离审稿与双盲引文核对路由。
 

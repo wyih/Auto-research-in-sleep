@@ -46,6 +46,23 @@ class BusinessLiteratureSynthesisContractTests(unittest.TestCase):
         ):
             self.assertIn(required, template)
 
+    def test_single_paper_modes_keep_the_requested_scope(self) -> None:
+        for root in (SKILLS, REPO_ROOT / "overrides" / "codex-business"):
+            with self.subTest(package=root.name):
+                suite = (root / "business-research-suite" / "SKILL.md").read_text(encoding="utf-8")
+                registry = (root / "shared-references" / "business-mode-registry.md").read_text(encoding="utf-8")
+                harvest = (root / "method-harvest" / "SKILL.md").read_text(encoding="utf-8")
+                acquire = (root / "fulltext-acquire" / "SKILL.md").read_text(encoding="utf-8")
+
+                self.assertIn("specific table, method, measure, sample, or result", suite)
+                self.assertIn("`focused_note` mode", suite)
+                self.assertIn("supervisor's request", registry)
+                self.assertIn("without a project passport or a method card", registry)
+                self.assertNotIn("user's own", suite + registry)
+                self.assertIn("with the current scope", harvest)
+                self.assertIn("Directory write access alone does not require a research manifest", acquire)
+                self.assertIn("only if the user requests a manifest or pipeline handoff", acquire)
+
     def test_artifact_identity_joins_manifest_processing_card_and_synthesis(self) -> None:
         template = self._read(
             "method-harvest", "references", "method-card-template.md"

@@ -75,9 +75,9 @@ CNKI defaults to PDF only. A CAJ file does not satisfy this skill unless the use
 
 ### 4. Record provenance
 
-For a standalone download, return the verified file with its title/version, source, and any material gap. Keep verification evidence with the acquisition; directory write access alone does not require a research manifest.
+For standalone acquisition, including acquisition for `study` and `focused_note`, return the verified file with its title/version, source, and any material gap. Keep verification evidence with the acquisition. Directory write access alone does not require a research manifest.
 
-When the user requests a pipeline handoff, the project already maintains a manifest, or a downstream consumer requires it, append one row per acquired/gap role to `literature/FULLTEXT_MANIFEST.md`. Follow `references/manifest.md` for work/artifact identities, role/version, provenance, hashes, and receipts. Never record credentials or session identifiers.
+When project writes are allowed, append one row per acquired/gap role to `literature/FULLTEXT_MANIFEST.md` only if the user requests a manifest or pipeline handoff, the project already maintains a manifest, or a downstream consumer requires it. Follow `references/manifest.md` for work/artifact identities, role/version, provenance, hashes, and receipts. Never record credentials or session identifiers.
 
 ## Acceptance
 
@@ -87,7 +87,7 @@ When the user requests a pipeline handoff, the project already maintains a manif
 | Identity | Requested title/DOI matches the detail page and local PDF |
 | Artifact completeness | Every required role is verified or has an explicit role-specific gap; a main PDF never silently substitutes for a separate appendix/codebook |
 | File integrity | `%PDF`, EOF marker, at least 10 KiB, SHA-256 |
-| Provenance | Source and version identified; full manifest for project/pipeline use, and browser receipt when a protected session was used |
+| Provenance | Source and version identified; manifest when requested or required; browser receipt when a protected session was used |
 | Runtime, when a browser was used | Browser-session receipt whose `client_runtime`/`adapter` pair is one of the trusted combinations approved by `browser-session-bridge` (`codex` + `codex_native_chrome`, `kimi` + `kimi_webbridge`, `claude_code` + `claude_in_chrome`, or `antigravity` + `antigravity_chrome`); the selected model does not change the browser route |
 
 A homepage, HTTP 200, visible PDF viewer, click notification, CAJ file, HTML login page, or unverified extension is a failure. An unauthenticated HTTP 403 is a channel result, not proof that the user's browser session lacks access.

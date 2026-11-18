@@ -7,8 +7,9 @@ Use this registry for the `business-research-suite` router and for staged pipeli
 | `scope` | Broad topic, unclear RQ, early business idea | `business-idea-creator` | candidate RQs |
 | `lit-review` | Need field map, closest papers, journal conversation | `business-lit-review` | `BUSINESS_LIT_REVIEW.md` |
 | `reference-match` | Need supporting literature for a specific manuscript sentence or paragraph | `business-lit-review` (`reference_match`) | claim map + verified reference matches and usable wording |
-| `fulltext` | Need a verified local PDF from OA, CNKI, ScienceDirect, or another authorized channel | `fulltext-acquire` | `FULLTEXT_MANIFEST.md` + PDF/gap |
-| `method` | Need sample, variables, measures, identification, or merge keys from verified fulltext | `method-harvest` | `*_METHOD_CARD.md` |
+| `fulltext` | Need a verified local PDF from OA, CNKI, ScienceDirect, or another authorized channel | `fulltext-acquire` | verified PDF or access gap; manifest when requested or required by the project or its handoff |
+| `paper-study` | Deep-read and learn from a supplied external paper (question, design, measures, critique, reusable assets) | `method-harvest` (`study`) | structured study note (reconstruction + identification assessment/claim ceiling + reusable variable/data dictionary & follow-up angles) |
+| `method` | Need a specific answer or method extraction for a pipeline | `method-harvest` (`focused_note` or `method_card`) | direct answer or `*_METHOD_CARD.md` |
 | `novelty` | Need closest-paper delta and risk framing | `business-novelty-check` | `BUSINESS_NOVELTY_CHECK.md` |
 | `design` | Need sample, variables, model, tables | `empirical-design-plan` | `RESEARCH_DESIGN.md` |
 | `feasibility-gates` | Need literature-calibrated sample benchmarks, a pilot, QA bounds, scope-down choices, or STOP rules | `empirical-design-plan` | `FEASIBILITY_AND_GATE_CALIBRATION.md` |
@@ -38,6 +39,8 @@ Use this registry for the `business-research-suite` router and for staged pipeli
 
 - When the user has only a broad topic, start with `scope` or `lit-review`.
 - When a passage needs supporting references, use `reference-match`. Checking existing citations uses `source-claim-audit`; a missing citation can return to `reference-match`. Standalone matching does not require the map/synthesis artifact set.
+- Use `paper-study` (`study`) for broad reading of an external paper. Use `method-harvest` in `focused_note` mode for a narrow question about the paper, even when the user attaches the full PDF. Both standalone modes can return their result without a project passport or a method card.
+- Route requests for a pre-defense or pre-submission review to `business-prereview`, including a supervisor's request to review a student's draft.
 - When a design claim depends on a paper's method, route `fulltext` then `method`; metadata alone is insufficient.
 - Before freezing a numerical gate, starting high-cost acquisition, or declaring STOP, route `feasibility-gates` and apply `business-feasibility-gates.md`.
 - When a data plan names WRDS, route `wrds` first and use `wrds-sas` only after its escalation gate. Route CSMAR/CNRDS to `cn-data`.

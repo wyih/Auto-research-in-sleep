@@ -33,8 +33,9 @@ Use the most specific mode:
 - broad topic or uncertain RQ: `business-idea-creator`
 - literature discovery map or verified-card cross-paper synthesis: `business-lit-review`
 - supporting references for a specific manuscript sentence or paragraph: `business-lit-review` in `reference_match` mode
-- missing paper PDF or protected publisher access: `fulltext-acquire`
-- method, measure, sample, or identification extraction from verified PDFs: `method-harvest`
+- missing paper PDF or protected publisher access: `fulltext-acquire`, then resume the requested reading or pipeline mode with the verified PDF or access gap
+- deep-read and study an external paper (question, design, measures, identification critique, reusable variable/data dictionary, and follow-up research angles): `method-harvest` in `study` mode
+- an answer about a specific table, method, measure, sample, or result: `method-harvest` in `focused_note` mode; use `method_card` when a pipeline consumer or the user requests a formal method card
 - novelty and closest-paper delta: `business-novelty-check`
 - design, sample, variables, models, table shells, feasibility, or gate calibration; first-level method routing (archival, experiment, survey, field, case study, design science, normative); case-study design and protocols: `empirical-design-plan`
 - public or licensed data under Kimi Code CLI (Wind, S&P, SEC EDGAR, Yahoo Finance, China NBS, FRED/IMF/World Bank macro, Tianyancha registry, Chinese standards/law, arXiv/Scholar, Xinhua/Caixin news): `kimi-datasource` plugin via `mcp__plugin-kimi-datasource_data__*`
@@ -56,7 +57,7 @@ Use the most specific mode:
 - paper architecture: `business-paper-plan`
 - author voice calibration: `business-author-style-profile`
 - paper drafting or revision: `business-paper-writing`
-- pre-review of a draft before defense or journal submission — thesis mode (committee voice, MPAcc/master rubric) or journal mode (referee report + target-journal fit), both with a routed revision plan: `business-prereview`
+- pre-review of a draft before defense or journal submission, including a supervisor's request for a student's draft: `business-prereview` in thesis or journal mode
 - research presentations, discussant decks, or speaker scripts: `business-research-talk`
 - response to reviewers: `business-rebuttal`
 - staged end-to-end run: `business-research-pipeline`
@@ -67,11 +68,11 @@ Use `citation-crosscheck` for requested bibliographic field checks or a concrete
 
 ## Workflow
 
-For a standalone reference-match request, run the focused mode and return its result; a passport or full-pipeline artifact set is not required.
+For a standalone `reference_match`, `study`, or `focused_note` request, return the focused result without creating or updating a project passport or producing pipeline artifacts by default.
 
 1. Identify the user's current material state: topic, literature, idea, design, data, results, draft, reviews.
 2. Select the single next stage and load one focused skill body. Use `browser-session-bridge` only as the internal transport for a protected-site skill; do not route a research request there when a more specific producer owns the artifact.
-3. Create or update `BUSINESS_RUN_PASSPORT.md` when working inside a project directory and writing is allowed.
+3. For project workflows, create or update `BUSINESS_RUN_PASSPORT.md` when working inside a project directory and writing is allowed.
 4. Before a frozen gate or expensive data build, require `empirical-design/FEASIBILITY_AND_GATE_CALIBRATION.md`: closest-study sample benchmarks, claim ladder, representative pilot, best-case upper bound, gate classes, fallback routes, and bounded QA plan.
 5. Use `../shared-references/business-handoff-schemas.md` to mark missing required fields as `HANDOFF_INCOMPLETE` after the focused skill needs a handoff.
 6. Route to `business-research-pipeline` only for explicit full-pipeline requests.

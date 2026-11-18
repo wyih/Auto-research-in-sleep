@@ -1,11 +1,23 @@
 ---
 name: method-harvest
-description: Extract evidence-grounded METHOD_CARD artifacts from verified local research-paper fulltext. Use when empirical design or fulltext literature synthesis needs a paper's question, theory, construct depth, observation/respondent/unique-entity units, identification, exact factor/index or questionnaire construction, numeric consistency audit, mediation evidence, fixed effects, clustering, data lineage, main/null results, limitations, or claim ceiling; invoke fulltext-acquire first when no verified PDF exists. Not for browser downloads or CSMAR/CNRDS microdata export.
+description: Deep-read external research papers in study mode or extract evidence-grounded METHOD_CARD artifacts from verified local research-paper fulltext. Use when learning from an external paper or when empirical design or fulltext literature synthesis needs a paper's question, theory, construct depth, observation/respondent/unique-entity units, identification, exact factor/index or questionnaire construction, numeric consistency audit, mediation evidence, fixed effects, clustering, data lineage, main/null results, limitations, or claim ceiling; invoke fulltext-acquire first when no verified PDF exists. Not for browser downloads or CSMAR/CNRDS microdata export.
 ---
 
 # Method Harvest
 
-Turn one or more verified local papers into reusable method cards without inventing details.
+Deep-read external papers in study mode, answer focused method questions, or turn verified local papers into reusable method cards without inventing details.
+
+## Output Scope
+
+- **`study` (external-paper deep reading)**: For broad reading of an external paper without a narrow question or a pipeline consumer, ground every material statement in `PDF p.<viewer-page>`, run the Step 5 numeric consistency check, and deliver the three-part study output:
+  1. **精读还原**: bibliographic/version identity, research question and institutional context, increment over nearest literature, mechanism/predictions, sample/units, exact variable/index formulas, identification/FE/clustering, and main + mechanism + null/mixed results with statistical significance separated from economic magnitude (adapted to accounting/finance vs. management/strategy).
+  2. **识别得失评估**: reuse [field referee checks](../business-prereview/references/field-referee-checks.md), [empirical diagnostics](../shared-references/business-empirical-diagnostics.md), and the claim-ceiling levels in [evidence-to-claim](../evidence-to-claim/SKILL.md) to assess clever design moves, claimed vs. established contribution, identification/measurement/inference weaknesses, and supported claim ceilings — without emitting an author-side P0/P1/P2 revision plan.
+  3. **可复用的变量/数据字典与后续研究切入点**: portable measures, data sources, and merge keys (with replication code skeletons when requested), plus 2–3 concrete follow-up research entry points.
+  Omit role-play personas, mandatory pre-reading confirmation pauses, generic implication boilerplate, and ungrounded speculation.
+- **`focused_note` (targeted Q&A)**: Answer a specific method, variable, sample, or result question directly with `PDF p.<viewer-page>` pointers and explicit `unknown` / `needs_verification` flags.
+- **`method_card` (pipeline contract, detailed below)**: Follow the full `Inputs` → `Acquisition Gate` → `Workflow` → `Acceptance` contract below whenever `business-lit-review` (`fulltext_synthesis`), `empirical-design-plan`, or the user requests formal `METHOD_CARD` artifacts.
+
+A standalone `study` or `focused_note` response is not a validated pipeline card. If the paper later enters a pipeline, satisfy the full `method_card` contract below.
 
 ## Inputs
 
@@ -14,11 +26,11 @@ Turn one or more verified local papers into reusable method cards without invent
 - existing literature/design notes when they define the desired method fields
 - synthesis questions when the cards will feed `business-lit-review` (for example, construct measurement, result conflicts, or reusable variable formulas)
 
-Read `references/pdf-processing.md` and `references/method-card-template.md` before extraction. Read `../shared-references/business-helper-resolution.md` before invoking the verifier bundled with `/browser-session-bridge` outside the ARIS repository.
+In `method_card` mode, read `references/pdf-processing.md` and `references/method-card-template.md` before extraction, and read `../shared-references/business-helper-resolution.md` before invoking the verifier bundled with `/browser-session-bridge` outside the ARIS repository. Standalone `study` and `focused_note` modes skip method-card templates and inspection receipts by default, while still checking source depth (Step 2), visually checking formulas and tables (Step 3), and applying numeric and source discipline (Step 5 and Rules). Fulltext acquisition follows the provenance rules in `fulltext-acquire`.
 
 ## Acquisition Gate
 
-If a target lacks a verified local PDF, invoke `fulltext-acquire` and stop extraction until it returns either:
+If a target lacks a verified local PDF, invoke `fulltext-acquire` with the current scope (standalone `study` or `focused_note`, or pipeline `method_card`). Resume the requested mode when it returns either:
 
 - a PDF that passes deterministic integrity and identity checks, or
 - a documented gap
@@ -26,6 +38,8 @@ If a target lacks a verified local PDF, invoke `fulltext-acquire` and stop extra
 Do not perform browser navigation inside this skill. Do not treat metadata, an abstract, CAJ, HTML, or a visible browser PDF viewer as verified fulltext.
 
 ## Workflow
+
+The 6-step pipeline workflow, `Acceptance` table, and `Method Harvest Summary` output block below govern `method_card` mode. In `study` or `focused_note` mode, apply the source-depth check, visual formula/table inspection, `PDF p.<viewer-page>` citation rule, explicit `unknown`/`needs_verification` handling, and Step 5 numeric consistency audit directly to the response without running `scripts/inspect_pdf.py` receipt generation or writing `method-harvest/cards/<short_id>_METHOD_CARD.md` unless requested.
 
 ### 1. Freeze targets
 
